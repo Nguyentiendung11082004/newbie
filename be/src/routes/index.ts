@@ -1,8 +1,7 @@
-import { Request, Response } from "express"
 import { Express } from "express-serve-static-core"
+import StudentRouter from "./students"
+import ClassRouter from "./class"
 export default function routes(app: Express) {
-    app.use('/', (req: Request, res: Response) => {
-       console.log('Hello world');
-       res.send('Hello from server')
-    })
+    app.use('/api/v1/students', StudentRouter)
+    app.use('/api/v1/class', ClassRouter)
 }

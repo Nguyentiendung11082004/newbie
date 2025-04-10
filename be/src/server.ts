@@ -22,7 +22,7 @@ ConnectDataBase("mongodb://localhost:27017/students_management");
 routes(app);
 
 // Khởi chạy server
-const PORT = process.env.PORT || 8080;
+const PORT = process.env.PORT;
 app.listen(PORT, () => {
   console.log(`🚀 Server is running at http://localhost:${PORT}`);
 });
