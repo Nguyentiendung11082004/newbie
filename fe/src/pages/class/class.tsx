@@ -19,7 +19,7 @@ const Class = () => {
         _page: filter.CurrentPage,
         _limit: filter.PageSize,
         _sort: 'createdAt',
-        _keyword: filter.KeyWord
+        ...(filter.KeyWord && { _keyword: filter.KeyWord })
     }
     const getData = async () => {
             const res = await ClassServices.GetList(params);

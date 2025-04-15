@@ -12,13 +12,14 @@ import {
 } from '@ant-design/icons';
 import { Button, Layout, Menu, theme } from 'antd';
 import { useState } from 'react';
-import { Outlet, useNavigate } from 'react-router-dom';
+import { Outlet, matchPath, useLocation, useNavigate } from 'react-router-dom';
 
 const { Header, Sider, Content } = Layout;
 
 const LayoutDashboard = () => {
     const [collapsed, setCollapsed] = useState(false);
-    const navigate = useNavigate()
+    const navigate = useNavigate();
+    const location = useLocation();
     const menuItems = [
         {
             key: 'dashboard',
@@ -87,7 +88,9 @@ const LayoutDashboard = () => {
                 <Menu
                     theme="dark"
                     mode="inline"
-                    defaultSelectedKeys={['dashboard']}
+                    selectedKeys={menuItems
+                        .filter(item => matchPath(location.pathname, item.url))
+                        .map(item => item.key)}
                     items={menuItems.map(({ key, icon, label, url }) => ({
                         key,
                         icon,
