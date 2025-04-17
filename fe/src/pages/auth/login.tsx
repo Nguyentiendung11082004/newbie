@@ -1,22 +1,29 @@
 import React from 'react';
-import { Button, Checkbox, Form, Input } from 'antd';
+import { Button, Form, Input } from 'antd';
 import type { FormProps } from 'antd';
+import { AuthServices } from '../../services/aurh.services';
+import { toast } from 'react-toastify';
+import { useNavigate, useNavigation } from 'react-router-dom';
+import { setUser } from '../../redux/slices/userSlice';
+import { useAppDispatch } from '../../redux/hook';
 
 type FieldType = {
-  username?: string;
+  email?: string;
   password?: string;
-  remember?: boolean;
 };
-
-const onFinish: FormProps<FieldType>['onFinish'] = (values) => {
-  console.log('Success:', values);
-};
-
-const onFinishFailed: FormProps<FieldType>['onFinishFailed'] = (errorInfo) => {
-  console.log('Failed:', errorInfo);
-};
-
 const Login: React.FC = () => {
+  const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+  const onFinish: FormProps<FieldType>['onFinish'] = async (values) => {
+    const res = await AuthServices.Login(values);
+    if (res.data.Status === 200) {
+      dispatch(setUser(res.data.user)); 
+      localStorage.setItem("User", JSON.stringify(res.data));
+      toast.success(res.data.message);
+      navigate('/admin/classes')
+    }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <div className="bg-white p-8 rounded-xl shadow-md w-full max-w-md">
@@ -26,11 +33,10 @@ const Login: React.FC = () => {
           layout="vertical"
           initialValues={{ remember: true }}
           onFinish={onFinish}
-          onFinishFailed={onFinishFailed}
         >
           <Form.Item<FieldType>
-            label="Tên đăng nhập"
-            name="username"
+            label="Email"
+            name="email"
             rules={[{ required: true, message: 'Vui lòng nhập tên đăng nhập!' }]}
           >
             <Input className="h-10 rounded-md border border-gray-300 px-3" />
@@ -43,11 +49,6 @@ const Login: React.FC = () => {
           >
             <Input.Password className="h-10 rounded-md border border-gray-300 px-3" />
           </Form.Item>
-
-          <Form.Item<FieldType> name="remember" valuePropName="checked">
-            <Checkbox>Ghi nhớ đăng nhập</Checkbox>
-          </Form.Item>
-
           <Form.Item>
             <Button
               type="primary"

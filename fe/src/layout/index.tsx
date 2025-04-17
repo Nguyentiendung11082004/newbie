@@ -13,71 +13,127 @@ import {
 import { Button, Layout, Menu, theme } from 'antd';
 import { useState } from 'react';
 import { Outlet, matchPath, useLocation, useNavigate } from 'react-router-dom';
+import { useAppSelector } from '../redux/hook';
 
 const { Header, Sider, Content } = Layout;
 
 const LayoutDashboard = () => {
     const [collapsed, setCollapsed] = useState(false);
     const navigate = useNavigate();
+    const user = useAppSelector((state) => state.user.userInfo);
     const location = useLocation();
     const menuItems = [
+        // Admin Menu
         {
-            key: 'dashboard',
-            icon: <DashboardOutlined />,
-            label: 'Dashboard',
-            url: '/admin/dashboard',
-            permission: ['admin']
+          key: 'dashboard',
+          icon: <DashboardOutlined />,
+          label: 'Dashboard',
+          url: '/admin/dashboard',
+          permission: ['admin', 'teacher', 'student'],  
         },
         {
-            key: 'students',
-            icon: <TeamOutlined />,
-            label: 'Quản lý sinh viên',
-            url: '/admin/students',
-            permission: ['admin']
+          key: 'students',
+          icon: <TeamOutlined />,
+          label: 'Quản lý sinh viên',
+          url: '/admin/students',
+          permission: ['admin'],  // Chỉ có admin mới được truy cập
         },
         {
-            key: 'teachers',
-            icon: <UserOutlined />,
-            label: 'Quản lý giảng viên',
-            url: '/admin/teachers',
-            permission: ['admin']
+          key: 'teachers',
+          icon: <UserOutlined />,
+          label: 'Quản lý giảng viên',
+          url: '/admin/teachers',
+          permission: ['admin'],  // Chỉ có admin mới được truy cập
         },
         {
-            key: 'classes',
-            icon: <SolutionOutlined />,
-            label: 'Quản lý lớp học',
-            url: '/admin/classes',
-            permission: ['admin']
+          key: 'classes',
+          icon: <SolutionOutlined />,
+          label: 'Quản lý lớp học',
+          url: '/admin/classes',
+          permission: ['admin'],  // Chỉ có admin mới được truy cập
         },
         {
-            key: 'subjects',
-            icon: <BookOutlined />,
-            label: 'Quản lý môn học',
-            url: '/admin/subjects',
-            permission: ['admin']
+          key: 'subjects',
+          icon: <BookOutlined />,
+          label: 'Quản lý môn học',
+          url: '/admin/subjects',
+          permission: ['admin'],  // Chỉ có admin mới được truy cập
         },
         {
-            key: 'assign',
-            icon: <FormOutlined />,
-            label: 'Phân công giảng dạy',
-            url: '/admin/teaching-assignment',
-            permission: ['admin']
+          key: 'assign',
+          icon: <FormOutlined />,
+          label: 'Phân công giảng dạy',
+          url: '/admin/teaching-assignment',
+          permission: ['admin'],  // Chỉ có admin mới được truy cập
         },
         {
-            key: 'admissions',
-            icon: <FileDoneOutlined />,
-            label: 'Tuyển sinh',
-            url: '/admin/admissions',
-            permission: ['admin']
+          key: 'admissions',
+          icon: <FileDoneOutlined />,
+          label: 'Tuyển sinh',
+          url: '/admin/admissions',
+          permission: ['admin'],  // Chỉ có admin mới được truy cập
         },
         {
-            key: 'reports',
-            icon: <BarChartOutlined />,
-            label: 'Thống kê báo cáo',
-            url: '/admin/reports',
-            permission: ['admin']
+          key: 'reports',
+          icon: <BarChartOutlined />,
+          label: 'Thống kê báo cáo',
+          url: '/admin/reports',
+          permission: ['admin'],  // Chỉ có admin mới được truy cập
         },
-    ];
+      
+        // Teacher Menu
+        {
+          key: 'teacherDashboard',
+          icon: <DashboardOutlined />,
+          label: 'Dashboard Giảng viên',
+          url: '/teacher/dashboard',
+          permission: ['teacher'],  // Chỉ giảng viên có thể truy cập
+        },
+        {
+          key: 'teacherClasses',
+          icon: <SolutionOutlined />,
+          label: 'Lớp giảng dạy',
+          url: '/teacher/classes',
+          permission: ['teacher'],  // Chỉ giảng viên có thể truy cập
+        },
+        {
+          key: 'teacherGrade',
+          icon: <FileDoneOutlined />,
+          label: 'Nhập điểm',
+          url: '/teacher/grade',
+          permission: ['teacher'],  // Chỉ giảng viên có thể truy cập
+        },
+      
+        // Student Menu
+        {
+          key: 'studentDashboard',
+          icon: <DashboardOutlined />,
+          label: 'Dashboard Sinh viên',
+          url: '/student/dashboard',
+          permission: ['student'],  // Chỉ sinh viên có thể truy cập
+        },
+        {
+          key: 'studentSubjects',
+          icon: <BookOutlined />,
+          label: 'Môn học của tôi',
+          url: '/student/subjects',
+          permission: ['student'],  // Chỉ sinh viên có thể truy cập
+        },
+        {
+          key: 'studentEnroll',
+          icon: <FormOutlined />,
+          label: 'Ghi danh môn học',
+          url: '/student/enroll',
+          permission: ['student'],  // Chỉ sinh viên có thể truy cập
+        },
+        {
+          key: 'studentResult',
+          icon: <FileDoneOutlined />,
+          label: 'Kết quả học tập',
+          url: '/student/results',
+          permission: ['student'],  // Chỉ sinh viên có thể truy cập
+        },
+      ];
     const {
         token: { colorBgContainer },
     } = theme.useToken();
@@ -91,12 +147,19 @@ const LayoutDashboard = () => {
                     selectedKeys={menuItems
                         .filter(item => matchPath(location.pathname, item.url))
                         .map(item => item.key)}
-                    items={menuItems.map(({ key, icon, label, url }) => ({
-                        key,
-                        icon,
-                        label,
-                        onClick: () => navigate(url),
-                    }))}
+                    // items={menuItems.map(({ key, icon, label, url }) => ({
+                    //     key,
+                    //     icon,
+                    //     label,
+                    //     onClick: () => navigate(url),
+                    // }))}
+                    items={menuItems.filter(item => item.permission.includes(user.role)) // 👈 lọc theo role
+                        .map(({ key, icon, label, url }) => ({
+                            key,
+                            icon,
+                            label,
+                            onClick: () => navigate(url),
+                        }))}
                 />
             </Sider>
             <Layout>

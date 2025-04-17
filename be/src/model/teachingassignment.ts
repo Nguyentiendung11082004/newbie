@@ -15,7 +15,7 @@ const TeachingAssignmentSchema = new mongoose.Schema<ITeachingAssignment>({
   },
   course_id: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Course',
+    ref: 'Subject',
     required: true,
   },
   class_id: {

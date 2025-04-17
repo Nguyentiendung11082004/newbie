@@ -8,14 +8,25 @@ export const getAllStudents = async (req: Request, res: Response) => {
             _page = 1,
             _limit = 10,
             _sort = "createdAt",
-            _order = "asc"
+            _order = "asc",
+            Keyword = ""
         } = req.body;
+        const query: any = {};
+        if (Keyword) {
+            const regex = { $regex: Keyword, $options: 'i' };
+            query.$or = [
+                { name: regex },
+                { email: regex },
+                { className: regex },
+                { major: regex }
+            ];
+        }
         const options = {
             page: parseInt(_page),
             limit: parseInt(_limit),
             sort: { [_sort]: _order === 'asc' ? 1 : -1 }
         };
-        const students = await Student.paginate({}, options);
+        const students = await Student.paginate(query, options);
         res.status(StatusCodes.OK).json({
             message: 'Thành công',
             data: students.docs,

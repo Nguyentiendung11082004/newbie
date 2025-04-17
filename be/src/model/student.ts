@@ -1,15 +1,21 @@
 import mongoose, { PaginateModel } from "mongoose";
 import mongoosePaginate from "mongoose-paginate-v2";
 export interface IStudent extends Document {
+    authId: mongoose.Types.ObjectId;
     name: string;
     dob: Date;
     gender: "Nam" | "Nữ" | "Khác";
-    email?: string;
     phone: string;
     address: string;
-    ClassId: mongoose.Types.ObjectId[];
+    classId: mongoose.Types.ObjectId[];
 }
+
 const StudentSchema = new mongoose.Schema({
+    authId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Auth',
+        required: true,
+    },
     name: {
         type: String,
         required: true,
@@ -25,10 +31,6 @@ const StudentSchema = new mongoose.Schema({
         enum: ['Nam', 'Nữ', 'Khác'],
         required: true,
     },
-    email: {
-        type: String,
-        unique: true
-    },
     phone: {
         type: String,
         required: true,
@@ -37,16 +39,31 @@ const StudentSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    ClassId: [
+    classId: [
         {
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'Class'
+            ref: 'Class',
         }
     ]
-},
-    { timestamps: true, versionKey: false }
-)
+}, {
+    timestamps: true,
+    versionKey: false
+});
+
+StudentSchema.set('toJSON', {
+    transform: (doc, ret) => {
+        if (ret.name) {
+            ret.name = ret.name
+                .split(' ')
+                .map((word: string) => word.charAt(0).toUpperCase() + word.slice(1))
+                .join(' ');
+        }
+        return ret;
+    }
+});
+
 StudentSchema.plugin(mongoosePaginate);
+
 const Student = mongoose.model<IStudent, PaginateModel<IStudent>>(
     "Student",
     StudentSchema
