@@ -3,14 +3,11 @@ import { ClassServices } from '../../services/class.services'
 import { Table, Typography } from 'antd';
 import { IClass } from '../../types/class';
 import type { ColumnType } from 'antd/es/table';
+import { initFilter } from '../../common/helpfunction';
 
 const { Title } = Typography;
 
-const initFilter = {
-    CurrentPage: 1, 
-    PageSize: 10,
-    KeyWord: "",
-};
+
 
 const Class = () => {
     const [filter, setFilter] = useState(initFilter);

@@ -7,6 +7,7 @@ import TeacherSchema from "../model/teacher"
 import bcryptjs from "bcryptjs";
 import jwt from "jsonwebtoken"
 import { AuthValidate, StudentValidate, TeacherValidate } from "../schema/auth";
+import Student from "../model/student";
 // Mã đăng ký tài khoản
 export const register = async (req: Request, res: Response) => {
     try {
@@ -100,10 +101,15 @@ export const login = async (req: Request, res: Response) => {
             }
             user.password = undefined as unknown as string;
             const token = await jwt.sign({ userId: user._id, role: user.role }, "xxx", { expiresIn: "1h" });
+            let studentInfo = null;
+            if (user.role === 'student') {
+                studentInfo = await Student.findOne({ authId: user._id }).select('_id name classId');
+            }
             res.status(StatusCodes.OK).json({
                 data: {
                     message: "Đăng nhập thành công",
                     user,
+                    student: studentInfo,
                     token,
                     Status: StatusCodes.OK
                 }

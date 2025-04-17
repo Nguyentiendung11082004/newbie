@@ -5,5 +5,8 @@ export const StudentServices = {
 }
 
 export const StudentSubjectServices = {
-    GetSubjectEnroll: (params:any) => axiosClient.post('/enrollsubject/enrollment', params)
+    GetSubjectEnroll: (params: any) => axiosClient.post('/enrollsubject/enrollment', params)
+}
+export const SubjectServices = {
+    GetList: (page: number, limit: any) => axiosClient.get(`subject?_page=${page}&_limit=${limit}&_sort=createdAt&_order=asc`)
 }

@@ -20,7 +20,7 @@ const { Header, Sider, Content } = Layout;
 const LayoutDashboard = () => {
     const [collapsed, setCollapsed] = useState(false);
     const navigate = useNavigate();
-    const user = useAppSelector((state) => state.user.userInfo);
+    const user = useAppSelector((state) => state.user.userInfo.user);
     const location = useLocation();
     const menuItems = [
         // Admin Menu

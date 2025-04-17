@@ -17,7 +17,7 @@ const Login: React.FC = () => {
   const onFinish: FormProps<FieldType>['onFinish'] = async (values) => {
     const res = await AuthServices.Login(values);
     if (res.data.Status === 200) {
-      dispatch(setUser(res.data.user)); 
+      dispatch(setUser(res.data));
       localStorage.setItem("User", JSON.stringify(res.data));
       toast.success(res.data.message);
       navigate('/admin/classes')
@@ -25,9 +25,9 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="bg-white p-8 rounded-xl shadow-md w-full max-w-md">
-        <h2 className="text-2xl font-bold text-center mb-6">Đăng nhập</h2>
+    <div className="flex items-center justify-center min-h-screen bg-gray-100">
+      <div className="bg-white px-10 py-12 rounded-2xl shadow-2xl w-1/3 ">
+        <h2 className="text-3xl font-bold text-center mb-8 text-gray-800">Đăng nhập</h2>
         <Form
           name="login-form"
           layout="vertical"
@@ -39,7 +39,7 @@ const Login: React.FC = () => {
             name="email"
             rules={[{ required: true, message: 'Vui lòng nhập tên đăng nhập!' }]}
           >
-            <Input className="h-10 rounded-md border border-gray-300 px-3" />
+            <Input className="h-10 rounded-lg border border-gray-300 px-3" />
           </Form.Item>
 
           <Form.Item<FieldType>
@@ -47,13 +47,14 @@ const Login: React.FC = () => {
             name="password"
             rules={[{ required: true, message: 'Vui lòng nhập mật khẩu!' }]}
           >
-            <Input.Password className="h-10 rounded-md border border-gray-300 px-3" />
+            <Input.Password className="h-10 rounded-lg border border-gray-300 px-3" />
           </Form.Item>
+
           <Form.Item>
             <Button
               type="primary"
               htmlType="submit"
-              className="w-full h-10 bg-blue-500 hover:bg-blue-600 text-white rounded-md"
+              className="w-full h-10 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-md transition duration-200"
             >
               Đăng nhập
             </Button>

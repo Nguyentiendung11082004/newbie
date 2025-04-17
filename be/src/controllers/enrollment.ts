@@ -4,6 +4,7 @@ import Student from "../model/student";
 import Subject from "../model/subject"
 import { StatusCodes } from "http-status-codes";
 import Enrollment from "../model/enrollment";
+import { Types } from "mongoose";
 export const getAllEnrollSubject = async (req: Request, res: Response): Promise<Response | void> => {
     try {
         const {
@@ -37,11 +38,15 @@ export const getAllEnrollSubject = async (req: Request, res: Response): Promise<
 export const getEnrollSubject = async (req: Request, res: Response): Promise<Response | void> => {
     try {
         const { student_id } = req.body;
-        const enrollments = await Enrollment.find({ student_id }).populate('subject_id', 'name credits semester').exec();
+        if (!Types.ObjectId.isValid(student_id)) {
+            return res.status(400).json({ message: "student_id không hợp lệ" });
+        }
+        const enrollments = await Enrollment.find({
+            student_id: Types.ObjectId.createFromHexString(student_id),
+        }).populate('subject_id', 'name credits semester').exec();
         return res.status(StatusCodes.OK).json({
-            message: {
-                data: enrollments,
-            }
+            message: 'Thành công',
+            data: enrollments,
         })
     } catch (error) {
         handleError(res, error)
