@@ -1,20 +1,22 @@
 import mongoose, { Document, PaginateModel } from "mongoose";
 import mongoosePaginate from "mongoose-paginate-v2";
+
 export interface IEnrollment extends Document {
   student_id: mongoose.Types.ObjectId;
-  subject_id: mongoose.Types.ObjectId;
+  teaching_assignment_id: mongoose.Types.ObjectId;
   status: string;
   enrolled_at: Date;
 }
+
 const EnrollmentSchema = new mongoose.Schema<IEnrollment>({
   student_id: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Student',
     required: true
   },
-  subject_id: {
+  teaching_assignment_id: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Subject',
+    ref: 'TeachingAssignment',
     required: true
   },
   status: {
@@ -28,6 +30,6 @@ const EnrollmentSchema = new mongoose.Schema<IEnrollment>({
   }
 });
 
-EnrollmentSchema.plugin(mongoosePaginate)
+EnrollmentSchema.plugin(mongoosePaginate);
 const Enrollment = mongoose.model<IEnrollment, PaginateModel<IEnrollment>>('Enrollment', EnrollmentSchema);
 export default Enrollment;

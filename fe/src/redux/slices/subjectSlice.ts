@@ -8,6 +8,8 @@ interface SubjectState {
     filter: {
         CurrentPage: number;
         PageSize: number;
+        totalDocs: number,
+        totalPages: number,
     };
 }
 
@@ -18,14 +20,15 @@ const initialState: SubjectState = {
     filter: {
         CurrentPage: 1,
         PageSize: 10,
+        totalDocs: 0,
+        totalPages: 0,
     },
 };
 
 export const GetDataSubject = createAsyncThunk("getSubject", async (_, { getState }: any) => {
     const { subject } = getState();
-    console.log(getState());
     const res = await SubjectServices.GetList(subject.filter.CurrentPage, subject.filter.PageSize);
-    return res.data;
+    return res;
 }
 );
 
@@ -44,8 +47,14 @@ const subjectSlice = createSlice({
                 state.error = null;
             })
             .addCase(GetDataSubject.fulfilled, (state, action) => {
+                console.log("state",state.filter)
+                console.log("action.payload",action.payload)
                 state.loading = false;
-                state.data = action.payload;
+                state.data = action.payload.data;
+                state.filter.totalDocs = action.payload.data.pagination.totalDocs;
+                state.filter.totalPages = action.payload.data.pagination.totalPages;
+                state.filter.CurrentPage = action.payload.data.pagination.page;
+                state.filter.PageSize = action.payload.data.pagination.limit;
             })
             .addCase(GetDataSubject.rejected, (state, action) => {
                 state.loading = false;

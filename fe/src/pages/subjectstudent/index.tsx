@@ -4,14 +4,14 @@ import { useAppSelector } from '../../redux/hook';
 import { StudentSubjectServices } from '../../services/student.services';
 import { initFilter } from '../../common/helpfunction';
 import { ColumnType } from 'antd/es/table';
-import DialogSubject from './dialogsubject';
+import DialogSubject from './dialogstudentsubject';
 
 type Props = {}
 const { Title } = Typography;
 const SubjectStudent = (props: Props) => {
   const user = useAppSelector((state) => state.user.userInfo);
   const [filter, setFilter] = useState(initFilter);
-  const [isOpen,setIsOpen] = useState(false)
+  const [isOpen, setIsOpen] = useState(false)
   const [data, setData] = useState([])
   const getData = async () => {
     let pay = {
@@ -34,7 +34,7 @@ const SubjectStudent = (props: Props) => {
       dataIndex: '',
       render: (_value, _record, index) => {
         return <div>
-          {_value.subject_id.name}
+          {_value?.subject_id.name}
         </div>
       }
     },
@@ -43,7 +43,7 @@ const SubjectStudent = (props: Props) => {
       dataIndex: '',
       render: (_value, _record, index) => {
         return <div>
-          {_value.subject_id.credits}
+          {_value?.subject_id.credit}
         </div>
       }
     },
@@ -52,7 +52,7 @@ const SubjectStudent = (props: Props) => {
       dataIndex: '',
       render: (_value, _record, index) => {
         return <div>
-          {_value.subject_id.semester}
+          {_value?.subject_id.semester}
         </div>
       }
     },
@@ -63,7 +63,7 @@ const SubjectStudent = (props: Props) => {
   ]
   useEffect(() => {
     getData()
-  }, [])
+  }, [isOpen])
   return (
     <>
       <div className='flex justify-between items-center'>
@@ -88,7 +88,7 @@ const SubjectStudent = (props: Props) => {
       //   }
       // }}
       />
-      <DialogSubject isModalOpen={isOpen} handleOk={()=> {}} />
+      <DialogSubject isModalOpen={isOpen} setIsOpen={setIsOpen} />
     </>
   )
 }

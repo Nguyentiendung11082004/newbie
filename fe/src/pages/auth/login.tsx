@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button, Form, Input } from 'antd';
 import type { FormProps } from 'antd';
-import { AuthServices } from '../../services/aurh.services';
+import { AuthServices } from '../../services/auth.services';
 import { toast } from 'react-toastify';
 import { useNavigate, useNavigation } from 'react-router-dom';
 import { setUser } from '../../redux/slices/userSlice';

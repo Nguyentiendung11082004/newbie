@@ -4,11 +4,12 @@ import { StatusCodes } from "http-status-codes";
 import AuthSchema from "../model/auth"
 import StudentSchema from "../model/student"
 import TeacherSchema from "../model/teacher"
+import BlacklistedToken from "../model/black-lited-token"
 import bcryptjs from "bcryptjs";
 import jwt from "jsonwebtoken"
 import { AuthValidate, StudentValidate, TeacherValidate } from "../schema/auth";
+
 import Student from "../model/student";
-// Mã đăng ký tài khoản
 export const register = async (req: Request, res: Response) => {
     try {
         const { email, password, role, name, subject, dob, major, gender, phone, address } = req.body;
@@ -119,3 +120,26 @@ export const login = async (req: Request, res: Response) => {
         handleError(res, error)
     }
 }
+export const logout = async (req: Request, res: Response) => {
+    try {
+        const authHeader = req.headers.authorization;
+        if (!authHeader || !authHeader.startsWith("Bearer ")) {
+            return res.status(StatusCodes.BAD_REQUEST).json({ error: "Invalid token format" });
+        }
+        const token = authHeader.split(" ")[1];
+        const isBlacklisted = await BlacklistedToken.findOne({ token });
+        if (isBlacklisted) {
+            return res.status(StatusCodes.BAD_REQUEST).json({ error: "Token already logged out" });
+        }
+        await new BlacklistedToken({ token }).save();
+        res.status(StatusCodes.OK).json({
+            data: {
+                message: "Đăng xuất thành công",
+                StatusCodes: StatusCodes.OK
+            }
+        });
+    } catch (error) {
+        console.error(`Error during logout:`, error);
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: "Internal Server Error" });
+    }
+};

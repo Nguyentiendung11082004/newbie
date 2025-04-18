@@ -1,6 +1,7 @@
 import { handleError } from "../middlewares/error"
 import { Request, Response } from "express"
 import Student from "../model/student";
+import TeachingAssignmentSchema from "../model/teachingassignment"
 import Subject from "../model/subject"
 import { StatusCodes } from "http-status-codes";
 import Enrollment from "../model/enrollment";
@@ -43,7 +44,7 @@ export const getEnrollSubject = async (req: Request, res: Response): Promise<Res
         }
         const enrollments = await Enrollment.find({
             student_id: Types.ObjectId.createFromHexString(student_id),
-        }).populate('subject_id', 'name credits semester').exec();
+        }).populate('teaching_assignment_id', 'name credit semester').exec();
         return res.status(StatusCodes.OK).json({
             message: 'Thành công',
             data: enrollments,
@@ -54,26 +55,26 @@ export const getEnrollSubject = async (req: Request, res: Response): Promise<Res
 }
 export const EnrollSubject = async (req: Request, res: Response): Promise<Response | void> => {
     try {
-        const { student_id, subject_id } = req.body;
+        const { student_id, teaching_assignment_id } = req.body;
         const student = await Student.findById(student_id);
         if (!student) {
             return res.status(StatusCodes.BAD_REQUEST).json({
                 message: 'Sinh viên không tồn tại'
             });
         }
-        const subject = await Subject.findById(subject_id);
-        if (!subject) {
+        const teachingAssignment = await TeachingAssignmentSchema.findById(teaching_assignment_id);
+        if (!teachingAssignment) {
             return res.status(StatusCodes.BAD_REQUEST).json({
-                message: 'Môn học không tồn tại'
+                message: 'Không tìm thấy thông tin giảng dạy tương ứng'
             });
         }
-        const exitEnrollment = await Enrollment.findOne({ student_id, subject_id });
+        const exitEnrollment = await Enrollment.findOne({ student_id, teaching_assignment_id });
         if (exitEnrollment) {
             return res.status(StatusCodes.BAD_REQUEST).json({ message: "Sinh viên đã ghi danh môn học này." });
         }
         const enrollment = await Enrollment.create({
             student_id,
-            subject_id,
+            teaching_assignment_id,
             status: 'Pending',
             enrolled_at: new Date()
         });

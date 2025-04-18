@@ -2,6 +2,18 @@ import { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import { handleError } from "../middlewares/error";
 import Subject from "../model/subject";
+export const getAllSubjects = async (req: Request, res: Response) => {
+    try {
+      const subjects = await Subject.find({});
+      res.status(200).json({
+        message: "Lấy danh sách môn học thành công",
+        data: subjects,
+      });
+    } catch (error) {
+      res.status(500).json({ error: "Lỗi server" });
+    }
+  };
+  
 export const getAllSubject = async (req: Request, res: Response) => {
     try {
         const {
@@ -16,16 +28,19 @@ export const getAllSubject = async (req: Request, res: Response) => {
             limit: parseInt(_limit as string),
             sort: { [_sort as string]: _order === 'asc' ? 1 : -1 }
         };
-        const subject = await Subject.paginate({}, options);   
+        const subject = await Subject.paginate({}, options);
         res.status(StatusCodes.OK).json({
             message: 'Thành công',
-            data: subject.docs,
-            pagination: {
-                totalDocs: subject.totalDocs,
-                totalPages: subject.totalPages,
-                page: subject.page,
-                limit: subject.limit
-            }
+            data: {
+                data: subject.docs,
+                pagination: {
+                    totalDocs: subject.totalDocs,
+                    totalPages: subject.totalPages,
+                    page: subject.page,
+                    limit: subject.limit
+                }
+            },
+
         });
     } catch (error) {
         handleError(res, error);
@@ -45,20 +60,23 @@ export const getAllSubject = async (req: Request, res: Response) => {
 //             data: data
 //         })
 //     } catch (error: unknown) {
-        
+
 //     }
 // }
-// export const createClass = async (req: Request, res: Response) => {
-//     try {
-//         const data = await Class.create(req.body);
-//         res.status(StatusCodes.OK).json({
-//             message: 'Thành công',
-//             data: data
-//         })
-//     } catch (error: unknown) {
-//         handleError(res, error)
-//     }
-// }
+export const createSubject = async (req: Request, res: Response) => {
+    try {
+        const data = await Subject.create(req.body);
+        res.status(StatusCodes.OK).json({
+            data: {
+                ...data,
+                message: 'Thành công',
+                StatusCodes: StatusCodes.OK
+            },
+        })
+    } catch (error: unknown) {
+        handleError(res, error)
+    }
+}
 // export const updateClass = async (req: Request, res: Response) => {
 //     try {
 //         const data = await Class.findByIdAndUpdate(req.params.id, req.body, {
