@@ -1,5 +1,5 @@
 import React from 'react'
-import { Route, Routes } from 'react-router-dom'
+import { Navigate, Route, Routes } from 'react-router-dom'
 import LayoutDashboard from '../layout'
 import Class from '../pages/class/class'
 import Students from '../pages/students/students'
@@ -18,7 +18,8 @@ const RouterApp = () => {
           <LayoutDashboard />
         </PrivateRouter>
       }>
-        <Route path='/admin/dashboard' element={<DashboardAdmin />} />
+        <Route index element={<Navigate to="/admin/dashboard" replace />} />
+        <Route path="/admin/dashboard" element={<DashboardAdmin />} />
         <Route path='/admin/classes' element={<Class />} />
         <Route path='/admin/students' element={<Students />} />
         <Route path='/admin/subjects' element={<Subject />} />

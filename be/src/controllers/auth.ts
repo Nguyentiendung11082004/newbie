@@ -14,7 +14,6 @@ export const register = async (req: Request, res: Response) => {
     try {
         const { email, password, role, name, subject, dob, major, gender, phone, address } = req.body;
         let result;
-        // Xác thực dữ liệu đầu vào
         switch (role) {
             case 'student':
                 result = StudentValidate.validate(req.body, { abortEarly: false, allowUnknown: true });
@@ -35,7 +34,12 @@ export const register = async (req: Request, res: Response) => {
             }, {});
             return res.status(StatusCodes.BAD_REQUEST).json({ messages });
         }
-
+        if (!email) {
+            return res.status(StatusCodes.BAD_REQUEST).json({
+              message: "Email không được để trống"
+            });
+          }
+          
         const exitUser = await AuthSchema.findOne({ email });
         if (exitUser) {
             return res.status(StatusCodes.BAD_REQUEST).json({
@@ -45,20 +49,30 @@ export const register = async (req: Request, res: Response) => {
 
         // Mã hóa mật khẩu
         const hassPass = await bcryptjs.hash(password, 10);
-
+        console.log("REQ BODY:", req.body);
         // Tạo bản ghi trong bảng auths
         const auth = await AuthSchema.create({
             email,
             password: hassPass,
             role,
         });
-
         let user;
         // Tạo bản ghi trong bảng students nếu là sinh viên
         if (role === 'student') {
             user = await StudentSchema.create({
-                authId: auth._id,  // Liên kết với bảng auths
-                email: email,  // Nếu bạn muốn lưu email trong bảng students
+                authId: auth._id,  
+                email: email, 
+                name,
+                dob,
+                major,
+                gender,
+                phone,
+                address,
+            });
+        } else if(role === 'teacher') {
+            user = await TeacherSchema.create({
+                authId: auth._id,  
+                email: email, 
                 name,
                 dob,
                 major,

@@ -28,6 +28,7 @@ const LayoutDashboard = () => {
   const user = useAppSelector((state) => state.user.userInfo.user);
   const location = useLocation();
   const token = useAppSelector((state) => state.user.userInfo.token);
+  const student = useAppSelector((state) => state.user.userInfo.student);
   const menuItems = [
     // Admin Menu
     {
@@ -179,7 +180,7 @@ const LayoutDashboard = () => {
           //     label,
           //     onClick: () => navigate(url),
           // }))}
-          items={menuItems.filter(item => item.permission.includes(user.role)) // 👈 lọc theo role
+          items={menuItems.filter(item => item.permission.includes(user?.role)) // 👈 lọc theo role
             .map(({ key, icon, label, url }) => ({
               key,
               icon,
@@ -202,16 +203,19 @@ const LayoutDashboard = () => {
           />
           <div>
             <Dropdown overlay={menu} trigger={['click']}>
-              <Avatar
-                style={{
-                  marginRight: '20px',
-                  backgroundColor: '#1890ff',
-                  cursor: 'pointer'
-                }}
-                icon={<UserOutlined />}
-              />
+              <div style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+                <span>{student?.name || ''}</span>
+                <Avatar
+                  style={{
+                    margin: '0px 10px',
+                    backgroundColor: '#1890ff',
+                  }}
+                  icon={<UserOutlined />}
+                />
+              </div>
             </Dropdown>
           </div>
+
         </Header>
         <Content style={{
           margin: '24px 16px',
