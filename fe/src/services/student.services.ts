@@ -13,3 +13,12 @@ export const SubjectServices = {
     GetAll: () => axiosClient.get('subject/all'),
     Add: (params: any) => axiosClient.post(`/subject`, params)
 }
+export const TeacherServices = {
+    GetList: (page: number, limit: any) => axiosClient.get(`teacher?_page=${page}&_limit=${limit}&_sort=createdAt&_order=asc`)
+}
+export const ClassServices = {
+    GetList: (page: number, limit: any) => axiosClient.get(`/class?_page=${page}&_limit=${limit}&_sort=createdAt&_order=asc`),
+};
+export const TechingAssignmentServices = {
+    GetList: () => axiosClient.get(`teachingassignment`)
+}

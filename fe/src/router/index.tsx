@@ -9,6 +9,8 @@ import DashboardAdmin from '../pages/dashboard'
 import PrivateRouter from './privaterouter'
 import SubjectStudent from '../pages/subjectstudent'
 import Subject from '../pages/subject'
+import TechingAssignment from '../pages/techingassment'
+import Teacher from '../pages/teacher'
 
 const RouterApp = () => {
   return (
@@ -21,8 +23,10 @@ const RouterApp = () => {
         <Route index element={<Navigate to="/admin/dashboard" replace />} />
         <Route path="/admin/dashboard" element={<DashboardAdmin />} />
         <Route path='/admin/classes' element={<Class />} />
+        <Route path='/admin/teachers' element={<Teacher />} />
         <Route path='/admin/students' element={<Students />} />
         <Route path='/admin/subjects' element={<Subject />} />
+        <Route path='/admin/teaching-assignment' element={<TechingAssignment />} />
         <Route path='/student/subjects' element={<SubjectStudent />} />
       </Route>
       <Route path='/login' element={<Login />} />

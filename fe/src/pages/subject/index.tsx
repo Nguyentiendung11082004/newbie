@@ -12,7 +12,8 @@ const Subject = (props: Props) => {
   const dispatch = useAppDispatch();
   const [open, setOpen] = useState(false)
   const { data, filter } = useAppSelector((state: any) => state.subject);
-
+  const store = useAppSelector((state) => state)
+  console.log("store", store)
   const handleAdd = () => {
     setOpen(true)
   }

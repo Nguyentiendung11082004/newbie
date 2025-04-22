@@ -1,7 +1,7 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { SubjectServices } from "../../services/student.services";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { ClassServices } from "../../services/student.services";
 
-interface SubjectState {
+interface ClassState {
     data: any[];
     loading: boolean;
     error: string | null;
@@ -12,8 +12,7 @@ interface SubjectState {
         totalPages: number,
     };
 }
-
-const initialState: SubjectState = {
+const initialState: ClassState = {
     data: [],
     loading: false,
     error: null,
@@ -25,15 +24,14 @@ const initialState: SubjectState = {
     },
 };
 
-export const GetDataSubject = createAsyncThunk("getSubject", async (_, { getState }: any) => {
-    const { subject } = getState();
-    const res = await SubjectServices.GetList(subject.filter.CurrentPage, subject.filter.PageSize);
+export const GetDataClass = createAsyncThunk("getClass", async (_, { getState }: any) => {
+    const { class: classState } = getState();
+    const res = await ClassServices.GetList(classState.filter.CurrentPage, classState.filter.PageSize);
     return res;
-}
-);
+})
 
-const subjectSlice = createSlice({
-    name: "subject",
+const classSlice = createSlice({
+    name: 'class',
     initialState,
     reducers: {
         setFilter: (state, action) => {
@@ -42,11 +40,11 @@ const subjectSlice = createSlice({
     },
     extraReducers: (builder) => {
         builder
-            .addCase(GetDataSubject.pending, (state) => {
+            .addCase(GetDataClass.pending, (state) => {
                 state.loading = true;
                 state.error = null;
             })
-            .addCase(GetDataSubject.fulfilled, (state, action) => {
+            .addCase(GetDataClass.fulfilled, (state, action) => {
                 state.loading = false;
                 state.data = action.payload.data;
                 state.filter.totalDocs = action.payload.data.pagination.totalDocs;
@@ -54,12 +52,11 @@ const subjectSlice = createSlice({
                 state.filter.CurrentPage = action.payload.data.pagination.page;
                 state.filter.PageSize = action.payload.data.pagination.limit;
             })
-            .addCase(GetDataSubject.rejected, (state, action) => {
+            .addCase(GetDataClass.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.error.message || "Có lỗi xảy ra";
             });
     },
-});
-
-export const { setFilter } = subjectSlice.actions;
-export default subjectSlice.reducer;
+})
+export const { setFilter } = classSlice.actions;
+export default classSlice.reducer;

@@ -4,6 +4,8 @@ import userReducer from './slices/userSlice';
 import { persistStore, persistReducer } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 import subjectReducer from './slices/subjectSlice';
+import teacherReducer from './slices/teacherSlice';
+import classReducer from './slices/classSlice'
 const persistConfig = {
     key: 'root',
     storage,
@@ -15,6 +17,8 @@ export const store = configureStore({
     reducer: {
         user: persistedReducer,
         subject: subjectReducer,
+        teacher: teacherReducer,
+        class: classReducer,
     },
 });
 

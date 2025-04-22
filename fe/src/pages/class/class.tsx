@@ -1,30 +1,14 @@
-import React, { useEffect, useState } from 'react'
-import { ClassServices } from '../../services/class.services'
 import { Table, Typography } from 'antd';
-import { IClass } from '../../types/class';
 import type { ColumnType } from 'antd/es/table';
-import { initFilter } from '../../common/helpfunction';
-
+import { IClass } from '../../types/class';
+import { useAppDispatch, useAppSelector } from '../../redux/hook';
+import { useEffect } from 'react';
+import { GetDataClass } from '../../redux/slices/classSlice';
 const { Title } = Typography;
-
-
-
 const Class = () => {
-    const [filter, setFilter] = useState(initFilter);
-    const [data, setData] = useState<IClass[]>([]);
-    const params = {
-        _page: filter.CurrentPage,
-        _limit: filter.PageSize,
-        _sort: 'createdAt',
-        ...(filter.KeyWord && { _keyword: filter.KeyWord })
-    }
-    const getData = async () => {
-            const res = await ClassServices.GetList(params);
-            if (res?.data) {
-                setData(res.data);
-            }
-    };
-
+    const dispatch = useAppDispatch()
+    const { data, filter } = useAppSelector((state: any) => state.class);
+    console.log("data", data)
     const columns: ColumnType<IClass>[] = [
         {
             title: 'STT',
@@ -40,30 +24,24 @@ const Class = () => {
             dataIndex: 'AcademicYear',
         }
     ];
+    const handlePageChange = () => {
 
+    }
     useEffect(() => {
-        getData();
-    }, [filter]);
-
+        dispatch(GetDataClass())
+    }, [])
     return (
         <>
             <Title level={4}>Danh sách lớp học</Title>
             <Table
                 rowKey="_id"
                 columns={columns}
-                dataSource={data}
+                dataSource={data.data}
                 pagination={{
                     current: filter.CurrentPage,
                     pageSize: filter.PageSize,
-                    total: data.length,
-                    showSizeChanger: true,
-                    onChange: (page, pageSize) => {
-                        setFilter({
-                            ...filter,
-                            CurrentPage: page,
-                            PageSize: pageSize,
-                        });
-                    }
+                    total: filter.totalDocs,
+                    onChange: handlePageChange
                 }}
             />
         </>

@@ -166,7 +166,7 @@ const LayoutDashboard = () => {
   } = theme.useToken();
   return (
     <Layout style={{ minHeight: '100vh' }}>
-      <Sider trigger={null} collapsible collapsed={collapsed}>
+      <Sider trigger={null} collapsible collapsed={collapsed} width={250}>
         <div style={{ height: 64, margin: 16, background: 'rgba(255,255,255,0.2)', borderRadius: 8 }} />
         <Menu
           theme="dark"

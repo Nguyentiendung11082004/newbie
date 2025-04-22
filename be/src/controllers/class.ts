@@ -18,16 +18,18 @@ export const getAllClass = async (req: Request, res: Response) => {
             sort: { [_sort as string]: _order === 'asc' ? 1 : -1 }
         };
 
-        const classs = await Class.paginate({}, options);   
+        const classs = await Class.paginate({}, options);
 
         res.status(StatusCodes.OK).json({
-            message: 'Thành công',
-            data: classs.docs,
-            pagination: {
-                totalDocs: classs.totalDocs,
-                totalPages: classs.totalPages,
-                page: classs.page,
-                limit: classs.limit
+            data: {
+                message: 'Thành công',
+                data: classs.docs,
+                pagination: {
+                    totalDocs: classs.totalDocs,
+                    totalPages: classs.totalPages,
+                    page: classs.page,
+                    limit: classs.limit
+                }
             }
         });
     } catch (error) {
@@ -48,7 +50,7 @@ export const getClassById = async (req: any, res: any) => {
             data: data
         })
     } catch (error: unknown) {
-        
+
     }
 }
 export const createClass = async (req: Request, res: Response) => {
@@ -68,7 +70,7 @@ export const updateClass = async (req: Request, res: Response) => {
             new: true
         });
         if (!data) {
-             res.status(StatusCodes.BAD_REQUEST).json({
+            res.status(StatusCodes.BAD_REQUEST).json({
                 message: 'Not found'
             })
         }
