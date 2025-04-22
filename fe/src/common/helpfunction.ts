@@ -92,3 +92,15 @@ export function formatDateStringGMT(
 
   return _return;
 }
+export const getDayOffWeek = () => {
+  const days = ['Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7', 'Chủ nhật'];
+  return days.map((day) => ({
+    label: day,
+    value: day
+  }));
+}
+export function uuidv4() {
+  return "10000000-1000-4000-8000-100000000000".replace(/[018]/g, c =>
+    (+c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> +c / 4).toString(16)
+  );
+}

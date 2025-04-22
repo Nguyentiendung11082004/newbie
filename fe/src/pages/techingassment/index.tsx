@@ -1,14 +1,19 @@
 import React, { useEffect, useState } from 'react'
 import { TechingAssignmentServices } from '../../services/student.services'
 import { Button, Table, Typography } from 'antd'
-
+import DialogTechngassment from './dialogtechingassment';
+import { DeleteOutlined, EditOutlined, EyeOutlined } from '@ant-design/icons';
 type Props = {}
 const { Title } = Typography;
 const TechingAssignment = (props: Props) => {
   const [data, setData] = useState([])
+  const [visible, setVisible] = useState(false)
   const getData = async () => {
     let res = await TechingAssignmentServices.GetList();
     setData(res.data.data)
+  }
+  const handleOk = () => {
+
   }
   const columns: any = [
     {
@@ -32,14 +37,21 @@ const TechingAssignment = (props: Props) => {
       title: 'Môn học',
       render: (_value: any, _record: any, index: any) => _record.subject_id.name,
     },
+    {
+      title: 'Thao tác',
+      render: (_value: any, _record: any, index: any) => <>
+        <Button ><DeleteOutlined /></Button>
+        <Button><EditOutlined /></Button>
+        <Button><EyeOutlined /></Button>
+      </>,
+    },
   ]
-  console.log("data", data)
   const handleAdd = () => {
-    
+    setVisible(true)
   }
   useEffect(() => {
     getData();
-  }, [])
+  }, [visible])
   return (
     <>
       <div className='flex justify-between items-center'>
@@ -58,6 +70,9 @@ const TechingAssignment = (props: Props) => {
       //   onChange: handlePageChange
       // }}
       />
+      {
+        visible && <DialogTechngassment isModalOpen={visible} setVisible={setVisible} />
+      }
     </>
   )
 }

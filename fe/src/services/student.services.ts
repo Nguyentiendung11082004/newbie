@@ -20,5 +20,6 @@ export const ClassServices = {
     GetList: (page: number, limit: any) => axiosClient.get(`/class?_page=${page}&_limit=${limit}&_sort=createdAt&_order=asc`),
 };
 export const TechingAssignmentServices = {
-    GetList: () => axiosClient.get(`teachingassignment`)
+    GetList: () => axiosClient.get(`teachingassignment`),
+    Add: (params: Record<string, any>) => axiosClient.post(`teachingassignment`, params)
 }

@@ -3,14 +3,10 @@ import React, { useState } from 'react'
 import { Subject } from '../../types';
 import { SubjectServices } from '../../services/student.services';
 import { toast } from 'react-toastify';
-
 type Props = {
   isModalOpen: boolean,
   setOpen: any;
 }
-
-
-
 const DialogSubject = ({ isModalOpen, setOpen }: Props) => {
   const [payload, setPayload] = useState<Subject>({
     name: '',

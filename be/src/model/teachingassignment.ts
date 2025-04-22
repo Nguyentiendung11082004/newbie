@@ -5,13 +5,33 @@ export interface ITeachingAssignment extends Document {
   subject_id: mongoose.Types.ObjectId;
   class_id: mongoose.Types.ObjectId;
   semester: string;
+  startDate: Date;
+  numberOfClasses: number;
+  dayOfWeek: string[];
+  weeklySchedule: any;
+  startTime: string;
+  endTime: string;
   schedule: any;
 }
 
 export const ScheduSchema = new mongoose.Schema<any>({
-  dayOfWeek: { type: String, required: true },
+  date: { type: String, required: true },
   startTime: { type: String, required: true },
   endTime: { type: String, required: true }
+});
+export const SchemaWeeklySchedule = new mongoose.Schema<any>({
+  dayOfWeek: {
+    type: String,
+    required: true,
+  },
+  startTime: {
+    type: String,
+    required: true,
+  },
+  endTime: {
+    type: String,
+    required: true,
+  },
 })
 const TeachingAssignmentSchema = new mongoose.Schema<ITeachingAssignment>({
   teacher_id: {
@@ -32,6 +52,19 @@ const TeachingAssignmentSchema = new mongoose.Schema<ITeachingAssignment>({
   semester: {
     type: String,
     required: true,
+  },
+  startDate: {
+    type: Date,
+    required: true,
+  },
+  numberOfClasses: {
+    type: Number,
+    required: true,
+  },
+
+  weeklySchedule: {
+    type: [SchemaWeeklySchedule],
+    default: []
   },
   schedule: {
     type: [ScheduSchema],
