@@ -1,5 +1,6 @@
 import axiosClient from "./axiosClient.setup";
 
+const tc = 'teachingassignment/'
 export const StudentServices = {
     GetList: (params: any) => axiosClient.post('/students', params)
 }
@@ -20,6 +21,6 @@ export const ClassServices = {
     GetList: (page: number, limit: any) => axiosClient.get(`/class?_page=${page}&_limit=${limit}&_sort=createdAt&_order=asc`),
 };
 export const TechingAssignmentServices = {
-    GetList: () => axiosClient.get(`teachingassignment`),
+    GetList: () => axiosClient.get(tc + `GetAllTeachingassignment`),
     Add: (params: Record<string, any>) => axiosClient.post(`teachingassignment`, params)
 }

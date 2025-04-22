@@ -5,6 +5,7 @@ import Class from "../model/class";
 import Subject from "../model/subject";
 import Teacher from "../model/teacher";
 import TeachingAssignment from "../model/teachingassignment";
+import { request } from "http";
 const dayOfWeekToNumber = (day: string) => {
     const daysMap = {
         Sunday: 0,
@@ -123,6 +124,61 @@ export const GetTeachingassment = async (req: Request, res: Response) => {
                 message: 'Thành công',
                 data: techingassment
             }
+        })
+    } catch (error) {
+        handleError(res, error)
+    }
+}
+
+export const GetTeachigngassmentById = async (req: Request, res: Response) => {
+    try {
+        const data = await TeachingAssignment.findById(req.params.id)
+            .populate('teacher_id', 'name')
+            .populate('subject_id', 'name')
+            .populate('class_id', 'ClassName')
+            .exec();
+        ;
+        if (!data) {
+            return res.status(StatusCodes.BAD_REQUEST).json({
+                message: 'Not found'
+            })
+        }
+        return res.status(StatusCodes.OK).json({
+            message: 'Thành công',
+            data: data
+        })
+    } catch (error) {
+        handleError(res, error)
+    }
+}
+export const UpdateTeachingAssignment = async (req: Request, res: Response) => {
+    try {
+        const data = await TeachingAssignment.findByIdAndUpdate(req.params.id, req.body, {
+            new: true
+        })
+        if (!data) {
+            return res.status(StatusCodes.BAD_REQUEST).json({
+                message: 'Not found'
+            })
+        }
+        return res.status(StatusCodes.OK).json({
+            message: 'Cập nhật hành công',
+            data: data
+        })
+    } catch (error) {
+        handleError(res, error)
+    }
+}
+export const DeleteTeachingAssignment = async (req: Request, res: Response) => {
+    try {
+        const data = await TeachingAssignment.findByIdAndDelete(req.params.id)
+        if (!data) {
+            return res.status(StatusCodes.BAD_REQUEST).json({
+                message: 'Not found'
+            })
+        }
+        return res.status(StatusCodes.OK).json({
+            message: 'Xoá hành công',
         })
     } catch (error) {
         handleError(res, error)
