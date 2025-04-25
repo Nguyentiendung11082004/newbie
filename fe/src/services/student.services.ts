@@ -6,8 +6,11 @@ export const StudentServices = {
 }
 
 export const StudentSubjectServices = {
-    GetSubjectEnroll: (params: any) => axiosClient.post('/enrollsubject/enrollment', params),
-    AddSubjectEnroll: (params: any) => axiosClient.post('/enrollsubject', params)
+    GetSubjectEnroll: (params: any) => axiosClient.post('/enrollsubject/GetByIdEnrollment', params),
+    AddSubjectEnroll: (params: any) => axiosClient.post('/enrollsubject/CreateEnrollment', params),
+    GetTeachingAssignmentsForEnroll: (params: any) => axiosClient.post('enrollsubject/getTeachingAssignmentsForEnroll', params),
+    DeleteEnroll: (id:string) => axiosClient.delete(`enrollsubject/DeleteEnroll/${id}`),
+    UpdateEnroll: (id:string) => axiosClient.put(`enrollsubject/updateEnrollSubject/${id}`)
 }
 export const SubjectServices = {
     GetList: (page: number, limit: any) => axiosClient.get(`subject?_page=${page}&_limit=${limit}&_sort=createdAt&_order=asc`),
@@ -22,5 +25,8 @@ export const ClassServices = {
 };
 export const TechingAssignmentServices = {
     GetList: () => axiosClient.get(tc + `GetAllTeachingassignment`),
-    Add: (params: Record<string, any>) => axiosClient.post(`teachingassignment`, params)
+    Add: (params: Record<string, any>) => axiosClient.post(tc + `CreateTeachingassignment`, params),
+    GetById: (id: string) => axiosClient.get(`${tc}GetByIdTeachingassignment?id=${id}`),
+    Update: (id: any, params: Record<string, any>) => axiosClient.put(tc + `UpdateTeachingassignment?id=${id}`, params),
+    Delete: (id: string) => axiosClient.delete(tc + `DeleteTeachingassignment/${id}`),
 }

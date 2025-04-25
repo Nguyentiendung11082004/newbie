@@ -1,19 +1,20 @@
-import { Button, DatePicker, Input, Modal, Select, Table } from 'antd'
-import React, { useEffect, useState } from 'react'
+import { DeleteOutlined, PlusOutlined } from '@ant-design/icons';
+import { Button, DatePicker, Input, Modal, Select, Table, TimePicker } from 'antd';
+import dayjs from 'dayjs';
+import React, { useEffect, useState } from 'react';
+import { toast } from 'react-toastify';
+import { getDayOffWeek, uuidv4 } from '../../common/helpfunction';
 import { useAppDispatch, useAppSelector } from '../../redux/hook';
-import { TechingAssignmentServices } from '../../services/student.services';
-import { GetDataTeacher } from '../../redux/slices/teacherSlice';
 import { GetDataClass } from '../../redux/slices/classSlice';
 import { GetDataSubject } from '../../redux/slices/subjectSlice';
-import { TimePicker } from 'antd';
-import { toast } from 'react-toastify';
-import dayjs from 'dayjs';
-import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
-import { formatDateStringGMT, getDayOffWeek, uuidv4 } from '../../common/helpfunction';
+import { GetDataTeacher } from '../../redux/slices/teacherSlice';
+import { TechingAssignmentServices } from '../../services/student.services';
 
 type Props = {
     isModalOpen: boolean;
     setVisible: React.Dispatch<React.SetStateAction<boolean>>;
+    dataEdit: any;
+    setDataEdit: any;
 }
 const init = {
     teacher_id: "",
@@ -25,7 +26,7 @@ const init = {
     weeklySchedule: []
 }
 const format = 'HH:mm';
-const DialogTechngassment = ({ isModalOpen, setVisible }: Props) => {
+const DialogTechngassment = ({ isModalOpen, setVisible, dataEdit, setDataEdit }: Props) => {
     const [payload, setPayload] = useState(init)
     const dispatch = useAppDispatch();
     const arrThu = getDayOffWeek();
@@ -33,40 +34,56 @@ const DialogTechngassment = ({ isModalOpen, setVisible }: Props) => {
     const teacher = useAppSelector((state: any) => state.teacher);
     const arrClass = useAppSelector((state: any) => state.class);
     const handleOk = async () => {
-        let res = await TechingAssignmentServices.Add(payload);
-        if (res) {
-            toast.success(res.data.message)
-            setVisible(false)
-            setPayload(init)
+        if (dataEdit) {
+            let res = await TechingAssignmentServices.Update(dataEdit._id, payload);
+            if (res) {
+                toast.success(res.data.message)
+                setVisible(false)
+            }
+        } else {
+            let res = await TechingAssignmentServices.Add(payload);
+            if (res) {
+                toast.success(res.data.message)
+                setVisible(false)
+                setPayload(init)
+            }
         }
+
     }
     const handleClose = () => {
         setVisible(false)
-    }
 
+    }
+    const getById = async (id: string) => {
+        let res = await TechingAssignmentServices.GetById(id)
+        if (res) {
+            setPayload(res.data.data)
+        }
+    }
     const handleSetform = (props: any, value: any, record?: any) => {
         setPayload((prev: any) => {
             if (record) {
                 const result = prev.weeklySchedule.map((e: any) => {
-                    if (e.GUID === record.GUID) {
+                    if (e.GUID ? e.GUID === record.GUID : e._id === record._id) {
                         return {
                             ...e,
                             [props]: value
                         }
                     }
                     return e
-                })
+                });
                 return {
                     ...prev,
                     weeklySchedule: result
-                }
+                };
             }
             return {
                 ...prev,
                 [props]: value
-            }
-        })
-    }
+            };
+        });
+    };
+
     const columns: any = [
         {
             title: 'STT',
@@ -83,7 +100,7 @@ const DialogTechngassment = ({ isModalOpen, setVisible }: Props) => {
                     onChange={(e: any) => handleSetform('dayOfWeek', e, _record)}
                     options={arrThu.map((e) => ({
                         value: e.value,
-                        lable: e.label
+                        label: e.label
                     }))}
                 />
             </div>
@@ -137,6 +154,14 @@ const DialogTechngassment = ({ isModalOpen, setVisible }: Props) => {
         dispatch(GetDataClass());
         dispatch(GetDataSubject());
     }, []);
+    useEffect(() => {
+        if (dataEdit._id) {
+            getById(dataEdit._id);
+        } else {
+            setPayload(init);
+        }
+    }, [dataEdit]);
+
     return (
         <Modal title="Phân công giảng dạy" open={isModalOpen} onOk={handleOk} onCancel={() => handleClose()} width={800}>
             <div className="space-y-8">
@@ -147,7 +172,7 @@ const DialogTechngassment = ({ isModalOpen, setVisible }: Props) => {
                         // disabled
                         style={{ width: '100%' }}
                         placeholder="Please select"
-                        defaultValue={payload?.subject_id}
+                        value={(payload?.subject_id)}
                         onChange={(e) => handleSetform('subject_id', e)}
                         options={subject.data?.data?.map((e: any) => ({
                             value: e._id,
@@ -162,8 +187,7 @@ const DialogTechngassment = ({ isModalOpen, setVisible }: Props) => {
                         // mode="multiple"
                         // disabled
                         style={{ width: '100%' }}
-                        placeholder="Please select"
-                        defaultValue={payload?.class_id}
+                        value={(payload?.class_id)}
                         onChange={(e) => handleSetform('class_id', e)}
                         options={arrClass.data?.data?.map((e: any) => ({
                             value: e._id,
@@ -179,7 +203,7 @@ const DialogTechngassment = ({ isModalOpen, setVisible }: Props) => {
                         // disabled
                         style={{ width: '100%' }}
                         placeholder="Please select"
-                        defaultValue={payload?.teacher_id}
+                        value={(payload?.teacher_id)}
                         onChange={(e) => handleSetform('teacher_id', e)}
                         options={teacher.data?.data?.map((e: any) => ({
                             value: e._id,
@@ -195,7 +219,8 @@ const DialogTechngassment = ({ isModalOpen, setVisible }: Props) => {
                         className="border border-gray-300 rounded-lg p-2 mt-4  text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
                         placeholder="Chọn"
                         picker={'date'}
-                        value={payload?.startDate ? dayjs(payload?.startDate, 'DD/MM/YYYY') : null}
+                        value={payload?.startDate ? dayjs(payload.startDate) : null}
+                        format="DD/MM/YYYY"
                     />
                 </div>
                 <div>

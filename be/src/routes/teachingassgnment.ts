@@ -3,9 +3,9 @@ import { CreateTeachingAssignment, DeleteTeachingAssignment, GetTeachigngassment
 const asyncHandler = (fn: Function) => (req: Request, res: Response, next: NextFunction) =>
     Promise.resolve(fn(req, res, next)).catch(next);
 const TeachingAssignmentRouter = Router();
-TeachingAssignmentRouter.post('/', asyncHandler(CreateTeachingAssignment))
+TeachingAssignmentRouter.post('/CreateTeachingassignment', asyncHandler(CreateTeachingAssignment))
 TeachingAssignmentRouter.get('/GetAllTeachingassignment', asyncHandler(GetTeachingassment))
-TeachingAssignmentRouter.get('/:id', asyncHandler(GetTeachigngassmentById))
-TeachingAssignmentRouter.put('/:id', asyncHandler(UpdateTeachingAssignment))
-TeachingAssignmentRouter.delete('/:id', asyncHandler(DeleteTeachingAssignment))
+TeachingAssignmentRouter.get('/GetByIdTeachingassignment', asyncHandler(GetTeachigngassmentById));
+TeachingAssignmentRouter.put('/UpdateTeachingassignment', asyncHandler(UpdateTeachingAssignment))
+TeachingAssignmentRouter.delete('/DeleteTeachingassignment/:id', asyncHandler(DeleteTeachingAssignment))
 export default TeachingAssignmentRouter;

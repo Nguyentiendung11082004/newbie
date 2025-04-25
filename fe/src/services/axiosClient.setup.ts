@@ -6,7 +6,7 @@ const axiosClient = axios.create({
     headers: {
         'Content-Type': 'application/json',
     },
-    withCredentials: true, 
+    withCredentials: true,
 });
 
 axiosClient.interceptors.request.use(
@@ -19,15 +19,18 @@ axiosClient.interceptors.request.use(
     },
     (error) => Promise.reject(error)
 );
-
 axiosClient.interceptors.response.use(
-    (response) => response.data,  // Trả về data bình thường khi không có lỗi
+    (response) => response.data,
     (error) => {
-        // Lấy thông báo lỗi từ response (ví dụ, message array)
-        const errorMsg = error?.response?.data?.message?.join(', ') || 'Lỗi';
-        toast.error(errorMsg); // Hiển thị thông báo lỗi cho người dùng
+        const status = error?.response?.status;
+        const data = error?.response?.data;
 
-        // Trả lại lỗi để có thể catch ở nơi gọi
+        // Chỉ toast những lỗi không phải validation
+        if (status !== 400) {
+            const errorMsg = data?.message?.join(', ') || 'Đã có lỗi xảy ra';
+            toast.error(errorMsg);
+        }
+
         return Promise.reject(error);
     }
 );

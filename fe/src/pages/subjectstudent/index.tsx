@@ -1,10 +1,11 @@
-import { Button, Table, Typography } from 'antd';
+import { Button, Popconfirm, Space, Table, Typography } from 'antd';
 import React, { useEffect, useState } from 'react'
 import { useAppSelector } from '../../redux/hook';
 import { StudentSubjectServices } from '../../services/student.services';
 import { initFilter } from '../../common/helpfunction';
 import { ColumnType } from 'antd/es/table';
 import DialogSubject from './dialogstudentsubject';
+import { toast } from 'react-toastify';
 
 type Props = {}
 const { Title } = Typography;
@@ -13,6 +14,7 @@ const SubjectStudent = (props: Props) => {
   const [filter, setFilter] = useState(initFilter);
   const [isOpen, setIsOpen] = useState(false)
   const [data, setData] = useState([])
+  const [dataEdit, setDataEdit] = useState({})
   const getData = async () => {
     let pay = {
       student_id: user.student._id
@@ -22,6 +24,20 @@ const SubjectStudent = (props: Props) => {
   }
   const handle = () => {
     setIsOpen(true)
+  }
+  const huyDangKy = async (value: any) => {
+    let res = await StudentSubjectServices.DeleteEnroll(value._id);
+    if (res) {
+      toast.success(res.data.message)
+      getData()
+    }
+  }
+  const handleChiTiet = (value: any) => {
+    setIsOpen(true)
+    setDataEdit(value)
+  }
+  const handleUpdate = (value: any) => {
+
   }
   const columns: ColumnType<any[]>[] = [
     {
@@ -34,7 +50,7 @@ const SubjectStudent = (props: Props) => {
       dataIndex: '',
       render: (_value, _record, index) => {
         return <div>
-          {_value?.subject_id.name}
+          {_value?.teaching_assignment_id?.subject_id.name}
         </div>
       }
     },
@@ -43,7 +59,7 @@ const SubjectStudent = (props: Props) => {
       dataIndex: '',
       render: (_value, _record, index) => {
         return <div>
-          {_value?.subject_id.credit}
+          {_value?.teaching_assignment_id?.subject_id.credit}
         </div>
       }
     },
@@ -52,7 +68,7 @@ const SubjectStudent = (props: Props) => {
       dataIndex: '',
       render: (_value, _record, index) => {
         return <div>
-          {_value?.subject_id.semester}
+          {_value?.teaching_assignment_id?.semester}
         </div>
       }
     },
@@ -60,9 +76,27 @@ const SubjectStudent = (props: Props) => {
       title: 'Trạng thái',
       dataIndex: 'status',
     },
+    {
+      title: 'Thao tác',
+      render: (_, record) => (
+        <Space>
+          <Button size="small" onClick={() => handleChiTiet(record)}>Chi tiết</Button>
+          {/* <Button size="small" onClick={() => handleUpdate(record)}>Sửa</Button> */}
+          <Popconfirm
+            title="Bạn có chắc muốn huỷ đăng ký môn học này không?"
+            onConfirm={() => huyDangKy(record)}
+          >
+            <Button danger size="small">Huỷ</Button>
+          </Popconfirm>
+        </Space>
+      )
+
+    }
   ]
   useEffect(() => {
-    getData()
+    if (isOpen === false) {
+      getData()
+    }
   }, [isOpen])
   return (
     <>
@@ -88,7 +122,7 @@ const SubjectStudent = (props: Props) => {
       //   }
       // }}
       />
-      <DialogSubject isModalOpen={isOpen} setIsOpen={setIsOpen} />
+      <DialogSubject isModalOpen={isOpen} setIsOpen={setIsOpen} dataEdit={dataEdit} setDataEdit={setDataEdit} />
     </>
   )
 }

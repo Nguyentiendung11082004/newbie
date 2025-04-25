@@ -6,6 +6,9 @@ export interface IEnrollment extends Document {
   teaching_assignment_id: mongoose.Types.ObjectId;
   status: string;
   enrolled_at: Date;
+  course_schedule?: { dayOfWeek: string; startTime: string; endTime: string }[];
+  semester?: string;  // Học kỳ
+  final_grade?: string;  // Điểm môn học khi kết thúc
 }
 
 const EnrollmentSchema = new mongoose.Schema<IEnrollment>({
@@ -21,15 +24,28 @@ const EnrollmentSchema = new mongoose.Schema<IEnrollment>({
   },
   status: {
     type: String,
-    enum: ['Pending', 'Enrolled', 'Cancelled'],
+    enum: ['Pending', 'Approved', 'CancelledByStudent', 'Cancel'],
     default: 'Pending'
   },
   enrolled_at: {
     type: Date,
     default: Date.now
+  },
+  course_schedule: {
+    type: [{ dayOfWeek: String, startTime: String, endTime: String }],
+    default: []
+  },
+  semester: {
+    type: String,
+    required: false
+  },
+  final_grade: {
+    type: String,
+    required: false
   }
 });
 
 EnrollmentSchema.plugin(mongoosePaginate);
 const Enrollment = mongoose.model<IEnrollment, PaginateModel<IEnrollment>>('Enrollment', EnrollmentSchema);
+
 export default Enrollment;

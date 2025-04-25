@@ -132,20 +132,24 @@ export const GetTeachingassment = async (req: Request, res: Response) => {
 
 export const GetTeachigngassmentById = async (req: Request, res: Response) => {
     try {
-        const data = await TeachingAssignment.findById(req.params.id)
-            .populate('teacher_id', 'name')
-            .populate('subject_id', 'name')
-            .populate('class_id', 'ClassName')
-            .exec();
-        ;
+        const { id } = req.query;
+        const data = await TeachingAssignment.findById(id);
+        //     .populate('teacher_id', 'name')
+        //     .populate('subject_id', 'name')
+        //     .populate('class_id', 'ClassName')
+        //     .exec();
+        // ;
+
         if (!data) {
             return res.status(StatusCodes.BAD_REQUEST).json({
                 message: 'Not found'
             })
         }
         return res.status(StatusCodes.OK).json({
-            message: 'Thành công',
-            data: data
+            data: {
+                message: 'Thành công',
+                data: data
+            }
         })
     } catch (error) {
         handleError(res, error)
@@ -153,7 +157,8 @@ export const GetTeachigngassmentById = async (req: Request, res: Response) => {
 }
 export const UpdateTeachingAssignment = async (req: Request, res: Response) => {
     try {
-        const data = await TeachingAssignment.findByIdAndUpdate(req.params.id, req.body, {
+        const { id } = req.query
+        const data = await TeachingAssignment.findByIdAndUpdate(id, req.body, {
             new: true
         })
         if (!data) {
@@ -162,8 +167,10 @@ export const UpdateTeachingAssignment = async (req: Request, res: Response) => {
             })
         }
         return res.status(StatusCodes.OK).json({
-            message: 'Cập nhật hành công',
-            data: data
+            data: {
+                message: 'Cập nhật thành công',
+                data: data
+            }
         })
     } catch (error) {
         handleError(res, error)
