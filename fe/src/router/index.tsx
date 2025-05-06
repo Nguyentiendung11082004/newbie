@@ -11,6 +11,8 @@ import SubjectStudent from '../pages/subjectstudent'
 import Subject from '../pages/subject'
 import TechingAssignment from '../pages/techingassment'
 import Teacher from '../pages/teacher'
+import EnrollmentApproval from '../pages/enrollment-approval'
+import Test from '../pages/test/test'
 
 const RouterApp = () => {
   return (
@@ -27,6 +29,10 @@ const RouterApp = () => {
         <Route path='/admin/students' element={<Students />} />
         <Route path='/admin/subjects' element={<Subject />} />
         <Route path='/admin/teaching-assignment' element={<TechingAssignment />} />
+        <Route path='/admin/test' element={<Test />} />
+        <Route path='/teacher/enrollment-approval' element={<EnrollmentApproval />} />
+        
+
         <Route path='/student/subjects' element={<SubjectStudent />} />
       </Route>
       <Route path='/login' element={<Login />} />

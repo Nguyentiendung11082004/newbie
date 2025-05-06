@@ -4,7 +4,7 @@ const asyncHandler = (fn: Function) => (req: Request, res: Response, next: NextF
     Promise.resolve(fn(req, res, next)).catch(next);
 const AuthRouter = Router()
 AuthRouter.post('/register', asyncHandler(register));
-AuthRouter.post('/login', login);
+AuthRouter.post('/login', asyncHandler(login));
 AuthRouter.post('/logout', asyncHandler(logout))
 
 export default AuthRouter;

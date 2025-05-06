@@ -8,7 +8,8 @@ import {
   MenuUnfoldOutlined,
   SolutionOutlined,
   TeamOutlined,
-  UserOutlined
+  UserOutlined,
+  CheckCircleOutlined
 } from '@ant-design/icons';
 import { Avatar, Button, Dropdown, Layout, Menu, theme } from 'antd';
 import { useState } from 'react';
@@ -25,10 +26,10 @@ const LayoutDashboard = () => {
   const [collapsed, setCollapsed] = useState(false);
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const user = useAppSelector((state) => state.user.userInfo.user);
+  const user = useAppSelector((state) => state.user.userInfo?.user);
   const location = useLocation();
-  const token = useAppSelector((state) => state.user.userInfo.token);
-  const student = useAppSelector((state) => state.user.userInfo.student);
+  const token = useAppSelector((state) => state.user.userInfo?.token);
+  const student = useAppSelector((state) => state.user.userInfo);
   const menuItems = [
     // Admin Menu
     {
@@ -104,6 +105,13 @@ const LayoutDashboard = () => {
       permission: ['teacher'],  // Chỉ giảng viên có thể truy cập
     },
     {
+      key: 'teacherEnrollmentApproval',
+      icon: <CheckCircleOutlined />,
+      label: 'Duyệt ghi danh',
+      url: '/teacher/enrollment-approval',
+      permission: ['teacher'],
+    },
+    {
       key: 'teacherGrade',
       icon: <FileDoneOutlined />,
       label: 'Nhập điểm',
@@ -139,6 +147,13 @@ const LayoutDashboard = () => {
       label: 'Kết quả học tập',
       url: '/student/results',
       permission: ['student'],  // Chỉ sinh viên có thể truy cập
+    },
+    {
+      key: 'test',
+      icon: <FileDoneOutlined />,
+      label: 'Test',
+      url: '/admin/test',
+      permission: ['teacher','student','admin'],  // Chỉ sinh viên có thể truy cập
     },
   ];
   const menu = (
@@ -204,7 +219,7 @@ const LayoutDashboard = () => {
           <div>
             <Dropdown overlay={menu} trigger={['click']}>
               <div style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
-                <span>{student?.name || ''}</span>
+                <span>{student?.student?.name || ''}</span>
                 <Avatar
                   style={{
                     margin: '0px 10px',

@@ -14,13 +14,23 @@ type FieldType = {
 const Login: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
+  // const onFinish: FormProps<FieldType>['onFinish'] = async (values) => {
+  //   const res = await AuthServices.Login(values);
+  //   if (res.data.Status === 200) {
+  //     dispatch(setUser(res.data));
+  //     localStorage.setItem("User", JSON.stringify(res.data));
+  //     toast.success(res.data.message);
+  //     navigate('/admin/classes')
+  //   }
+  // };
   const onFinish: FormProps<FieldType>['onFinish'] = async (values) => {
     const res = await AuthServices.Login(values);
     if (res.data.Status === 200) {
+      const token = res.data.token;
+      localStorage.setItem("token", token);
       dispatch(setUser(res.data));
-      localStorage.setItem("User", JSON.stringify(res.data));
       toast.success(res.data.message);
-      navigate('/admin/classes')
+      navigate('/admin/dashboard');
     }
   };
 

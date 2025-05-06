@@ -10,6 +10,8 @@ import jwt from "jsonwebtoken"
 import { AuthValidate, StudentValidate, TeacherValidate } from "../schema/auth";
 
 import Student from "../model/student";
+import Teacher from "../model/teacher";
+import Auth from "../model/auth";
 export const register = async (req: Request, res: Response) => {
     try {
         const { email, password, role, name, subject, dob, major, gender, phone, address } = req.body;
@@ -36,10 +38,10 @@ export const register = async (req: Request, res: Response) => {
         }
         if (!email) {
             return res.status(StatusCodes.BAD_REQUEST).json({
-              message: "Email không được để trống"
+                message: "Email không được để trống"
             });
-          }
-          
+        }
+
         const exitUser = await AuthSchema.findOne({ email });
         if (exitUser) {
             return res.status(StatusCodes.BAD_REQUEST).json({
@@ -60,8 +62,8 @@ export const register = async (req: Request, res: Response) => {
         // Tạo bản ghi trong bảng students nếu là sinh viên
         if (role === 'student') {
             user = await StudentSchema.create({
-                authId: auth._id,  
-                email: email, 
+                authId: auth._id,
+                email: email,
                 name,
                 dob,
                 major,
@@ -69,10 +71,10 @@ export const register = async (req: Request, res: Response) => {
                 phone,
                 address,
             });
-        } else if(role === 'teacher') {
+        } else if (role === 'teacher') {
             user = await TeacherSchema.create({
-                authId: auth._id,  
-                email: email, 
+                authId: auth._id,
+                email: email,
                 name,
                 dob,
                 major,
@@ -116,15 +118,27 @@ export const login = async (req: Request, res: Response) => {
             }
             user.password = undefined as unknown as string;
             const token = await jwt.sign({ userId: user._id, role: user.role }, "xxx", { expiresIn: "1h" });
-            let studentInfo = null;
-            if (user.role === 'student') {
-                studentInfo = await Student.findOne({ authId: user._id }).select('_id name classId');
+            let userInfo = null;
+            switch (user.role) {
+                case 'student':
+                    userInfo = await Student.findOne({ authId: user._id }).select('_id name classId');
+                    break;
+                case 'teacher':
+                    userInfo = await Teacher.findOne({ authId: user._id }).select('_id name');
+                    break;
+                case 'admin':
+                    userInfo = await Auth.findOne({ authId: user._id });
+                    break;
+                default:
+                    return res.status(StatusCodes.BAD_REQUEST).json({
+                        message: "Role không hợp lệ",
+                    });
             }
             res.status(StatusCodes.OK).json({
                 data: {
                     message: "Đăng nhập thành công",
                     user,
-                    student: studentInfo,
+                    student: userInfo,
                     token,
                     Status: StatusCodes.OK
                 }

@@ -180,3 +180,27 @@ export const DeleteEnroll = async (req: Request, res: Response) => {
         handleError(res, error)
     }
 }
+export const GetEnrollmentByTeacher = async (req: Request, res: Response) => {
+    try {
+        const { teacher_id, status = 'Pending' } = req.body;
+        const assignments = await TeachingAssignment.find({ teacher_id });
+
+        const assignmentIds = assignments.map(a => a._id);
+        const enrollments = await Enrollment.find({
+            teaching_assignment_id: { $in: assignmentIds },
+            status
+        }).populate([
+            { path: 'student_id', select: 'name email' },
+            {
+                path: 'teaching_assignment_id',
+                populate: [
+                    { path: 'subject_id', select: 'name' },
+                    { path: 'class_id', select: 'name' },
+                ]
+            }
+        ]);
+        console.log("enrollments", enrollments)
+    } catch (error) {
+        handleError(res, error)
+    }
+}
