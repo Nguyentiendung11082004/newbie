@@ -81,7 +81,6 @@ const DialogSubject = ({ isModalOpen, setIsOpen, dataEdit, setDataEdit }: Props)
         },
         {
             title: "Lớp học",
-            dataIndex: ["class_id", "ClassName"],
             key: "class",
         },
         {

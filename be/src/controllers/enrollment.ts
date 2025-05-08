@@ -127,10 +127,17 @@ export const CreateEnrollSubject = async (req: Request, res: Response): Promise<
         if (exitEnrollment) {
             return res.status(StatusCodes.BAD_REQUEST).json({ message: "Sinh viên đã ghi danh môn học này." });
         }
+        const enrolledCount = await Enrollment.countDocuments({
+            teaching_assignment_id: teachingAssignment._id,
+            status: { $in: ['Approved', 'Pending'] },
+        })
+        console.log("enrolledCount", enrolledCount)
+        console.log(" teachingAssignment.maxStudent ", teachingAssignment.maxStudent)
+        const status = enrolledCount < teachingAssignment.maxStudent ? 'Approved' : 'Pending';
         const enrollment = await Enrollment.create({
             student_id,
             teaching_assignment_id: teachingAssignment._id,
-            status: 'Pending',
+            status: status,
             enrolled_at: new Date()
         });
         return res.status(StatusCodes.OK).json({
@@ -182,25 +189,62 @@ export const DeleteEnroll = async (req: Request, res: Response) => {
 }
 export const GetEnrollmentByTeacher = async (req: Request, res: Response) => {
     try {
-        const { teacher_id, status = 'Pending' } = req.body;
+        const { teacher_id, status = 'Pending', page = 1, limit = 10 } = req.body;
         const assignments = await TeachingAssignment.find({ teacher_id });
-
         const assignmentIds = assignments.map(a => a._id);
-        const enrollments = await Enrollment.find({
-            teaching_assignment_id: { $in: assignmentIds },
-            status
-        }).populate([
-            { path: 'student_id', select: 'name email' },
-            {
-                path: 'teaching_assignment_id',
-                populate: [
-                    { path: 'subject_id', select: 'name' },
-                    { path: 'class_id', select: 'name' },
-                ]
-            }
+        const skip = (page - 1) * limit;
+        const [enrollments, total] = await Promise.all([
+            Enrollment.find({
+                teaching_assignment_id: { $in: assignmentIds },
+                status
+            })
+                .skip(skip)
+                .limit(limit)
+                .populate([
+                    { path: 'student_id', select: 'name email' },
+                    {
+                        path: 'teaching_assignment_id',
+                        populate: [
+                            { path: 'subject_id', select: 'name' },
+                            { path: 'class_id', select: 'name' },
+                        ]
+                    }
+                ]),
+            Enrollment.countDocuments({
+                teaching_assignment_id: { $in: assignmentIds },
+                status
+            })
         ]);
-        console.log("enrollments", enrollments)
+        return res.status(StatusCodes.OK).json({
+            data: {
+                message: 'Thành công',
+                data: enrollments,
+                pagination: {
+                    total,
+                    page: Number(page),
+                    limit: Number(limit)
+                }
+            }
+        });
     } catch (error) {
         handleError(res, error)
     }
 }
+export const GetEnrollmentsByTeachingAssignment = async (req: Request, res: Response) => {
+    try {
+      const { teaching_assignment_id } = req.body;
+      if (!Types.ObjectId.isValid(teaching_assignment_id)) {
+        return res.status(400).json({ message: 'teaching_assignment_id không hợp lệ' });
+      }
+      const enrollments = await Enrollment.find({ teaching_assignment_id })
+        .populate('student_id') 
+  
+      return res.status(200).json({
+        message: 'Thành công',
+        data: enrollments
+      });
+    } catch (error) {
+      handleError(res, error);
+    }
+  }
+  

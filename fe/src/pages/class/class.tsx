@@ -1,14 +1,18 @@
-import { Table, Typography } from 'antd';
+import { Button, Table, Typography } from 'antd';
 import type { ColumnType } from 'antd/es/table';
 import { IClass } from '../../types/class';
 import { useAppDispatch, useAppSelector } from '../../redux/hook';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { GetDataClass } from '../../redux/slices/classSlice';
+import DialogClass from './dialogclass';
 const { Title } = Typography;
 const Class = () => {
     const dispatch = useAppDispatch()
     const { data, filter } = useAppSelector((state: any) => state.class);
-    console.log("data", data)
+    const [open, setOpen] = useState(false);
+    const handleAdd = () => {
+        setOpen(true)
+    }
     const columns: ColumnType<IClass>[] = [
         {
             title: 'STT',
@@ -32,7 +36,10 @@ const Class = () => {
     }, [])
     return (
         <>
-            <Title level={4}>Danh sách lớp học</Title>
+            <div className='flex justify-between items-center'>
+                <Title level={4}>Danh sách lớp học</Title>
+                <Button type='primary' onClick={handleAdd}>Thêm lớp học</Button>
+            </div>
             <Table
                 rowKey="_id"
                 columns={columns}
@@ -44,6 +51,7 @@ const Class = () => {
                     onChange: handlePageChange
                 }}
             />
+            {/* <DialogClass isModalOpen={open} setOpen={setOpen} /> */}
         </>
     );
 };

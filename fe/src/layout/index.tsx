@@ -219,7 +219,7 @@ const LayoutDashboard = () => {
           <div>
             <Dropdown overlay={menu} trigger={['click']}>
               <div style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
-                <span>{student?.student?.name || ''}</span>
+                <span>{student?.student?.name || student?.user?.email}</span>
                 <Avatar
                   style={{
                     margin: '0px 10px',

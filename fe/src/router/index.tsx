@@ -13,6 +13,8 @@ import TechingAssignment from '../pages/techingassment'
 import Teacher from '../pages/teacher'
 import EnrollmentApproval from '../pages/enrollment-approval'
 import Test from '../pages/test/test'
+import NotFound from '../pages/NotFound'
+import TeacherClass from '../pages/teacher/teacher-classes'
 
 const RouterApp = () => {
   return (
@@ -31,12 +33,15 @@ const RouterApp = () => {
         <Route path='/admin/teaching-assignment' element={<TechingAssignment />} />
         <Route path='/admin/test' element={<Test />} />
         <Route path='/teacher/enrollment-approval' element={<EnrollmentApproval />} />
+        <Route path='teacher/classes' element={<TeacherClass />} />
         
 
         <Route path='/student/subjects' element={<SubjectStudent />} />
       </Route>
       <Route path='/login' element={<Login />} />
       <Route path='/register' element={<Register />} />
+
+      <Route path="*" element={<NotFound />} />
     </Routes>
   )
 }

@@ -1,6 +1,7 @@
 export const initFilter = {
   CurrentPage: 0,
   PageSize: 10,
+  TotalDocs: 0,
   KeyWord: "",
 }
 

@@ -9,8 +9,9 @@ export const StudentSubjectServices = {
     GetSubjectEnroll: (params: any) => axiosClient.post('/enrollsubject/GetByIdEnrollment', params),
     AddSubjectEnroll: (params: any) => axiosClient.post('/enrollsubject/CreateEnrollment', params),
     GetTeachingAssignmentsForEnroll: (params: any) => axiosClient.post('enrollsubject/getTeachingAssignmentsForEnroll', params),
-    DeleteEnroll: (id:string) => axiosClient.delete(`enrollsubject/DeleteEnroll/${id}`),
-    UpdateEnroll: (id:string) => axiosClient.put(`enrollsubject/updateEnrollSubject/${id}`)
+    DeleteEnroll: (id: string) => axiosClient.delete(`enrollsubject/DeleteEnroll/${id}`),
+    UpdateEnroll: (id: string) => axiosClient.put(`enrollsubject/updateEnrollSubject/${id}`),
+    GetEnrollmentByTeacher: (params: any) => axiosClient.post(`enrollsubject/GetEnrollmentByTeacher`, params)
 }
 export const SubjectServices = {
     GetList: (page: number, limit: any) => axiosClient.get(`subject?_page=${page}&_limit=${limit}&_sort=createdAt&_order=asc`),
@@ -18,8 +19,9 @@ export const SubjectServices = {
     Add: (params: any) => axiosClient.post(`/subject`, params)
 }
 export const TeacherServices = {
-    GetList: (page: number, limit: any) => axiosClient.get(`teacher?_page=${page}&_limit=${limit}&_sort=createdAt&_order=asc`)
-}
+    GetList: (page: number, limit: any) => axiosClient.get(`teacher?_page=${page}&_limit=${limit}&_sort=createdAt&_order=asc`),
+    GetClassesByTeacher: (params: {}) => axiosClient.post(`teacher/GetClassesByTeacher`, params)
+}           
 export const ClassServices = {
     GetList: (page: number, limit: any) => axiosClient.get(`/class?_page=${page}&_limit=${limit}&_sort=createdAt&_order=asc`),
 };

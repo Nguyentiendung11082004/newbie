@@ -1,5 +1,5 @@
 import express, { NextFunction, Request, Response } from "express";
-import { CreateEnrollSubject, DeleteEnroll, GetEnrollmentByTeacher, getAllEnrollSubject, getEnrollSubject, getTeachingAssignmentsForEnroll, updateEnrollSubject } from "../controllers/enrollment";
+import { CreateEnrollSubject, DeleteEnroll, GetEnrollmentByTeacher, GetEnrollmentsByTeachingAssignment, getAllEnrollSubject, getEnrollSubject, getTeachingAssignmentsForEnroll, updateEnrollSubject } from "../controllers/enrollment";
 
 const asyncHandler = (fn: Function) => (req: Request, res: Response, next: NextFunction) =>
     Promise.resolve(fn(req, res, next)).catch(next);
@@ -12,4 +12,5 @@ EnrollmentRouter.post("/GetTeachingAssignmentsForEnroll", asyncHandler(getTeachi
 EnrollmentRouter.delete("/DeleteEnroll/:id", asyncHandler(DeleteEnroll));
 EnrollmentRouter.put("/UpdateEnrollment/:id", asyncHandler(updateEnrollSubject))
 EnrollmentRouter.post("/GetEnrollmentByTeacher", asyncHandler(GetEnrollmentByTeacher))
+EnrollmentRouter.post("/GetEnrollmentsByTeachingAssignment", asyncHandler(GetEnrollmentsByTeachingAssignment))
 export default EnrollmentRouter;

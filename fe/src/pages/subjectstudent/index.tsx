@@ -106,7 +106,7 @@ const SubjectStudent = (props: Props) => {
       </div>
       <Table
         rowKey="_id"
-        columns={columns}
+        columns={columns} 
         dataSource={data}
       // pagination={{
       //   current: filter.CurrentPage,

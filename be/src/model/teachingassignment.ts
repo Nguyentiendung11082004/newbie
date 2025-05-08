@@ -12,6 +12,8 @@ export interface ITeachingAssignment extends Document {
   startTime: string;
   endTime: string;
   schedule: any;
+  maxStudent: number;
+  room: string;
 }
 
 export const ScheduSchema = new mongoose.Schema<any>({
@@ -69,6 +71,15 @@ const TeachingAssignmentSchema = new mongoose.Schema<ITeachingAssignment>({
   schedule: {
     type: [ScheduSchema],
     default: []
+  },
+  maxStudent: {
+    type: Number,
+    required: true,
+    default: 0 
+  },
+  room: {
+    type: String,
+    default: ''
   }
 }, {
   timestamps: true,

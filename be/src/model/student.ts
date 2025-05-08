@@ -22,6 +22,11 @@ const StudentSchema = new mongoose.Schema({
         lowercase: true,
         index: true,
     },
+    email: {
+        type: String,
+        required: true,
+        unique: true,
+    },
     dob: {
         type: Date,
         required: true,

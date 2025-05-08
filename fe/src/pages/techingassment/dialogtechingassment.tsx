@@ -27,6 +27,7 @@ const init = {
 }
 const format = 'HH:mm';
 const DialogTechngassment = ({ isModalOpen, setVisible, dataEdit, setDataEdit }: Props) => {
+    console.log("hihihi")
     const [payload, setPayload] = useState(init)
     const dispatch = useAppDispatch();
     const arrThu = getDayOffWeek();
@@ -34,7 +35,7 @@ const DialogTechngassment = ({ isModalOpen, setVisible, dataEdit, setDataEdit }:
     const teacher = useAppSelector((state: any) => state.teacher);
     const arrClass = useAppSelector((state: any) => state.class);
     const handleOk = async () => {
-        if (dataEdit) {
+        if (dataEdit._id) {
             let res = await TechingAssignmentServices.Update(dataEdit._id, payload);
             if (res) {
                 toast.success(res.data.message)
@@ -48,7 +49,6 @@ const DialogTechngassment = ({ isModalOpen, setVisible, dataEdit, setDataEdit }:
                 setPayload(init)
             }
         }
-
     }
     const handleClose = () => {
         setVisible(false)
