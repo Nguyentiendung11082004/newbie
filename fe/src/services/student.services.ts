@@ -20,8 +20,9 @@ export const SubjectServices = {
 }
 export const TeacherServices = {
     GetList: (page: number, limit: any) => axiosClient.get(`teacher?_page=${page}&_limit=${limit}&_sort=createdAt&_order=asc`),
-    GetClassesByTeacher: (params: {}) => axiosClient.post(`teacher/GetClassesByTeacher`, params)
-}           
+    GetClassesByTeacher: (params: {}) => axiosClient.post(`teacher/GetClassesByTeacher`, params),
+    GetById: (params: {}) => axiosClient.post('enrollsubject/GetEnrollmentsByTeachingAssignment', params)
+}
 export const ClassServices = {
     GetList: (page: number, limit: any) => axiosClient.get(`/class?_page=${page}&_limit=${limit}&_sort=createdAt&_order=asc`),
 };
@@ -31,4 +32,7 @@ export const TechingAssignmentServices = {
     GetById: (id: string) => axiosClient.get(`${tc}GetByIdTeachingassignment?id=${id}`),
     Update: (id: any, params: Record<string, any>) => axiosClient.put(tc + `UpdateTeachingassignment?id=${id}`, params),
     Delete: (id: string) => axiosClient.delete(tc + `DeleteTeachingassignment/${id}`),
+}
+export const AttendanceServices = {
+    CreateAttendance: (pay: {}) => axiosClient.post(`/attendance/CreateAttendance`, pay)
 }

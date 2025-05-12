@@ -15,6 +15,7 @@ import EnrollmentApproval from '../pages/enrollment-approval'
 import Test from '../pages/test/test'
 import NotFound from '../pages/NotFound'
 import TeacherClass from '../pages/teacher/teacher-classes'
+import TeacherClassDetail from '../pages/teacher/teacher-classes/TeacherClassDetail'
 
 const RouterApp = () => {
   return (
@@ -34,6 +35,7 @@ const RouterApp = () => {
         <Route path='/admin/test' element={<Test />} />
         <Route path='/teacher/enrollment-approval' element={<EnrollmentApproval />} />
         <Route path='teacher/classes' element={<TeacherClass />} />
+        <Route path='teacher/classes/:id' element={<TeacherClassDetail />} />
         
 
         <Route path='/student/subjects' element={<SubjectStudent />} />

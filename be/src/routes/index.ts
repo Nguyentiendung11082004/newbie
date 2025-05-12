@@ -6,6 +6,7 @@ import SubjectRouter from "./subject"
 import EnrollmentRouter from "./ernollment"
 import TeacherRouter from "./teacher"
 import TeachingAssignmentRouter from "./teachingassgnment"
+import AttendanceRouter from "./attendance"
 export default function routes(app: Express) {
     app.use('/api/v1/students', StudentRouter)
     app.use('/api/v1/class', ClassRouter)
@@ -14,4 +15,5 @@ export default function routes(app: Express) {
     app.use('/api/v1/enrollsubject', EnrollmentRouter)
     app.use('/api/v1/teacher', TeacherRouter)
     app.use('/api/v1/teachingassignment', TeachingAssignmentRouter)
+    app.use('/api/v1/attendance', AttendanceRouter)
 }

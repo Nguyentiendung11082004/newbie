@@ -3,10 +3,12 @@ import { TeacherServices } from '../../../services/student.services'
 import { useAppSelector } from '../../../redux/hook';
 import { Button, Table, Typography } from 'antd';
 import { ColumnType } from 'antd/es/table';
+import { useNavigate } from 'react-router-dom';
 
 type Props = {}
 const { Title } = Typography;
 const TeacherClass = (props: Props) => {
+  const nav = useNavigate()
   const user = useAppSelector((state) => state.user.userInfo);
   const [data, setData] = useState([])
   const getData = async (id: string) => {
@@ -51,10 +53,9 @@ const TeacherClass = (props: Props) => {
       title: 'Thao tác',
       dataIndex: '',
       render: (_value, _record, index) => {
-        return <Button type="primary" size="small">
+        return <Button type="primary" size="small" onClick={()=> nav(`/teacher/classes/${_value._id}`)}>
           Xem chi tiết
         </Button>
-
       }
     },
   ]

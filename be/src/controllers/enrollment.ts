@@ -8,6 +8,7 @@ import Enrollment from "../model/enrollment";
 import { Types } from "mongoose";
 import TeachingAssignment from "../model/teachingassignment";
 import { EnrollmentValidate } from "../schema/enrolment";
+import Attendance from "../model/attdance";
 export const getAllEnrollSubject = async (req: Request, res: Response): Promise<Response | void> => {
     try {
         const {
@@ -232,19 +233,49 @@ export const GetEnrollmentByTeacher = async (req: Request, res: Response) => {
 }
 export const GetEnrollmentsByTeachingAssignment = async (req: Request, res: Response) => {
     try {
-      const { teaching_assignment_id } = req.body;
-      if (!Types.ObjectId.isValid(teaching_assignment_id)) {
-        return res.status(400).json({ message: 'teaching_assignment_id không hợp lệ' });
+        const { teaching_assignment_id, date } = req.body;
+    
+        if (!Types.ObjectId.isValid(teaching_assignment_id)) {
+          return res.status(400).json({ message: 'teaching_assignment_id không hợp lệ' });
+        }
+    
+        // Lấy danh sách ghi danh
+        const enrollments = await Enrollment.find({ teaching_assignment_id })
+          .populate('student_id', 'name email') // Lấy name + email nếu cần
+    
+        // Lấy danh sách điểm danh ứng với teaching_assignment_id + date
+        const attendanceRecords = await Attendance.find({ 
+          teaching_assignment_id, 
+          date: new Date(date) 
+        });
+    
+        // Map điểm danh theo student_id cho tiện tra cứu
+        const attendanceMap = new Map();
+        attendanceRecords.forEach((record:any) => {
+          attendanceMap.set(record.student_id.toString(), {
+            status: record.status,
+            note: record.note,
+          });
+        });
+    
+        // Gộp trạng thái điểm danh vào từng sinh viên
+        const result = enrollments.map((enrollment) => {
+          const studentId = enrollment.student_id._id.toString();
+          const attendance = attendanceMap.get(studentId);
+          return {
+            ...enrollment.toObject(),
+            attendance_status: attendance?.status || 'chưa điểm danh',
+            attendance_note: attendance?.note || '',
+          };
+        });
+    
+        return res.status(200).json({
+          message: 'Thành công',
+          data: result
+        });
+    
+      } catch (error) {
+        handleError(res, error);
       }
-      const enrollments = await Enrollment.find({ teaching_assignment_id })
-        .populate('student_id') 
-  
-      return res.status(200).json({
-        message: 'Thành công',
-        data: enrollments
-      });
-    } catch (error) {
-      handleError(res, error);
-    }
   }
   

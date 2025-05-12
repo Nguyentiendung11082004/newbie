@@ -5,6 +5,7 @@ import { PersistGate } from 'redux-persist/integration/react';
 import './App.css';
 import { persistor, store } from './redux';
 import RouterApp from './router';
+import React from 'react';
 function App() {
 
   return (
