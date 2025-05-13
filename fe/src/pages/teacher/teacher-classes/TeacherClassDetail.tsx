@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { AttendanceServices, TeacherServices } from '../../../services/student.services';
-import { Button, Table, Typography } from 'antd';
+import { Button, Switch, Table, Typography } from 'antd';
 import { ColumnType } from 'antd/es/table';
 import { formatDateStringGMT } from '../../../common/helpfunction';
 
@@ -9,36 +9,57 @@ type Props = {}
 const { Title } = Typography;
 const TeacherClassDetail = (props: Props) => {
     const { id } = useParams();
-    console.log("id", id)
     const [data, setData] = useState([]);
     const date = new Date();
     const [payload, setPayload] = useState({
         teaching_assignment_id: id,
-        date: formatDateStringGMT(date, 'dd/mm/yyyy'),
+        date: new Date().toISOString().split('T')[0],
         attendances: []
     })
-    const handleSetForm = (props, value, item) => {
-
+    const handleSetForm = (key, value, item) => {
+        const itemId = typeof item.student_id === 'object' ? item.student_id._id : item.student_id;
+    
+        // Cập nhật dữ liệu hiển thị (UI)
+        setData((prev: any) =>
+            prev.map((entry) => {
+                const entryId = typeof entry.student_id === 'object' ? entry.student_id._id : entry.student_id;
+                if (entryId === itemId) {
+                    return {
+                        ...entry,
+                        [key]: value,
+                    };
+                }
+                return entry;
+            })
+        );
+    
+        // Cập nhật dữ liệu sẽ gửi khi ấn "Xác nhận"
         setPayload((prev: any) => ({
             ...prev,
             attendances: prev.attendances.map((e) => {
-                if (e.student_id === item.student_id._id) {
+                if (e.student_id === itemId) {
                     return {
                         ...e,
-                        [props]: value
-                    }
+                        [key]: value,
+                    };
                 }
                 return e;
-            })
-        }))
-    }
+            }),
+        }));
+    };
+    
+      
+
     const handleSubmitAttendance = async () => {
+        console.log("payload", payload.attendances)
         let res = await AttendanceServices.CreateAttendance(payload)
-        console.log("res",res)
-        if(res) {
-           
+        if (res) {
+            getData(id as string)
         }
     }
+    const onChange = (checked: boolean) => {
+        console.log(`switch to ${checked}`);
+    };
     const columns: ColumnType<any[]>[] = [
         {
             title: 'STT',
@@ -67,8 +88,7 @@ const TeacherClassDetail = (props: Props) => {
             title: 'Trạng thái điểm danh',
             dataIndex: 'status',
             render: (_value, _record, index) => {
-                console.log("_value",_value)
-                return <div style={{ color: `${_value === 'Approved' ? 'green' : 'red'}` }}>
+                return <div style={{ color: `${_value === 'present' ? 'green' : 'red'}` }}>
                     {_value}
                 </div>
             }
@@ -79,7 +99,15 @@ const TeacherClassDetail = (props: Props) => {
             render: (_value, _record, index) => {
                 return (
                     <div style={{ display: 'flex', gap: '8px' }}>
-                        <button
+                        <Switch
+                            checked={_value.status === 'present'}
+                            onChange={(checked) =>
+                                handleSetForm('status', checked ? 'present' : 'absent', _value)
+                            }
+                            checkedChildren="Có mặt"
+                            unCheckedChildren="Vắng mặt"
+                        />
+                        {/* <button
                             style={{
                                 padding: '4px 12px',
                                 backgroundColor: '#ef4444',
@@ -87,7 +115,11 @@ const TeacherClassDetail = (props: Props) => {
                                 borderRadius: '4px',
                                 border: 'none',
                                 cursor: 'pointer',
-                                opacity: 0.4,
+                                opacity: current === 'absent' ? 1 : 0.4,
+                                boxShadow: '0 0 10px rgba(220, 38, 38, 0.6)',
+                                transform: 'scale(1.05)', // phóng to nhẹ
+                                fontWeight: 'bold',       // chữ đậm
+                                transition: 'all 0.2s ease-in-out', // mượt hơn khi hover
                             }}
                             onClick={() => handleSetForm('status', "absent", _value)}
                         >
@@ -101,7 +133,8 @@ const TeacherClassDetail = (props: Props) => {
                                 borderRadius: '4px',
                                 border: 'none',
                                 cursor: 'pointer',
-                                boxShadow: '0 0 10px rgba(34, 197, 94, 0.6)', // đổ bóng xanh
+                                opacity: current === 'present' ? 1 : 0.4,
+                                boxShadow: '0 0 10px rgbax(34, 197, 94, 0.6)', // đổ bóng xanhx
                                 transform: 'scale(1.05)', // phóng to nhẹ
                                 fontWeight: 'bold',       // chữ đậm
                                 transition: 'all 0.2s ease-in-out', // mượt hơn khi hover
@@ -109,7 +142,7 @@ const TeacherClassDetail = (props: Props) => {
                             onClick={() => handleSetForm('status', "present", _value)}
                         >
                             Có mặt
-                        </button>
+                        </button> */}
                     </div>
                 );
             },
@@ -125,7 +158,7 @@ const TeacherClassDetail = (props: Props) => {
         setData(res?.data)
         const attendances = res?.data?.map(item => ({
             student_id: item.student_id._id,
-            status: 'absent',
+            status: item?.status ?? 'absent',
             note: ''
         }));
         setPayload(prev => ({
@@ -153,6 +186,7 @@ const TeacherClassDetail = (props: Props) => {
                 rowKey="_id"
                 columns={columns}
                 dataSource={data}
+                pagination={false}
             />
         </>
     )

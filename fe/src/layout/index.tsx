@@ -18,6 +18,7 @@ import { useAppDispatch, useAppSelector } from '../redux/hook';
 import { clearUser } from '../redux/slices/userSlice';
 import { AuthServices } from '../services/auth.services';
 import { toast } from 'react-toastify';
+import React from 'react';
 const { Header, Sider, Content } = Layout;
 
 
@@ -153,7 +154,7 @@ const LayoutDashboard = () => {
       icon: <FileDoneOutlined />,
       label: 'Test',
       url: '/admin/test',
-      permission: ['teacher','student','admin'],  // Chỉ sinh viên có thể truy cập
+      permission: ['teacher', 'student', 'admin'],  // Chỉ sinh viên có thể truy cập
     },
   ];
   const menu = (
@@ -179,6 +180,20 @@ const LayoutDashboard = () => {
   const {
     token: { colorBgContainer },
   } = theme.useToken();
+  const matchMenuKey = (pathname: string) => {
+    const matchedItem = menuItems.find(item => {
+      if (!item.url) return false;
+      // Nếu item có path động thì dùng matchPath
+      if (item.url.includes(':')) {
+        return matchPath({ path: item.url, end: true }, pathname);
+      }
+      // Còn lại thì match chính xác
+      return pathname === item.url;
+    });
+    return matchedItem?.key;
+  };
+
+
   return (
     <Layout style={{ minHeight: '100vh' }}>
       <Sider trigger={null} collapsible collapsed={collapsed} width={250}>

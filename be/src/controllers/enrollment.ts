@@ -234,48 +234,48 @@ export const GetEnrollmentByTeacher = async (req: Request, res: Response) => {
 export const GetEnrollmentsByTeachingAssignment = async (req: Request, res: Response) => {
     try {
         const { teaching_assignment_id, date } = req.body;
-    
+
         if (!Types.ObjectId.isValid(teaching_assignment_id)) {
-          return res.status(400).json({ message: 'teaching_assignment_id không hợp lệ' });
+            return res.status(400).json({ message: 'teaching_assignment_id không hợp lệ' });
         }
-    
+
         // Lấy danh sách ghi danh
         const enrollments = await Enrollment.find({ teaching_assignment_id })
-          .populate('student_id', 'name email') // Lấy name + email nếu cần
-    
+            .populate('student_id', 'name email') // Lấy name + email nếu cần
+
         // Lấy danh sách điểm danh ứng với teaching_assignment_id + date
-        const attendanceRecords = await Attendance.find({ 
-          teaching_assignment_id, 
-          date: new Date(date) 
-        });
-    
+        const attendanceRecords = await Attendance.find();
+
+        console.log("attendanceRecords", attendanceRecords)
         // Map điểm danh theo student_id cho tiện tra cứu
         const attendanceMap = new Map();
-        attendanceRecords.forEach((record:any) => {
-          attendanceMap.set(record.student_id.toString(), {
-            status: record.status,
-            note: record.note,
-          });
+        attendanceRecords.forEach((record: any) => {
+            record.attendances.forEach((att: any) => {
+                attendanceMap.set(att.student_id.toString(), {
+                    status: att.status,
+                    note: att.note,
+                });
+            });
         });
-    
+        console.log("attendanceMap", attendanceMap)
         // Gộp trạng thái điểm danh vào từng sinh viên
         const result = enrollments.map((enrollment) => {
-          const studentId = enrollment.student_id._id.toString();
-          const attendance = attendanceMap.get(studentId);
-          return {
-            ...enrollment.toObject(),
-            attendance_status: attendance?.status || 'chưa điểm danh',
-            attendance_note: attendance?.note || '',
-          };
+            const studentId = enrollment.student_id._id.toString();
+            const attendance = attendanceMap.get(studentId);
+            console.log("attendance", attendance)
+            return {
+                ...enrollment.toObject(),
+                status: attendance?.status || 'chưa điểm danh',
+                // attendance_note: attendance?.note || '',
+            };
         });
-    
+
         return res.status(200).json({
-          message: 'Thành công',
-          data: result
+            message: 'Thành công',
+            data: result
         });
-    
-      } catch (error) {
+
+    } catch (error) {
         handleError(res, error);
-      }
-  }
-  
+    }
+}
