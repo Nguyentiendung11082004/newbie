@@ -16,6 +16,7 @@ import Test from '../pages/test/test'
 import NotFound from '../pages/NotFound'
 import TeacherClass from '../pages/teacher/teacher-classes'
 import TeacherClassDetail from '../pages/teacher/teacher-classes/TeacherClassDetail'
+import History from '../pages/history'
 
 const RouterApp = () => {
   return (
@@ -39,6 +40,7 @@ const RouterApp = () => {
         
 
         <Route path='/student/subjects' element={<SubjectStudent />} />
+        <Route path='/history' element={<History />} />
       </Route>
       <Route path='/login' element={<Login />} />
       <Route path='/register' element={<Register />} />

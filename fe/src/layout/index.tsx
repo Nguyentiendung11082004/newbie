@@ -41,6 +41,13 @@ const LayoutDashboard = () => {
       permission: ['admin', 'teacher', 'student'],
     },
     {
+      key: 'history',
+      icon: <DashboardOutlined />,
+      label: 'Lịch sử điểm danh',
+      url: '/history',
+      permission: ['admin', 'teacher', 'student'],
+    },
+    {
       key: 'students',
       icon: <TeamOutlined />,
       label: 'Quản lý sinh viên',

@@ -1,5 +1,5 @@
 import { handleError } from "../middlewares/error"
-import { Request, Response } from 'express'
+import { Request, Response, NextFunction } from 'express'
 import { StatusCodes } from "http-status-codes";
 import AuthSchema from "../model/auth"
 import StudentSchema from "../model/student"
@@ -12,6 +12,16 @@ import { AuthValidate, StudentValidate, TeacherValidate } from "../schema/auth";
 import Student from "../model/student";
 import Teacher from "../model/teacher";
 import Auth from "../model/auth";
+interface DecodedToken {
+    userId: string;
+    authId: string;
+    role: string;
+    iat: number;
+    exp: number;
+}
+export interface CustomRequest extends Request {
+    user?: DecodedToken;
+}
 export const register = async (req: Request, res: Response) => {
     try {
         const { email, password, role, name, subject, dob, major, gender, phone, address } = req.body;
@@ -51,7 +61,6 @@ export const register = async (req: Request, res: Response) => {
 
         // Mã hóa mật khẩu
         const hassPass = await bcryptjs.hash(password, 10);
-        console.log("REQ BODY:", req.body);
         // Tạo bản ghi trong bảng auths
         const auth = await AuthSchema.create({
             email,
@@ -117,7 +126,8 @@ export const login = async (req: Request, res: Response) => {
                 })
             }
             user.password = undefined as unknown as string;
-            const token = await jwt.sign({ userId: user._id, role: user.role }, "xxx", { expiresIn: "1h" });
+            console.log("user",user)
+            const token = await jwt.sign({ userId: user._id, role: user.role }, "dungnt", { expiresIn: "1h" });
             let userInfo = null;
             switch (user.role) {
                 case 'student':
@@ -171,3 +181,39 @@ export const logout = async (req: Request, res: Response) => {
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: "Internal Server Error" });
     }
 };
+
+export const authMiddleware = async (req: CustomRequest, res: Response, next: NextFunction) => {
+    const authHeader = req.headers.authorization;
+    if (!authHeader?.startsWith('Bearer ')) {
+        return res.status(401).json({ message: 'No token provided' });
+    }
+    const token = authHeader.split(' ')[1];
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'xxx') as DecodedToken;
+        // decoded có thể có authId, role, email, ...
+        // 1. Lấy auth document để kiểm tra
+        const authDoc = await Auth.findById(decoded.authId);
+        if (!authDoc) return res.status(401).json({ message: 'Auth not found' });
+
+        // 2. Tùy role, lấy user tương ứng (giả sử bạn có role trong token)
+        let userDoc;
+        if (decoded.role === 'student') {
+            userDoc = await Student.findOne({ authId: decoded.authId });
+        } else if (decoded.role === 'teacher') {
+            userDoc = await Teacher.findOne({ authId: decoded.authId });
+        } else if (decoded.role === 'admin') {
+            userDoc = await Auth.findOne({ authId: decoded.authId }); // hoặc bảng admin
+        }
+
+        if (!userDoc) return res.status(401).json({ message: 'User not found' });
+
+        // 3. Gán req.user với _id thực sự của userDoc, cùng role và email từ token
+        // req.user = {
+        //     userId: userDoc._id.toString(),  // ID của user/student/teacher
+        //     role: decoded.role,
+        // };
+        // next();
+    } catch (err) {
+        return res.status(401).json({ message: 'Invalid token' });
+    }
+}

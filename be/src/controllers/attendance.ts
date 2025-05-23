@@ -4,6 +4,13 @@ import TeachingAssignment from "../model/teachingassignment";
 import Enrollment from "../model/enrollment";
 import Attendance from "../model/attdance";
 import { StatusCodes } from "http-status-codes";
+interface CustomRequest extends Request {
+    user: {
+        _id: string;
+        role: string;
+        email: string;
+    };
+}
 
 export const CreateAttendance = async (req: Request, res: Response) => {
     try {
@@ -53,4 +60,35 @@ export const CreateAttendance = async (req: Request, res: Response) => {
     } catch (error) {
         handleError(res, error)
     }
-}   
+}
+
+export const getAttendanceHistory = async (req: CustomRequest, res: Response) => {
+    const { role } = req.user;
+    const { teaching_assignment_id, from, to } = req.query;
+
+    let match: any = {};
+    if (teaching_assignment_id) match.teaching_assignment_id = teaching_assignment_id;
+    if (from || to) {
+        match.date = {};
+        if (from) match.date.$gte = new Date(String(from));
+        if (to) match.date.$lte = new Date(String(to));
+    }
+    console.log(" req.user", req.user)
+    if (role === 'student') {
+        match['attendances.student_id'] = req.user._id;
+    }
+    if (role === 'teacher') {
+        match.created_by = req.user._id;
+    }
+    console.log("match", match)
+    const data = await Attendance.find(match)
+        .populate('teaching_assignment_id')
+        .populate('attendances.student_id');
+
+    return res.status(StatusCodes.OK).json({
+        data: {
+            message: 'Thành công',
+            data: data
+        }
+    })
+}
