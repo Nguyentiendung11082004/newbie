@@ -13,11 +13,12 @@ import Student from "../model/student";
 import Teacher from "../model/teacher";
 import Auth from "../model/auth";
 interface DecodedToken {
-    userId: string;
-    authId: string;
-    role: string;
-    iat: number;
-    exp: number;
+    userId?: string;
+    authId?: string;
+    role?: string;
+    iat?: number;
+    exp?: number;
+    user?: any;
 }
 export interface CustomRequest extends Request {
     user?: DecodedToken;
@@ -126,7 +127,7 @@ export const login = async (req: Request, res: Response) => {
                 })
             }
             user.password = undefined as unknown as string;
-            console.log("user",user)
+            console.log("user", user)
             const token = await jwt.sign({ userId: user._id, role: user.role }, "dungnt", { expiresIn: "1h" });
             let userInfo = null;
             switch (user.role) {
@@ -192,28 +193,29 @@ export const authMiddleware = async (req: CustomRequest, res: Response, next: Ne
         const decoded = jwt.verify(token, process.env.JWT_SECRET || 'xxx') as DecodedToken;
         // decoded có thể có authId, role, email, ...
         // 1. Lấy auth document để kiểm tra
-        const authDoc = await Auth.findById(decoded.authId);
+        const authDoc = await Auth.findById(decoded.userId);
         if (!authDoc) return res.status(401).json({ message: 'Auth not found' });
 
         // 2. Tùy role, lấy user tương ứng (giả sử bạn có role trong token)
         let userDoc;
-        if (decoded.role === 'student') {
-            userDoc = await Student.findOne({ authId: decoded.authId });
-        } else if (decoded.role === 'teacher') {
-            userDoc = await Teacher.findOne({ authId: decoded.authId });
-        } else if (decoded.role === 'admin') {
-            userDoc = await Auth.findOne({ authId: decoded.authId }); // hoặc bảng admin
+        if (decoded.role == 'student') {
+            userDoc = await Student.findOne({ authId: decoded.userId });
+        } else if (decoded.role == 'teacher') {
+            userDoc = await Teacher.findOne({ authId: decoded.userId });
+        } else if (decoded.role == 'admin') {
+            userDoc = await Auth.findOne({ _id: decoded.userId }); // hoặc bảng admin
         }
 
         if (!userDoc) return res.status(401).json({ message: 'User not found' });
 
         // 3. Gán req.user với _id thực sự của userDoc, cùng role và email từ token
-        // req.user = {
-        //     userId: userDoc._id.toString(),  // ID của user/student/teacher
-        //     role: decoded.role,
-        // };
-        // next();
+        req.user = {
+            userId: (userDoc as { _id: any })._id.toString(),
+            role: decoded.role,
+        };
+        next();
     } catch (err) {
+        console.log("err", err)
         return res.status(401).json({ message: 'Invalid token' });
     }
 }
