@@ -4,14 +4,20 @@ import TeachingAssignment from "../model/teachingassignment";
 import Enrollment from "../model/enrollment";
 import Attendance from "../model/attdance";
 import { StatusCodes } from "http-status-codes";
+import mongoose from 'mongoose';
 interface CustomRequest extends Request {
     user: {
         _id: string;
         role: string;
         email: string;
+        userId: string;
+    };
+    query: {
+        teaching_assignment_id?: string | string[];
+        from?: string;
+        to?: string;
     };
 }
-
 export const CreateAttendance = async (req: Request, res: Response) => {
     try {
         const { teaching_assignment_id, date, attendances } = req.body;
@@ -61,36 +67,141 @@ export const CreateAttendance = async (req: Request, res: Response) => {
         handleError(res, error)
     }
 }
-
 export const getAttendanceHistory = async (req: CustomRequest, res: Response) => {
     try {
-        const { role } = req.user;
+        const { role, userId } = req.user;
         const { teaching_assignment_id, from, to } = req.query;
 
-        let match: any = {};
-        if (teaching_assignment_id) match.teaching_assignment_id = teaching_assignment_id;
+        // Helper chuyển string | string[] sang ObjectId hoặc undefined
+        function toObjectId(id: string | string[] | undefined) {
+            if (!id) return undefined;
+            if (Array.isArray(id)) id = id[0];
+            try {
+                return new mongoose.Types.ObjectId(id);
+            } catch {
+                return undefined;
+            }
+        }
+
+        // Tạo match filter cho $match trong pipeline
+        const match: any = {};
+        const teachingAssignmentObjectId = toObjectId(teaching_assignment_id);
+        if (teachingAssignmentObjectId) {
+            match.teaching_assignment_id = teachingAssignmentObjectId;
+        }
         if (from || to) {
             match.date = {};
-            if (from) match.date.$gte = new Date(String(from));
-            if (to) match.date.$lte = new Date(String(to));
+            if (from) match.date.$gte = new Date(from);
+            if (to) match.date.$lte = new Date(to);
         }
+
+        // Tạo điều kiện lọc attendances theo role (student hoặc teacher)
+        let filterCond = null;
         if (role === 'student') {
-            match['attendances.student_id'] = req.user._id;
+            filterCond = { $eq: ['$$attendance.student_id', new mongoose.Types.ObjectId(userId)] };
+        } else if (role === 'teacher') {
+            filterCond = { $eq: ['$$attendance.teacher_id', new mongoose.Types.ObjectId(userId)] };
         }
-        if (role === 'teacher') {
-            match.created_by = req.user._id;
-        }
-        const data = await Attendance.find(match)
-            .populate('teaching_assignment_id')
-            .populate('attendances.student_id');
+
+        // Build pipeline aggregation
+        const pipeline: any[] = [];
+
+        // 1. Lọc theo điều kiện chung
+        pipeline.push({ $match: match });
+
+        // 2. Lọc attendances trong mảng theo filterCond (nếu có)
+        pipeline.push({
+            $addFields: {
+                attendances: filterCond
+                    ? {
+                        $filter: {
+                            input: '$attendances',
+                            as: 'attendance',
+                            cond: filterCond,
+                        },
+                    }
+                    : '$attendances',
+            },
+        });
+
+        // 3. Lookup lấy dữ liệu teaching_assignment
+        pipeline.push({
+            $lookup: {
+                from: 'teachingassignments', // tên collection phải đúng
+                localField: 'teaching_assignment_id',
+                foreignField: '_id',
+                as: 'teaching_assignment',
+            },
+        });
+        pipeline.push({ $unwind: '$teaching_assignment' });
+
+        // 4. Lookup để populate attendances.student_id (join student info)
+        pipeline.push({ $unwind: { path: '$attendances', preserveNullAndEmptyArrays: true } });
+        pipeline.push({
+            $lookup: {
+                from: 'students',
+                localField: 'attendances.student_id',
+                foreignField: '_id',
+                as: 'attendances.student',
+            },
+        });
+        pipeline.push({ $unwind: { path: '$attendances.student', preserveNullAndEmptyArrays: true } });
+
+        // 5. Gom lại thành mảng attendances
+        pipeline.push({
+            $group: {
+                _id: '$_id',
+                teaching_assignment: { $first: '$teaching_assignment' },
+                date: { $first: '$date' },
+                attendances: { $push: '$attendances' },
+                createdAt: { $first: '$createdAt' },
+                updatedAt: { $first: '$updatedAt' },
+            },
+        });
+
+        // 6. (Tùy chọn) Sắp xếp theo date giảm dần
+        pipeline.push({ $sort: { date: -1 } });
+
+        const data = await Attendance.aggregate(pipeline);
 
         return res.status(StatusCodes.OK).json({
-            data: {
-                message: 'Thành công',
-                data: data
-            }
-        })
+            message: 'Thành công',
+            data,
+        });
     } catch (error) {
-        handleError(res, error)
+        console.error('getAttendanceHistory error:', error);
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: 'Lỗi server' });
     }
-}
+};
+// export const getAttendanceHistory = async (req: CustomRequest, res: Response) => {
+//     try {
+//         const { role } = req.user;
+//         const { teaching_assignment_id, from, to } = req.query;
+
+//         let match: any = {};
+//         if (teaching_assignment_id) match.teaching_assignment_id = teaching_assignment_id;
+//         if (from || to) {
+//             match.date = {};
+//             if (from) match.date.$gte = new Date(String(from));
+//             if (to) match.date.$lte = new Date(String(to));
+//         }
+//         if (role === 'student') {
+//             match['attendances.student_id'] = req.user.userId;
+//         }
+//         if (role === 'teacher') {
+//             match['attendances.teacher_id'] = req.user.userId;
+//         }
+//         console.log("match", match)
+//         const data = await Attendance.find(match)
+//             .populate('teaching_assignment_id')
+//             .populate('attendances.student_id');
+//         return res.status(StatusCodes.OK).json({
+//             data: {
+//                 message: 'Thành công',
+//                 data: data
+//             }
+//         })
+//     } catch (error) {
+//         handleError(res, error)
+//     }
+// }

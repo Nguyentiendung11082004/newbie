@@ -3,6 +3,9 @@
 @tailwind utilities;
 @layer tailwind-base, antd;
 
+body {
+  margin: 0;
+}
 /* @layer tailwind-base {
   @tailwind base;
 }

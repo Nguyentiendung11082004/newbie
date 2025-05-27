@@ -53,9 +53,14 @@ const TeacherClass = (props: Props) => {
       title: 'Thao tác',
       dataIndex: '',
       render: (_value, _record, index) => {
-        return <Button type="primary" size="small" onClick={()=> nav(`/teacher/classes/${_value._id}`)}>
-          Xem chi tiết
-        </Button>
+        return <>
+          <Button type="primary" size="small" onClick={() => nav(`/teacher/classes/${_value._id}`)}>
+            Xem chi tiết
+          </Button>
+          <Button type="primary" size="small" onClick={() => nav(`/history/${_value._id}`)}>
+            Xem lịch sử
+          </Button>
+        </>
       }
     },
   ]

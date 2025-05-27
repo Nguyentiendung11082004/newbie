@@ -36,3 +36,6 @@ export const TechingAssignmentServices = {
 export const AttendanceServices = {
     CreateAttendance: (pay: {}) => axiosClient.post(`/attendance/CreateAttendance`, pay)
 }
+export const HistoryServices = {
+    GetAttendanceHistory: (id: string, from: string, to: string) => axiosClient.get(`attendance?teaching_assignment_id=${id}&from=${from}&to=${to}`)
+}

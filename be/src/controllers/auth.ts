@@ -128,7 +128,7 @@ export const login = async (req: Request, res: Response) => {
             }
             user.password = undefined as unknown as string;
             console.log("user", user)
-            const token = await jwt.sign({ userId: user._id, role: user.role }, "dungnt", { expiresIn: "1h" });
+            const token = await jwt.sign({ userId: user._id, role: user.role }, "dungnt", { expiresIn: "7d" });
             let userInfo = null;
             switch (user.role) {
                 case 'student':

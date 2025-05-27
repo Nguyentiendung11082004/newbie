@@ -40,7 +40,7 @@ const RouterApp = () => {
         
 
         <Route path='/student/subjects' element={<SubjectStudent />} />
-        <Route path='/history' element={<History />} />
+        <Route path='/history/:id' element={<History />} />
       </Route>
       <Route path='/login' element={<Login />} />
       <Route path='/register' element={<Register />} />

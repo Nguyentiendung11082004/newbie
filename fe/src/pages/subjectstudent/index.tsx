@@ -6,11 +6,18 @@ import { initFilter } from '../../common/helpfunction';
 import { ColumnType } from 'antd/es/table';
 import DialogSubject from './dialogstudentsubject';
 import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
 
 type Props = {}
+interface SubjectStudent {
+  teaching_assignment_id: {
+    _id: string;
+  }
+}
 const { Title } = Typography;
 const SubjectStudent = (props: Props) => {
   const user = useAppSelector((state) => state.user.userInfo);
+  const nav = useNavigate()
   const [filter, setFilter] = useState(initFilter);
   const [isOpen, setIsOpen] = useState(false)
   const [data, setData] = useState([])
@@ -39,7 +46,7 @@ const SubjectStudent = (props: Props) => {
   const handleUpdate = (value: any) => {
 
   }
-  const columns: ColumnType<any[]>[] = [
+  const columns: ColumnType<SubjectStudent>[] = [
     {
       title: 'STT',
       dataIndex: 'STT',
@@ -88,6 +95,7 @@ const SubjectStudent = (props: Props) => {
           >
             <Button danger size="small">Huỷ</Button>
           </Popconfirm>
+          <Button size="small" onClick={() => nav(`/history/${record?.teaching_assignment_id._id}`)}>Lịch sử điểm danh</Button>
         </Space>
       )
 
@@ -106,7 +114,7 @@ const SubjectStudent = (props: Props) => {
       </div>
       <Table
         rowKey="_id"
-        columns={columns} 
+        columns={columns}
         dataSource={data}
       // pagination={{
       //   current: filter.CurrentPage,

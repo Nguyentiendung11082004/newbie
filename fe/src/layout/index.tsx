@@ -9,7 +9,8 @@ import {
   SolutionOutlined,
   TeamOutlined,
   UserOutlined,
-  CheckCircleOutlined
+  CheckCircleOutlined,
+  UserSwitchOutlined
 } from '@ant-design/icons';
 import { Avatar, Button, Dropdown, Layout, Menu, theme } from 'antd';
 import { useState } from 'react';
@@ -42,7 +43,7 @@ const LayoutDashboard = () => {
     },
     {
       key: 'history',
-      icon: <DashboardOutlined />,
+      icon: <UserSwitchOutlined />,
       label: 'Lịch sử điểm danh',
       url: '/history',
       permission: ['admin', 'teacher', 'student'],
@@ -209,7 +210,7 @@ const LayoutDashboard = () => {
           theme="dark"
           mode="inline"
           selectedKeys={menuItems
-            .filter(item => matchPath(location.pathname, item.url))
+            .filter(item => matchPath({ path: item.url, end: false }, location.pathname))
             .map(item => item.key)}
           // items={menuItems.map(({ key, icon, label, url }) => ({
           //     key,
