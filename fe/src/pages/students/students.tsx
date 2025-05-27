@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { StudentServices } from '../../services/student.services';
 import { IStudents } from '../../types/student';
 import { formatDateStringGMT } from '../../common/helpfunction';
+import React from 'react';
 
 const { Title } = Typography;
 
@@ -46,10 +47,27 @@ const Student = () => {
       }
     },
     {
+      title: 'Số điện thoại',
+      dataIndex: 'phone'
+    },
+    {
+      title: 'Địa chỉ',
+      dataIndex: 'address'
+    },
+
+    {
       title: 'Giới tính',
       dataIndex: 'gender'
     },
+    {
+      title: 'Thời gian nhập học',
+      dataIndex: 'createdAt',
+      render: (value, record, index) => {
+        return formatDateStringGMT(record.createdAt, "dd/mm/yyyy")
+      }
+    },
   ];
+
 
   useEffect(() => {
     getData();
