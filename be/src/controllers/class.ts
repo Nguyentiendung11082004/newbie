@@ -54,7 +54,6 @@ export const getClassById = async (req: any, res: any) => {
     }
 }
 export const createClass = async (req: Request, res: Response) => {
-    console.log("chay")
     try {
         const data = await Class.create(req.body);
         res.status(StatusCodes.OK).json({

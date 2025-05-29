@@ -2,7 +2,8 @@ import axiosClient from "./axiosClient.setup";
 
 const tc = 'teachingassignment/'
 export const StudentServices = {
-    GetList: (params: any) => axiosClient.post('/students', params)
+    GetList: (params: any) => axiosClient.post('/students', params),
+    Export: ()=> axiosClient.get('/students/export-student')
 }
 
 export const StudentSubjectServices = {

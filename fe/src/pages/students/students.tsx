@@ -1,10 +1,12 @@
-import { Table, Typography } from 'antd';
+/// <reference types="vite/client" />
+import { Button, Table, Typography } from 'antd';
 import type { ColumnType } from 'antd/es/table';
 import { useEffect, useState } from 'react';
 import { StudentServices } from '../../services/student.services';
 import { IStudents } from '../../types/student';
 import { formatDateStringGMT } from '../../common/helpfunction';
 import React from 'react';
+import { toast } from 'react-toastify';
 
 const { Title } = Typography;
 
@@ -29,6 +31,14 @@ const Student = () => {
       setData(res.data);
     }
   };
+
+  const handleExport = async () => {
+    let res = await StudentServices.Export();
+    if(res) {
+      toast.success(res.data.message)
+    }
+    // window.open(import.meta.env.VITE_API_URL + res.data.Url)
+  }
   const columns: ColumnType<IStudents>[] = [
     {
       title: 'STT',
@@ -76,6 +86,7 @@ const Student = () => {
   return (
     <>
       <Title level={4}>Danh sách sinh viên</Title>
+      <Button onClick={handleExport}>Xuất Excel</Button>
       <Table
         rowKey="_id"
         columns={columns}

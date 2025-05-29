@@ -17,7 +17,7 @@ app.use(cors({
   credentials: true,
 }));
 app.use(morgan("tiny"));
-
+app.use('/TempFile', express.static('public/TempFile'));
 // Kết nối database
 ConnectDataBase(process.env.MONGO_URI || '');
 // Router
