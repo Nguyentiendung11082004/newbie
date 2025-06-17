@@ -22,7 +22,9 @@ app.use(cors({
 app.use(morgan("tiny"));
 app.use('/TempFile', express.static('public/TempFile'));
 // Kết nối database
-ConnectDataBase(process.env.DB_URI || '');
+const isDev = process.env.NODE_ENV === 'development';
+const uri = isDev ? process.env.MONGO_URI : process.env.DB_URI;
+ConnectDataBase(uri || '');
 // Router
 routes(app);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
