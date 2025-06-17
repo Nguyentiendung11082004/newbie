@@ -4,6 +4,7 @@ import express from "express";
 import morgan from "morgan";
 import { ConnectDataBase } from "./config/dbconfig";
 import routes from "./routes";
+import { swaggerSpec, swaggerUi } from "./config/swagger";
 
 // Khởi tạo app
 const app = express();
@@ -13,7 +14,9 @@ dotenv.config();
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cors({
-  origin: 'http://localhost:5173',
+  origin: (origin, callback) => {
+    callback(null, true); // chấp nhận tất cả origin
+  },
   credentials: true,
 }));
 app.use(morgan("tiny"));
@@ -22,7 +25,7 @@ app.use('/TempFile', express.static('public/TempFile'));
 ConnectDataBase(process.env.MONGO_URI || '');
 // Router
 routes(app);
-
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
 // Khởi chạy server
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
