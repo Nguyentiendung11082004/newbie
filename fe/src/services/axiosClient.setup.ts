@@ -1,8 +1,8 @@
+/// <reference types="vite/client" />
 import axios from 'axios';
 import { toast } from 'react-toastify';
-console.log("env", import.meta.env.VITE_API_URL);
 const axiosClient = axios.create({
-    baseURL: import.meta?.env.VITE_API_URL,
+    baseURL: import.meta.env.VITE_API_URL,
     headers: {
         'Content-Type': 'application/json',
     },
