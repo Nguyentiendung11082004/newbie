@@ -14,11 +14,9 @@ dotenv.config();
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cors({
-  origin: (origin, callback) => {
-    callback(null, true); // chấp nhận tất cả origin
-  },
-  credentials: true,
+  origin: "*", // thử để debug
 }));
+
 app.use(morgan("tiny"));
 app.use('/TempFile', express.static('public/TempFile'));
 // Kết nối database
