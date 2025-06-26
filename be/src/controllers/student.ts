@@ -6,6 +6,7 @@ import * as XLSX from 'xlsx';
 import path from "path";
 
 export const getAllStudents = async (req: Request, res: Response) => {
+    console.log("chay")
     try {
         const {
             _page = 1,

@@ -66,7 +66,7 @@ export const register = async (req: Request, res: Response) => {
         const auth = await AuthSchema.create({
             email,
             password: hassPass,
-            role,
+            role,   
         });
         let user;
         // Tạo bản ghi trong bảng students nếu là sinh viên

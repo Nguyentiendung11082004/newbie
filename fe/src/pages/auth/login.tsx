@@ -3,7 +3,7 @@ import { Button, Form, Input } from 'antd';
 import type { FormProps } from 'antd';
 import { AuthServices } from '../../services/auth.services';
 import { toast } from 'react-toastify';
-import { useNavigate, useNavigation } from 'react-router-dom';
+import { Link, useNavigate, useNavigation } from 'react-router-dom';
 import { setUser } from '../../redux/slices/userSlice';
 import { useAppDispatch } from '../../redux/hook';
 
@@ -59,7 +59,9 @@ const Login: React.FC = () => {
           >
             <Input.Password className="h-10 rounded-lg border border-gray-300 px-3" />
           </Form.Item>
-
+          <Link to="/register" >
+            Đăng ký
+          </Link>
           <Form.Item>
             <Button
               type="primary"

@@ -53,12 +53,16 @@ export const GetEnrollmentBySemester = async (req: Request, res: Response) => {
             },
             { $sort: { _id: 1 } }
         ]);
-        console.log("result", result)
         const formatted = result.map(item => ({
             semester: item._id,
             count: item.count
         }));
-        //   res.json(formatted);
+        res.status(StatusCodes.OK).json({
+            data: {
+                message: 'Thành công',
+                data: formatted
+            }
+        })
     } catch (error) {
         handleError(res, error);
     }
@@ -75,15 +79,23 @@ export const GetStudentByMajor = async (req: Request, res: Response) => {
                 }
             },
             // { $unwind: '$class' },
-            // {
-            //     $group: {
-            //         _id: '$class.name',
-            //         count: { $sum: 1 }
-            //     }
-            // },
-            // { $sort: { count: -1 } }
+            {
+                $group: {
+                    _id: '$class.name',
+                    count: { $sum: 1 }
+                }
+            },
+            { $sort: { count: -1 } }
         ])
-        console.log("result", result)
+        res.status(StatusCodes.OK).json({
+            data: {
+                message: 'Thành công',
+                data: result.map(item => ({
+                    major: item._id,
+                    count: item.count
+                }))
+            }
+        })
     } catch (error) {
         handleError(res, error)
     }
