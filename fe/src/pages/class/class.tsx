@@ -5,6 +5,7 @@ import { useAppDispatch, useAppSelector } from '../../redux/hook';
 import { useEffect, useState } from 'react';
 import { GetDataClass } from '../../redux/slices/classSlice';
 import DialogClass from './dialogclass';
+import React from 'react';
 const { Title } = Typography;
 const Class = () => {
     const dispatch = useAppDispatch()

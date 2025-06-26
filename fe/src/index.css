@@ -1,17 +1,12 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-@layer tailwind-base, antd;
-
+@layer antd;
+@import "tailwindcss";
 body {
   margin: 0;
 }
-/* @layer tailwind-base {
-  @tailwind base;
-}
+
 @layer antd {
   @import "antd/dist/reset.css";
 }
 body {
   font-family: 'Roboto', sans-serif;
-} */
+} 
