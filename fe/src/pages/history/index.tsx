@@ -64,7 +64,7 @@ const History = () => {
     {
       title: 'Tên sinh viên',
       dataIndex: 'studentName',
-      render: (_v, _record: any) => <span>{_record.attendances[0].student.name}</span>
+      render: (_v, _record: any) => <span>{_record.attendances[0].student?.name}</span>
     },
     {
       title: 'Trạng thái',
