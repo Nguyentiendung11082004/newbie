@@ -1,6 +1,11 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { ClassServices } from "../../services/student.services";
-
+interface Class {
+    _id: string;
+    name: string;
+    // Thêm field khác nếu có
+  }
+  
 interface ClassState {
     data: any[];
     loading: boolean;

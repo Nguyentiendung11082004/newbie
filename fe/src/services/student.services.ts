@@ -3,7 +3,7 @@ import axiosClient from "./axiosClient.setup";
 const tc = 'teachingassignment/'
 export const StudentServices = {
     GetList: (params: any) => axiosClient.post('/students', params),
-    Export: ()=> axiosClient.get('/students/export-student')
+    Export: () => axiosClient.get('/students/export-student')
 }
 
 export const StudentSubjectServices = {
@@ -39,4 +39,10 @@ export const AttendanceServices = {
 }
 export const HistoryServices = {
     GetAttendanceHistory: (id: string, from: string, to: string) => axiosClient.get(`attendance?teaching_assignment_id=${id}&from=${from}&to=${to}`)
+}
+export const GradeServices = {
+    GetStudentForGrading: (params) => axiosClient.post(`grade/GetStudentListForGrading`, params),
+    CreateGrade: (params) => axiosClient.post(`grade/CreateGrade`, params),
+    GetMyGrades: (params) => axiosClient.post(`grade/GetMyGrades`, params),
+
 }

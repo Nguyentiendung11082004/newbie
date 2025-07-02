@@ -3,6 +3,7 @@ import mongoosePaginate from "mongoose-paginate-v2";
 export interface IStudent extends Document {
     authId: mongoose.Types.ObjectId;
     name: string;
+    StudentCode: string;
     dob: Date;
     gender: "Nam" | "Nữ" | "Khác";
     phone: string;
@@ -21,6 +22,10 @@ const StudentSchema = new mongoose.Schema({
         required: true,
         lowercase: true,
         index: true,
+    },
+    StudentCode: {
+        type: String,
+        required: true,
     },
     email: {
         type: String,

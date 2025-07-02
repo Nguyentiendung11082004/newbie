@@ -5,6 +5,7 @@ export interface IEnrollment extends Document {
   student_id: mongoose.Types.ObjectId;
   teaching_assignment_id: mongoose.Types.ObjectId;
   status: string;
+  StudentCode: string;
   enrolled_at: Date;
   course_schedule?: { dayOfWeek: string; startTime: string; endTime: string }[];
   semester?: string;  // Học kỳ
