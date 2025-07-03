@@ -6,6 +6,7 @@ import { GetDataSubject } from '../../redux/slices/subjectSlice';
 import { GetDataTeacher } from '../../redux/slices/teacherSlice';
 import { toast } from 'react-toastify';
 import { Modal as AntModal } from "antd"
+import React from 'react';
 type Props = {
     isModalOpen: boolean,
     setIsOpen: any,
@@ -24,7 +25,6 @@ const DialogSubject = ({ isModalOpen, setIsOpen, dataEdit, setDataEdit }: Props)
         subject_id: '',
         student_id: userId,
         teacher_id: '',
-
     }
     const [payload, setPayload] = useState(init)
     const handleOk = async () => {

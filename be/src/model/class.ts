@@ -15,12 +15,11 @@ const ClassSchema = new mongoose.Schema({
         type: Number,
         required: true,
     },
-    MajorId: [
-        {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'TeachingAssignment'
-        }
-    ]
+    MajorId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Major',
+        required: true
+    }
 }, 
 {
     timestamps: true, versionKey: false

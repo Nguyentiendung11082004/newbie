@@ -1,5 +1,5 @@
-import axiosClient from "./axiosClient.setup";
-
+import { ApiResponse } from "../types/api";
+import axiosClient, { request } from "./axiosClient.setup";
 const tc = 'teachingassignment/'
 export const StudentServices = {
     GetList: (params: any) => axiosClient.post('/students', params),
@@ -15,7 +15,7 @@ export const StudentSubjectServices = {
     GetEnrollmentByTeacher: (params: any) => axiosClient.post(`enrollsubject/GetEnrollmentByTeacher`, params)
 }
 export const SubjectServices = {
-    GetList: (page: number, limit: any) => axiosClient.get(`subject?_page=${page}&_limit=${limit}&_sort=createdAt&_order=asc`),
+    GetList: (page: number, limit: number) => request.get<ApiResponse<any[]>>(`/subject?page=${page}&limit=${limit}`),
     GetAll: () => axiosClient.get('subject/all'),
     Add: (params: any) => axiosClient.post(`/subject`, params)
 }

@@ -13,6 +13,7 @@ export interface IAttendance extends Document {
       note: string;
       attendances: IAttendanceRecord[];
 }
+// collection lưu trữ dữ liệu điểm danh
 const AttendanceSchema = new mongoose.Schema({
     teaching_assignment_id: {
       type: mongoose.Schema.Types.ObjectId,

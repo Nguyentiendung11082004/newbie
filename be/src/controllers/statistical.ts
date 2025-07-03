@@ -83,6 +83,7 @@ export const GetStudentByMajor = async (req: Request, res: Response) => {
             },
             { $sort: { count: -1 } }
         ])
+        console.log("result",result)
         res.status(StatusCodes.OK).json({
             message: 'Thành công',
             data: result.map(item => ({

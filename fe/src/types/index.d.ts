@@ -4,5 +4,5 @@ export interface Subject  {
     description: string;
     credit: number;
     prerequisite: string[]; 
-  };
+  }
   
