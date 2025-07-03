@@ -134,13 +134,18 @@ export const CreateEnrollSubject = async (req: Request, res: Response): Promise<
         })
         console.log("enrolledCount", enrolledCount)
         console.log(" teachingAssignment.maxStudent ", teachingAssignment.maxStudent)
-        const status = enrolledCount < teachingAssignment.maxStudent ? 'Approved' : 'Pending';
+        if (enrolledCount >= teachingAssignment.maxStudent) {
+            return res.status(StatusCodes.BAD_REQUEST).json({
+                message: 'Lớp học đã đầy, không thể ghi danh thêm.'
+            });
+        }
         const enrollment = await Enrollment.create({
             student_id,
             teaching_assignment_id: teachingAssignment._id,
-            status: status,
+            status: 'Approved',
             enrolled_at: new Date()
         });
+
         return res.status(StatusCodes.OK).json({
             data: {
                 message: 'Đăng ký môn học thành công.',

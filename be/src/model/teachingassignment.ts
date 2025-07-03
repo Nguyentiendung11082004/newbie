@@ -78,7 +78,7 @@ const TeachingAssignmentSchema = new mongoose.Schema<ITeachingAssignment>({
   maxStudent: {
     type: Number,
     required: true,
-    default: 0 
+    default: 40
   },
   room: {
     type: String,

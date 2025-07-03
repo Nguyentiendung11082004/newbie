@@ -4,7 +4,7 @@ import mongoosePaginate from "mongoose-paginate-v2";
 export interface IEnrollment extends Document {
   student_id: mongoose.Types.ObjectId;
   teaching_assignment_id: mongoose.Types.ObjectId;
-  semester?:  mongoose.Types.ObjectId;  // Học kỳ
+  // semester?:  mongoose.Types.ObjectId;  // Học kỳ
   status: string;
   StudentCode: string;
   enrolled_at: Date;
@@ -24,11 +24,11 @@ const EnrollmentSchema = new mongoose.Schema<IEnrollment>({
     ref: 'TeachingAssignment',
     required: true
   },
-  semester: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Semester',
-    required: true
-  },
+  // semester: {
+  //   type: mongoose.Schema.Types.ObjectId,
+  //   ref: 'Semester',
+  //   required: true
+  // },
   status: {
     type: String,
     enum: ['Pending', 'Approved', 'CancelledByStudent', 'Cancel'],
