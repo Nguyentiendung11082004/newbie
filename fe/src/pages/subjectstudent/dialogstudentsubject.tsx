@@ -172,7 +172,7 @@ const DialogSubject = ({ isModalOpen, setIsOpen, dataEdit, setDataEdit }: Props)
                             onChange={(e) => setPayload((prev) => ({ ...prev, subject_id: e }))}
                             style={{ width: '100%' }}
                         >
-                            {subject?.data?.data?.map((subject: any) => (
+                            {subject?.data?.map((subject: any) => (
                                 <Select.Option key={subject._id} value={subject._id}>
                                     {subject.name}
                                 </Select.Option>

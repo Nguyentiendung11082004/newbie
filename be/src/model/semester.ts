@@ -12,7 +12,7 @@ const SemesterSchema = new Schema(
     name: {
       type: String,
       required: true,
-      unique: true, 
+      unique: true,
     },
     code: {
       type: String,
@@ -35,4 +35,5 @@ const SemesterSchema = new Schema(
   { timestamps: true }
 );
 
-export const Semester = mongoose.model('Semester', SemesterSchema);
+const Semester = mongoose.model('Semester', SemesterSchema);
+export default Semester;

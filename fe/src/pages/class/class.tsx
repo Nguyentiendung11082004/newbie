@@ -31,11 +31,12 @@ const Class = () => {
         {
             title: 'Ngành học',
             dataIndex: '',
+            render: (_value: any, _record: any, index: any) => _record.MajorId?.name,
         }
     ];
     const handlePageChange = () => {
 
-    }   
+    }
     useEffect(() => {
         dispatch(GetDataClass())
     }, [])

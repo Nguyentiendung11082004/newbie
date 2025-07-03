@@ -4,7 +4,7 @@ export interface ITeachingAssignment extends Document {
   teacher_id: mongoose.Types.ObjectId;
   subject_id: mongoose.Types.ObjectId;
   class_id: mongoose.Types.ObjectId;
-  semester:  mongoose.Types.ObjectId;
+  semester_id:  mongoose.Types.ObjectId;
   startDate: Date;
   numberOfClasses: number;
   dayOfWeek: string[];
@@ -53,7 +53,7 @@ const TeachingAssignmentSchema = new mongoose.Schema<ITeachingAssignment>({
     ref: 'Class',
     required: true,
   },
-  semester: {
+  semester_id: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Semester',
     required: true

@@ -27,7 +27,6 @@ const init = {
 }
 const format = 'HH:mm';
 const DialogTechngassment = ({ isModalOpen, setVisible, dataEdit, setDataEdit }: Props) => {
-    console.log("hihihi")
     const [payload, setPayload] = useState(init)
     const dispatch = useAppDispatch();
     const arrThu = getDayOffWeek();
@@ -60,7 +59,7 @@ const DialogTechngassment = ({ isModalOpen, setVisible, dataEdit, setDataEdit }:
             setPayload(res.data.data)
         }
     }
-    const handleSetform = (props: any, value: any, record?: any) => {
+    const handleSetForm = (props: any, value: any, record?: any) => {
         setPayload((prev: any) => {
             if (record) {
                 const result = prev.weeklySchedule.map((e: any) => {
@@ -97,7 +96,7 @@ const DialogTechngassment = ({ isModalOpen, setVisible, dataEdit, setDataEdit }:
                     style={{ width: '100%' }}
                     placeholder="Thứ"
                     defaultValue={_record?.dayOfWeek}
-                    onChange={(e: any) => handleSetform('dayOfWeek', e, _record)}
+                    onChange={(e: any) => handleSetForm('dayOfWeek', e, _record)}
                     options={arrThu.map((e) => ({
                         value: e.value,
                         label: e.label
@@ -109,15 +108,16 @@ const DialogTechngassment = ({ isModalOpen, setVisible, dataEdit, setDataEdit }:
             title: 'Giờ bắt đầu',
             render: (_value: any, _record: any, index: any) => {
                 return (
-                    <TimePicker value={dayjs(_record?.startTime, format)} format={format} onChange={(time, timeString: any) => handleSetform("startTime", timeString, _record)} />
+                    <TimePicker value={_record?.startTime ? dayjs(_record.startTime, format) : null} format={format}
+                        onChange={(time, timeString: any) => handleSetForm("startTime", timeString, _record)} />
                 )
             }
         },
         {
             title: 'Giờ kết thúc',
             render: (_value: any, _record: any, index: any) => <div>
-                <TimePicker value={dayjs(_record?.endTime, format)} format={format}
-                    onChange={(time, timeString: any) => handleSetform("endTime", timeString, _record)}
+                <TimePicker value={_record?.endTime ? dayjs(_record.endTime, format) : null} format={format}
+                    onChange={(time, timeString: any) => handleSetForm("endTime", timeString, _record)}
                 />
             </div>
         },
@@ -163,7 +163,7 @@ const DialogTechngassment = ({ isModalOpen, setVisible, dataEdit, setDataEdit }:
     }, [dataEdit]);
 
     return (
-        <Modal title="Phân công giảng dạy" open={isModalOpen} onOk={handleOk} onCancel={() => handleClose()} width={800}>
+        <Modal title="Phân công giảng dạy" open={isModalOpen} onOk={handleOk} onCancel={() => handleClose()} width={1200}>
             <div className="space-y-8">
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Chọn môn học</label>
@@ -173,8 +173,8 @@ const DialogTechngassment = ({ isModalOpen, setVisible, dataEdit, setDataEdit }:
                         style={{ width: '100%' }}
                         placeholder="Please select"
                         value={(payload?.subject_id)}
-                        onChange={(e) => handleSetform('subject_id', e)}
-                        options={subject.data?.data?.map((e: any) => ({
+                        onChange={(e) => handleSetForm('subject_id', e)}
+                        options={subject.data?.map((e: any) => ({
                             value: e._id,
                             label: e.name
                         }))}
@@ -188,8 +188,8 @@ const DialogTechngassment = ({ isModalOpen, setVisible, dataEdit, setDataEdit }:
                         // disabled
                         style={{ width: '100%' }}
                         value={(payload?.class_id)}
-                        onChange={(e) => handleSetform('class_id', e)}
-                        options={arrClass.data?.data?.map((e: any) => ({
+                        onChange={(e) => handleSetForm('class_id', e)}
+                        options={arrClass?.data?.map((e: any) => ({
                             value: e._id,
                             label: e.ClassName
                         }))}
@@ -204,7 +204,7 @@ const DialogTechngassment = ({ isModalOpen, setVisible, dataEdit, setDataEdit }:
                         style={{ width: '100%' }}
                         placeholder="Please select"
                         value={(payload?.teacher_id)}
-                        onChange={(e) => handleSetform('teacher_id', e)}
+                        onChange={(e) => handleSetForm('teacher_id', e)}
                         options={teacher.data?.data?.map((e: any) => ({
                             value: e._id,
                             label: e.name
@@ -214,7 +214,7 @@ const DialogTechngassment = ({ isModalOpen, setVisible, dataEdit, setDataEdit }:
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Thời gian bắt đầu</label>
                     <DatePicker
-                        onChange={(e) => handleSetform('startDate', e)}
+                        onChange={(e) => handleSetForm('startDate', e)}
                         style={{ width: 280 }}
                         className="border border-gray-300 rounded-lg p-2 mt-4  text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
                         placeholder="Chọn"
@@ -225,11 +225,11 @@ const DialogTechngassment = ({ isModalOpen, setVisible, dataEdit, setDataEdit }:
                 </div>
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Số buổi</label>
-                    <Input value={payload?.numberOfClasses} onChange={(e) => handleSetform('numberOfClasses', e.target.value)} />
+                    <Input value={payload?.numberOfClasses} onChange={(e) => handleSetForm('numberOfClasses', e.target.value)} />
                 </div>
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Nhập kỳ học</label>
-                    <Input value={payload?.semester} onChange={(e) => handleSetform('semester', e.target.value)} />
+                    <Input value={payload?.semester} onChange={(e) => handleSetForm('semester', e.target.value)} />
                 </div>
                 <Table
                     rowKey="GUID"
