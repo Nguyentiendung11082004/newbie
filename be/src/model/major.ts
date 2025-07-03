@@ -6,7 +6,7 @@ export interface IMajor extends Document {
     code: string;
     description?: string;
 }
-
+// collection ngành học
 const MajorSchema = new mongoose.Schema<IMajor>({
     name: {
         type: String,

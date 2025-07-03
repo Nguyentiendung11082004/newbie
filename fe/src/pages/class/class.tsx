@@ -27,11 +27,15 @@ const Class = () => {
         {
             title: 'Năm học',
             dataIndex: 'AcademicYear',
+        },
+        {
+            title: 'Ngành học',
+            dataIndex: '',
         }
     ];
     const handlePageChange = () => {
 
-    }
+    }   
     useEffect(() => {
         dispatch(GetDataClass())
     }, [])
@@ -44,7 +48,7 @@ const Class = () => {
             <Table
                 rowKey="_id"
                 columns={columns}
-                dataSource={data.data}
+                dataSource={data}
                 pagination={{
                     current: filter.CurrentPage,
                     pageSize: filter.PageSize,

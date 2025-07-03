@@ -6,13 +6,14 @@ import { toast } from 'react-toastify';
 type Props = {
   isModalOpen: boolean,
   setOpen: any;
+  data: []
 }
-const DialogSubject = ({ isModalOpen, setOpen }: Props) => {
+const DialogSubject = ({ isModalOpen, setOpen, data }: Props) => {
   const [payload, setPayload] = useState<Subject>({
     name: '',
     code: '',
     description: '',
-    credit: 0,
+    credits: 0,
     prerequisite: [],
   });
   const handleSerForm = (prop: string, value: string | number) => {
@@ -27,13 +28,13 @@ const DialogSubject = ({ isModalOpen, setOpen }: Props) => {
       name: '',
       code: '',
       description: '',
-      credit: 0,
+      credits: 0,
       prerequisite: [],
     })
   }
   const handleOk = async () => {
     let res = await SubjectServices.Add(payload);
-    if (res.data.StatusCodes) {
+    if (res) {
       toast.success(res.data.message);
       handleClose()
     }
@@ -69,8 +70,8 @@ const DialogSubject = ({ isModalOpen, setOpen }: Props) => {
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Số tín chỉ</label>
           <Input type="number" placeholder="Nhập tín chỉ" className="h-10 rounded-md border border-gray-300 px-3"
-            value={payload?.credit}
-            onChange={(e) => handleSerForm('credit', e.target.value)}
+            value={payload?.credits}
+            onChange={(e) => handleSerForm('credits', e.target.value)}
           />
         </div>
 
@@ -79,13 +80,12 @@ const DialogSubject = ({ isModalOpen, setOpen }: Props) => {
           <Select
             placeholder="Chọn môn học tiên quyết"
             className="w-full"
-            value={''}
             mode="multiple"
-            onChange={() => { }}
-            options={[
-              { value: 'sub1', label: 'Toán cao cấp' },
-              { value: 'sub2', label: 'Nhập môn lập trình' },
-            ]}
+            onChange={(e) => setPayload((prev) => ({ ...prev, prerequisite: e }))}
+            options={data.map((e: any) => ({
+              value: e._id,
+              label: e.name
+            }))}
           />
         </div>
       </div>

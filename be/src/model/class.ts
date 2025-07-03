@@ -1,9 +1,10 @@
 import mongoose, { PaginateModel } from "mongoose";
 import mongoosePaginate from 'mongoose-paginate-v2';
+import "./major";
 import "./teachingassignment";
 export interface IClass extends Document {
      ClassName: string;
-     MajorId: mongoose.Types.ObjectId[];
+     MajorId: mongoose.Types.ObjectId;
      AcademicYear: number;
 }
 const ClassSchema = new mongoose.Schema({

@@ -25,7 +25,7 @@ export const TeacherServices = {
     GetById: (params: {}) => axiosClient.post('enrollsubject/GetEnrollmentsByTeachingAssignment', params)
 }
 export const ClassServices = {
-    GetList: (page: number, limit: any) => axiosClient.get(`/class?_page=${page}&_limit=${limit}&_sort=createdAt&_order=asc`),
+    GetList: (page: number, limit: any) => request.get<ApiResponse<any[]>>(`/class?_page=${page}&_limit=${limit}&_sort=createdAt&_order=asc`),
 };
 export const TechingAssignmentServices = {
     GetList: () => axiosClient.get(tc + `GetAllTeachingassignment`),

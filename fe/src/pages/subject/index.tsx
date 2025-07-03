@@ -75,7 +75,7 @@ const Subject = (props: Props) => {
           onChange: handlePageChange
         }}
       />
-      <DialogSubject isModalOpen={open} setOpen={setOpen} />
+      <DialogSubject isModalOpen={open} setOpen={setOpen} data={data} />
     </>
   )
 }

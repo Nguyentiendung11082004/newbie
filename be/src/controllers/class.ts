@@ -15,21 +15,21 @@ export const getAllClass = async (req: Request, res: Response) => {
         const options = {
             page: parseInt(_page as string),
             limit: parseInt(_limit as string),
-            sort: { [_sort as string]: _order === 'asc' ? 1 : -1 }
+            sort: { [_sort as string]: _order === 'asc' ? 1 : -1 },
+            populate: {
+                path: 'MajorId',
+                select: 'name'
+            }
         };
-
         const classs = await Class.paginate({}, options);
-
         res.status(StatusCodes.OK).json({
-            data: {
-                message: 'Thành công',
-                data: classs.docs,
-                pagination: {
-                    totalDocs: classs.totalDocs,
-                    totalPages: classs.totalPages,
-                    page: classs.page,
-                    limit: classs.limit
-                }
+            message: 'Thành công',
+            data: classs.docs,
+            pagination: {
+                totalDocs: classs.totalDocs,
+                totalPages: classs.totalPages,
+                page: classs.page,
+                limit: classs.limit
             }
         });
     } catch (error) {
