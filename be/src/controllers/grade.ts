@@ -22,11 +22,11 @@ interface student {
 }
 export const GetStudentListForGrading = async (req: IRequest, res: Response) => {
     try {
-        const { class_id, subject_id, semester } = req.body;
+        const { class_id, subject_id, semester_id } = req.body;
         const { role, userId } = req.user;
-        if (!class_id || !subject_id || !semester) {
+        if (!class_id || !subject_id || !semester_id) {
             return res.status(400).json({
-                message: 'Chưa đủ thông tin về class_id, subject_id, semester',
+                message: 'Chưa đủ thông tin về class_id, subject_id, semester_id',
                 StatusCodes: StatusCodes.BAD_REQUEST
             });
         }
@@ -35,7 +35,7 @@ export const GetStudentListForGrading = async (req: IRequest, res: Response) => 
         const assignment = await TeachingAssignment.findOne({
             class_id: new mongoose.Types.ObjectId(class_id as string),
             subject_id: new mongoose.Types.ObjectId(subject_id as string),
-            semester: semester,
+            semester_id: semester_id,
             teacher_id: userId,
         })
         if (!assignment) {
@@ -51,9 +51,9 @@ export const GetStudentListForGrading = async (req: IRequest, res: Response) => 
         const grades = await Grade.find({
             class_id,
             subject_id,
-            semester
+            semester_id
         });
-        console.log("grades",grades)
+        console.log("grades", grades)
         const gradeMap = new Map();
         grades.forEach(g => {
             gradeMap.set(g.student_id.toString(), g);
@@ -86,9 +86,9 @@ export const GetStudentListForGrading = async (req: IRequest, res: Response) => 
 
 export const CreateGrade = async (req: IRequest, res: Response) => {
     try {
-        const { class_id, subject_id, semester, grades } = req.body;
+        const { class_id, subject_id, semester_id, grades } = req.body;
         const { userId: teacher_id } = req.user;
-        if (!class_id || !subject_id || !semester || !grades || !Array.isArray(grades)) {
+        if (!class_id || !subject_id || !semester_id || !grades || !Array.isArray(grades)) {
             return res.status(StatusCodes.BAD_REQUEST).json({
                 success: false,
                 message: 'Thiếu thông tin class_id, subject_id, semester hoặc danh sách grades.'
@@ -97,10 +97,10 @@ export const CreateGrade = async (req: IRequest, res: Response) => {
         const assignment = await TeachingAssignment.findOne({
             class_id: new mongoose.Types.ObjectId(class_id),
             subject_id: new mongoose.Types.ObjectId(subject_id),
-            semester,
+            semester_id: new mongoose.Types.ObjectId(semester_id),
             teacher_id: new mongoose.Types.ObjectId(teacher_id),
         });
-
+        console.log("assignment",assignment)
         if (!assignment) {
             return res.status(StatusCodes.FORBIDDEN).json({
                 success: false,
@@ -108,50 +108,6 @@ export const CreateGrade = async (req: IRequest, res: Response) => {
             });
         }
         const bulkGrades: any = [];
-        // for (const g of grades) {
-        //     const { student_id, processScore, midtermScore, finalScore } = g;
-
-        //     if (!student_id || processScore == null || midtermScore == null || finalScore == null) {
-        //         continue;
-        //     }
-
-        //     const averageScore = parseFloat((
-        //         (processScore * 0.3) +
-        //         (midtermScore * 0.3) +
-        //         (finalScore * 0.4)
-        //     ).toFixed(2));
-
-        //     // Check đã có điểm chưa
-        //     const existing = await Grade.findOne({
-        //         student_id: new mongoose.Types.ObjectId(student_id),
-        //         subject_id: new mongoose.Types.ObjectId(subject_id),
-        //         semester,
-        //     });
-
-        //     if (existing) {
-        //         continue; // Bỏ qua nếu đã có
-        //     }
-
-        //     bulkGrades.push({
-        //         student_id,
-        //         subject_id,
-        //         class_id,
-        //         semester,
-        //         teacher_id,
-        //         processScore,
-        //         midtermScore,
-        //         finalScore,
-        //         averageScore,
-        //         status: 'completed'
-        //     });
-        // }
-
-        // if (bulkGrades.length === 0) {
-        //     return res.status(StatusCodes.CONFLICT).json({
-        //         success: false,
-        //         message: 'Tất cả sinh viên đã có điểm. Không có dữ liệu mới được thêm.'
-        //     });
-        // }
         for (const g of grades) {
             const { student_id, processScore, midtermScore, finalScore } = g;
 
@@ -168,7 +124,7 @@ export const CreateGrade = async (req: IRequest, res: Response) => {
             const filter = {
                 student_id: new mongoose.Types.ObjectId(student_id),
                 subject_id: new mongoose.Types.ObjectId(subject_id),
-                semester,
+                semester_id: new mongoose.Types.ObjectId(semester_id),
             };
 
             const status = averageScore >= 5 ? 'pass' : 'fail';
@@ -176,6 +132,7 @@ export const CreateGrade = async (req: IRequest, res: Response) => {
                 $set: {
                     class_id,
                     teacher_id,
+                    semester_id,
                     processScore,
                     midtermScore,
                     finalScore,

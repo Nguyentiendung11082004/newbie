@@ -18,7 +18,7 @@ const Grade = () => {
     const [payload, setPayload] = useState({
         class_id: '',
         subject_id: '',
-        semester: 'Summer 2025',
+        semester_id: '6864d9e0352ab358356f77f9',
         grades: []
     });
 
@@ -118,7 +118,7 @@ const Grade = () => {
                         value={payload.class_id}
                         onChange={(e) => setPayload((prev) => ({ ...prev, class_id: e }))}
                     >
-                        {classList?.data?.map((e) => (
+                        {classList?.map((e) => (
                             <Option key={e._id} value={e._id}>
                                 {e.ClassName}
                             </Option>
@@ -132,7 +132,7 @@ const Grade = () => {
                         value={payload.subject_id}
                         onChange={(e) => setPayload((prev) => ({ ...prev, subject_id: e }))}
                     >
-                        {subjectList?.data?.map((e) => (
+                        {subjectList?.map((e) => (
                             <Option key={e._id} value={e._id}>
                                 {e.name}
                             </Option>

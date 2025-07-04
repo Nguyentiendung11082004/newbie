@@ -10,7 +10,7 @@ interface IGrade {
     student_id: mongoose.Types.ObjectId,
     subject_id: mongoose.Types.ObjectId,
     class_id: mongoose.Types.ObjectId,
-    semester: mongoose.Types.ObjectId,
+    semester_id: mongoose.Types.ObjectId,
     teacher_id: mongoose.Types.ObjectId,
     processScore: number,
     midtermScore: number,
@@ -34,7 +34,7 @@ const GradeSchema = new mongoose.Schema<IGrade>({
         ref: 'Class',
         required: true,
     },
-    semester: {
+    semester_id: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Semester',
         required: true

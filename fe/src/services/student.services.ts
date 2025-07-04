@@ -35,7 +35,7 @@ export const TechingAssignmentServices = {
     Delete: (id: string) => axiosClient.delete(tc + `DeleteTeachingassignment/${id}`),
 }
 export const AttendanceServices = {
-    CreateAttendance: (pay: {}) => axiosClient.post(`/attendance/CreateAttendance`, pay)
+    CreateAttendance: (pay: {}) => request.post<ApiResponse<any[]>>(`/attendance/CreateAttendance`, pay)
 }
 export const HistoryServices = {
     GetAttendanceHistory: (id: string, from: string, to: string) => axiosClient.get(`attendance?teaching_assignment_id=${id}&from=${from}&to=${to}`)

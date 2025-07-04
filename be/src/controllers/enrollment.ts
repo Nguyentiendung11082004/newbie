@@ -270,7 +270,7 @@ export const GetEnrollmentsByTeachingAssignment = async (req: Request, res: Resp
             console.log("attendance", attendance)
             return {
                 ...enrollment.toObject(),
-                status: attendance?.status || 'chưa điểm danh',
+                status: attendance?.status || 'absent',
                 // attendance_note: attendance?.note || '',
             };
         });

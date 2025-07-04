@@ -6,7 +6,7 @@ export interface Pagination {
 }
 
 export interface ApiResponse<T> {
-    status: string;
+    status: string | number;
     message: string;
     data: T;
     pagination: Pagination;

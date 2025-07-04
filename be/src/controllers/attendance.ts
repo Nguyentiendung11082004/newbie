@@ -27,17 +27,28 @@ export const CreateAttendance = async (req: Request, res: Response) => {
         if (!teachingAssignment) {
             return res.status(StatusCodes.BAD_REQUEST).json({ message: 'Lớp học không tồn tại' });
         }
+        console.log("teachingAssignment",teachingAssignment)
+        // kiểm tra xem có đúng ngày đi học để điểm danh không
+        const dateObj = new Date(date).toISOString().split('T')[0];; // '2025-07-03' => Date
+        console.log("dateObj",dateObj)
+        const isInSchedule = teachingAssignment.schedule.some((schedule: any) => {
+            return schedule.date === dateObj;
+        });
+
+        if (!isInSchedule) {
+            return res.status(StatusCodes.BAD_REQUEST).json({ message: 'Ngày này không nằm trong lịch học của lớp',status: StatusCodes.BAD_REQUEST });
+        }
+
+
         // // Kiểm tra xem các sinh viên có phải đã ghi danh lớp học này không
         const enrolledStudents = await Enrollment.find({ teaching_assignment_id: teaching_assignment_id });
-        console.log("enrolledStudents", enrolledStudents)
         const enrolledStudentIds = enrolledStudents.map((enroll) => enroll.student_id.toString());
-        console.log("enrolledStudentIds", enrolledStudentIds)
         // Kiểm tra xem các student_id trong body có hợp lệ không
         const invalidAttendances = attendances.filter(
             (attendance: { student_id: string }) => !enrolledStudentIds.includes(attendance.student_id)
         );
         if (invalidAttendances.length > 0) {
-            return res.status(StatusCodes.BAD_REQUEST).json({ message: 'Một số sinh viên không có mặt trong lớp học này' });
+            return res.status(StatusCodes.BAD_REQUEST).json({ message: 'Một số sinh viên không có mặt trong lớp học này', status: StatusCodes.BAD_REQUEST });
         }
 
         // Kiểm tra xem điểm danh đã có cho ngày này chưa
@@ -50,6 +61,7 @@ export const CreateAttendance = async (req: Request, res: Response) => {
             return res.status(StatusCodes.OK).json({
                 message: 'Điểm danh đã được cập nhật',
                 data: existingAttendance,
+                status: StatusCodes.OK
             });
         }
         const data = await Attendance.create({
@@ -61,6 +73,7 @@ export const CreateAttendance = async (req: Request, res: Response) => {
             data: {
                 message: 'Điểm danh đã được tạo',
                 data: data,
+                status: StatusCodes.OK
             }
         });
     } catch (error) {
