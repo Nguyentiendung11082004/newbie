@@ -9,6 +9,7 @@ export interface IStudent extends Document {
     phone: string;
     address: string;
     classId: mongoose.Types.ObjectId[];
+    major_id: mongoose.Types.ObjectId;
 }
 
 const StudentSchema = new mongoose.Schema({
@@ -54,7 +55,12 @@ const StudentSchema = new mongoose.Schema({
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Class',
         }
-    ]
+    ],
+    major_id: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Major',
+        required: true
+    }
 }, {
     timestamps: true,
     versionKey: false

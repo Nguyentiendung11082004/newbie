@@ -24,7 +24,7 @@ const SubjectStudent = (props: Props) => {
   const [dataEdit, setDataEdit] = useState({})
   const getData = async () => {
     let pay = {
-      student_id: user.student._id
+      student_id: user.student?._id
     }
     let res = await StudentSubjectServices.GetSubjectEnroll(pay);
     setData(res?.data)

@@ -132,8 +132,6 @@ export const CreateEnrollSubject = async (req: Request, res: Response): Promise<
             teaching_assignment_id: teachingAssignment._id,
             status: { $in: ['Approved', 'Pending'] },
         })
-        console.log("enrolledCount", enrolledCount)
-        console.log(" teachingAssignment.maxStudent ", teachingAssignment.maxStudent)
         if (enrolledCount >= teachingAssignment.maxStudent) {
             return res.status(StatusCodes.BAD_REQUEST).json({
                 message: 'Lớp học đã đầy, không thể ghi danh thêm.'
@@ -145,13 +143,19 @@ export const CreateEnrollSubject = async (req: Request, res: Response): Promise<
             status: 'Approved',
             enrolled_at: new Date()
         });
-
+        const class_id = teachingAssignment.class_id;
+        // Cập nhật vào mảng classId của sinh viên (nếu chưa có)
+        await Student.updateOne(
+            { _id: student_id },
+            { $addToSet: { classId: class_id } }  // tránh thêm trùng
+        );
         return res.status(StatusCodes.OK).json({
             data: {
                 message: 'Đăng ký môn học thành công.',
                 data: enrollment
             }
         });
+
     } catch (error) {
         handleError(res, error);
     }

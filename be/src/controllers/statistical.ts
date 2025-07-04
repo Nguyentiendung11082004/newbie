@@ -44,46 +44,82 @@ export const GetEnrollmentBySemester = async (req: Request, res: Response) => {
             },
             { $unwind: '$teaching' },
             {
+                $lookup: {
+                    from: 'students',
+                    localField: 'student_id',
+                    foreignField: '_id',
+                    as: 'student'
+                }
+            },
+            { $unwind: '$student' },
+            {
+                $lookup: {
+                    from: 'majors',
+                    localField: 'student.major_id',
+                    foreignField: '_id',
+                    as: 'major'
+                }
+            },
+            { $unwind: '$major' },
+            {
+                $lookup: {
+                    from: 'semesters',
+                    localField: 'teaching.semester_id',
+                    foreignField: '_id',
+                    as: 'semester'
+                }
+            },
+            { $unwind: '$semester' },
+            {
                 $group: {
-                    _id: '$teaching.semester',
+                    _id: {
+                        semester: '$semester.name',
+                        major: '$major.name'
+                    },
                     count: { $sum: 1 }
                 }
             },
-            { $sort: { _id: 1 } }
+            {
+                $project: {
+                    _id: 0,
+                    semester: '$_id.semester',
+                    major: '$_id.major',
+                    count: 1
+                }
+            },
+            { $sort: { semester: 1, major: 1 } }
         ]);
-        const formatted = result.map(item => ({
-            semester: item._id,
-            count: item.count
-        }));
+
+        console.log("result", result)
         res.status(StatusCodes.OK).json({
             message: 'Thành công',
-            data: formatted
-        })
+            data: result
+        });
     } catch (error) {
         handleError(res, error);
     }
 };
+
 export const GetStudentByMajor = async (req: Request, res: Response) => {
     try {
         const result = await Student.aggregate([
             {
                 $lookup: {
-                    from: 'classes',
-                    localField: 'class_id',
+                    from: 'majors',
+                    localField: 'major_id',
                     foreignField: '_id',
-                    as: 'class'
+                    as: 'major'
                 }
             },
-            // { $unwind: '$class' },
+            { $unwind: '$major' },
             {
                 $group: {
-                    _id: '$class.name',
+                    _id: '$major.name',
                     count: { $sum: 1 }
                 }
             },
             { $sort: { count: -1 } }
-        ])
-        console.log("result",result)
+        ]);
         res.status(StatusCodes.OK).json({
             message: 'Thành công',
             data: result.map(item => ({

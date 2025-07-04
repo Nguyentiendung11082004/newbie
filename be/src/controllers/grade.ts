@@ -53,7 +53,6 @@ export const GetStudentListForGrading = async (req: IRequest, res: Response) => 
             subject_id,
             semester_id
         });
-        console.log("grades", grades)
         const gradeMap = new Map();
         grades.forEach(g => {
             gradeMap.set(g.student_id.toString(), g);
