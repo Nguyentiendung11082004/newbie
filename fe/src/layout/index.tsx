@@ -154,7 +154,7 @@ const LayoutDashboard = () => {
       key: 'studentResult',
       icon: <FileDoneOutlined />,
       label: 'Kết quả học tập',
-      url: '/student/results',
+      url: '/student/grade',
       permission: ['student'],  // Chỉ sinh viên có thể truy cập
     },
     {

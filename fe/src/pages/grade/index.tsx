@@ -14,6 +14,7 @@ const Grade = () => {
     const dispatch = useAppDispatch();
     const { data: classList } = useAppSelector((state: any) => state.class);
     const { data: subjectList } = useAppSelector((state: any) => state.subject);
+    const user = useAppSelector((state) => state.user.userInfo?.user);
     const [data, setData] = useState([]);
     const [payload, setPayload] = useState({
         class_id: '',
@@ -21,44 +22,132 @@ const Grade = () => {
         semester_id: '6864d9e0352ab358356f77f9',
         grades: []
     });
+    const renderScoreCell = (scoreKey, rowData) => {
+        const score = rowData?.[scoreKey];
+        const display =
+            score != null
+                ? score
+                : score === 0
+                    ? 0
+                    : 'Chưa có';
 
-    const columns = [
-        { title: 'STT', dataIndex: 'stt', key: 'stt', render: (_: any, __: any, index: number) => index + 1, width: 60 },
-        { title: 'Họ và tên', dataIndex: 'name', key: 'name' },
-        { title: 'Email', dataIndex: 'email', key: 'email' },
-        { title: 'Mã sinh viên', dataIndex: 'StudentCode', key: 'studentCode' },
+        const colorClass =
+            score >= 8
+                ? 'bg-green-100 text-green-700'
+                : score >= 6
+                    ? 'bg-yellow-100 text-yellow-700'
+                    : score != null
+                        ? 'bg-red-100 text-red-700'
+                        : 'text-gray-400 italic';
+
+        return user.role === 'student' || scoreKey === 'averageScore' ? (
+            <span
+                className={`px-3 py-1 rounded-xl font-medium text-sm text-center inline-block ${colorClass}`}
+            >
+                {display}
+            </span>
+        ) : (
+            <InputNumber
+                min={0}
+                max={10}
+                value={score ?? null}
+                onChange={(e) => handleSetform(scoreKey, e, rowData)}
+            />
+        );
+    };
+    const columns: any = [
         {
-            title: 'Điểm quá trình', key: 'processScore', render: (rowData) => (
-                <InputNumber min={0} max={10} value={rowData?.processScore ?? null} onChange={(e) => handleSetform("processScore", e, rowData)} />
-            )
+            title: 'STT',
+            dataIndex: 'stt',
+            key: 'stt',
+            width: 60,
+            render: (_: any, __: any, index: number) => index + 1,
         },
         {
-            title: 'Điểm giữa kỳ', key: 'midtermScore', render: (rowData) => (
-                <InputNumber min={0} max={10} value={rowData?.midtermScore ?? null} onChange={(e) => handleSetform("midtermScore", e, rowData)} />
-            )
-        },
-        {
-            title: 'Điểm cuối kỳ', key: 'finalScore', render: (rowData) => (
-                <InputNumber min={0} max={10} value={rowData?.finalScore ?? null} onChange={(e) => handleSetform("finalScore", e, rowData)} />
-            )
-        },
-        {
-            title: 'Điểm TB', key: 'averageScore', render: (rowData) => (
-                <InputNumber min={0} max={10} value={rowData?.averageScore ?? null} disabled />
-            )
-        },
-        {
-            title: 'Trạng thái', dataIndex: '', key: 'status', render: (rowData) => {
-                return <span style={{ color: `${rowData.averageScore >= 5 ? 'green' : 'red'}` }}>{rowData.status}</span>
+            title: 'Họ và tên',
+            dataIndex: 'name',
+            key: 'name',
+            render: (_, rowData) => {
+                return <span>
+                    {user.role === 'student' ? rowData?.student_id?.name : rowData.name}
+                </span>
             }
+        },
+        {
+            title: 'Email',
+            dataIndex: 'email',
+            key: 'email',
+            render: (_, rowData) => {
+                return <span>
+                    {user.role === 'student' ? rowData?.student_id?.email : rowData.email}
+                </span>
+            }
+        },
+        {
+            title: 'Mã sinh viên',
+            dataIndex: 'StudentCode',
+            key: 'StudentCode',
+            render: (_, rowData) => {
+                return <span>
+                    {user.role === 'student' ? rowData?.student_id?.StudentCode : rowData.StudentCode}
+                </span>
+            }
+        },
+        {
+            title: 'Điểm quá trình',
+            key: 'processScore',
+            align: 'center',
+            render: (rowData) => renderScoreCell('processScore', rowData),
+        },
+        {
+            title: 'Điểm giữa kỳ',
+            key: 'midtermScore',
+            align: 'center',
+            render: (rowData) => renderScoreCell('midtermScore', rowData),
+        },
+        {
+            title: 'Điểm cuối kỳ',
+            key: 'finalScore',
+            align: 'center',
+            render: (rowData) => renderScoreCell('finalScore', rowData),
+        },
+        {
+            title: 'Điểm TB',
+            key: 'averageScore',
+            align: 'center',
+            render: (rowData) => renderScoreCell('averageScore', rowData),
+        },
+        {
+            title: 'Trạng thái',
+            key: 'status',
+            align: 'center',
+            render: (rowData) => {
+                const isPassed = rowData?.averageScore >= 5;
+                return (
+                    <span
+                        className={`font-semibold text-sm ${isPassed ? 'text-green-600' : 'text-red-600'
+                            }`}
+                    >
+                        {rowData?.status ?? '-'}
+                    </span>
+                );
+            },
         },
     ];
 
+
     const getData = async (payload) => {
         try {
-            const res = await GradeServices.GetStudentForGrading(payload);
-            setData(res.data);
-            // toast.success('Lấy dữ liệu thành công');
+            if (user.role === 'teacher') {
+                const res = await GradeServices.GetStudentForGrading(payload);
+                setData(res.data);
+                // toast.success('Lấy dữ liệu thành công');
+            } else if (user.role === 'student') {
+                const { semester_id, grades, ..._pay } = payload;
+                const res = await GradeServices.GetMyGrades(_pay);
+                setData(res.data);
+                // toast.success('Lấy dữ liệu thành công');
+            }
         } catch (error) {
             const message = error.response?.data?.message || "Đã có lỗi xảy ra";
             setPayload((prev) => ({ ...prev, grades: [] }));
@@ -150,27 +239,30 @@ const Grade = () => {
                         <FilterOutlined /> Lọc
                     </button>
                 </Col>
-                <Col>
-                    <button
-                        onClick={handleGhiLai}
-                        className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg shadow transition"
-                    >
-                        <SaveOutlined /> Ghi lại
-                    </button>
-                </Col>
-                <Col>
-                    <button className="px-4 py-2 bg-yellow-400 hover:bg-yellow-500 text-black rounded-lg shadow transition">
-                        <FileExcelOutlined /> Export Excel
-                    </button>
-                </Col>
-                <Col>
-                    <button className="px-4 py-2 bg-pink-500 hover:bg-pink-600 text-white rounded-lg shadow transition">
-                        <PrinterOutlined /> In
-                    </button>
-                </Col>
+                {user.role !== 'student' && (
+                    <>
+                        <Col>
+                            <button
+                                onClick={handleGhiLai}
+                                className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg shadow transition"
+                            >
+                                <SaveOutlined /> Ghi lại
+                            </button>
+                        </Col>
+                        <Col>
+                            <button className="px-4 py-2 bg-yellow-400 hover:bg-yellow-500 text-black rounded-lg shadow transition">
+                                <FileExcelOutlined /> Export Excel
+                            </button>
+                        </Col>
+                        <Col>
+                            <button className="px-4 py-2 bg-pink-500 hover:bg-pink-600 text-white rounded-lg shadow transition">
+                                <PrinterOutlined /> In
+                            </button>
+                        </Col>
+                    </>
+                )
+                }
             </Row>
-
-
             <Table
                 columns={columns}
                 dataSource={payload.grades}

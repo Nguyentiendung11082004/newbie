@@ -30,6 +30,7 @@ export const privateRoutes = [
   { path: 'teacher/grade', element: <Grade /> },
 
   { path: '/student/subjects', element: <SubjectStudent /> },
+  { path: '/student/grade', element: <Grade /> },
   { path: '/history/:id', element: <History /> },
 
 ];

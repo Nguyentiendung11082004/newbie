@@ -41,7 +41,7 @@ const SubjectStudent = (props: Props) => {
   }
   const handleChiTiet = (value: any) => {
     setIsOpen(true)
-    setDataEdit(value)
+    setDataEdit(value)  
   }
   const handleUpdate = (value: any) => {
 
@@ -66,16 +66,16 @@ const SubjectStudent = (props: Props) => {
       dataIndex: '',
       render: (_value, _record, index) => {
         return <div>
-          {_value?.teaching_assignment_id?.subject_id.credit}
+          {_value?.teaching_assignment_id?.subject_id.credits}
         </div>
       }
     },
     {
-      title: 'Kỳ',
+      title: 'Lớp',
       dataIndex: '',
       render: (_value, _record, index) => {
         return <div>
-          {_value?.teaching_assignment_id?.semester}
+          {_value?.teaching_assignment_id?.class_id?.ClassName}
         </div>
       }
     },
