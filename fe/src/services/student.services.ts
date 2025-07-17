@@ -46,6 +46,6 @@ export const GradeServices = {
     GetMyGrades: (params) => axiosClient.post(`grade/GetMyGrades`, params),
 }
 export const LeaveServices = {
-    GetAllLeave: (params) => request.post<ApiResponse<any[]>>(`leave/GetAllLeave`, params),
-    CreateLeave: (params) => request.post<ApiResponse<any[]>>(`leave/CreateLeave`, params),
+    GetAllLeave: (params) => request.post<ApiResponse<any[]>>(`leaverequest/GetAllLeave`, params),
+    CreateLeave: (params) => request.post<ApiResponse<any[]>>(`leaverequest/CreateLeave`, params),
 }

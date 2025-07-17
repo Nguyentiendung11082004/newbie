@@ -39,7 +39,14 @@ export const GetAllLeave = async (req: Request, res: Response) => {
         const options = {
             page: parseInt(_page as string),
             limit: parseInt(_limit as string),
-            sort: { [_sort as string]: _order === 'asc' ? 1 : -1 }
+            sort: { [_sort as string]: _order === 'asc' ? 1 : -1 },
+            populate: {
+                path: 'teaching_assignment_id',
+                populate: [
+                    { path: 'subject_id', select: 'name' },
+                    { path: 'class_id', select: 'ClassName' },
+                ]
+            }
         }
         const leave = await Leave.paginate(filter, options);
         res.status(StatusCodes.OK).json({
