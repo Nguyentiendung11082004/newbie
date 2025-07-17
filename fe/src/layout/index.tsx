@@ -10,7 +10,8 @@ import {
   TeamOutlined,
   UserOutlined,
   CheckCircleOutlined,
-  UserSwitchOutlined
+  UserSwitchOutlined,
+  AppstoreOutlined
 } from '@ant-design/icons';
 import { Avatar, Button, Dropdown, Layout, Menu, theme } from 'antd';
 import { useState } from 'react';
@@ -151,6 +152,32 @@ const LayoutDashboard = () => {
       permission: ['student'],  // Chỉ sinh viên có thể truy cập
     },
     {
+      key: 'services',
+      icon: <AppstoreOutlined />,
+      label: 'Dịch vụ',
+      permission: ['student', 'teacher', 'admin'],
+      children: [
+        {
+          key: 'leaveRequest',
+          label: 'Đăng ký nghỉ',
+          url: '/leave-request',
+          permission: ['student'],
+        },
+        {
+          key: 'tuition',
+          label: 'Quản lý học phí',
+          url: '/services/tuition',
+          permission: ['student', 'admin'],
+        },
+        {
+          key: 'notification',
+          label: 'Thông báo',
+          url: '/services/notification',
+          permission: ['admin', 'teacher'],
+        },
+      ]
+    },
+    {
       key: 'studentResult',
       icon: <FileDoneOutlined />,
       label: 'Kết quả học tập',
@@ -202,6 +229,32 @@ const LayoutDashboard = () => {
   };
 
 
+  const renderMenuItems = (items) => {
+    return items
+      .filter(item => item.permission.includes(user?.role))
+      .map(item => {
+        if (item.children && item.children.length > 0) {
+          const childrenItems = renderMenuItems(item.children);
+          if (childrenItems.length === 0) return null; // Nếu tất cả menu con bị filter hết theo role
+          return {
+            key: item.key,
+            icon: item.icon,
+            label: item.label,
+            children: childrenItems,
+          };
+        }
+
+        return {
+          key: item.key,
+          icon: item.icon,
+          label: item.label,
+          onClick: () => navigate(item.url),
+        };
+      }).filter(Boolean);
+  };
+
+
+
   return (
     <Layout style={{ minHeight: '100vh' }}>
       <Sider trigger={null} collapsible collapsed={collapsed} width={250}>
@@ -210,21 +263,10 @@ const LayoutDashboard = () => {
           theme="dark"
           mode="inline"
           selectedKeys={menuItems
+            .flatMap(item => item.children ? item.children : item) // flatten 1 level
             .filter(item => matchPath({ path: item.url, end: false }, location.pathname))
             .map(item => item.key)}
-          // items={menuItems.map(({ key, icon, label, url }) => ({
-          //     key,
-          //     icon,
-          //     label,
-          //     onClick: () => navigate(url),
-          // }))}
-          items={menuItems.filter(item => item.permission.includes(user?.role)) // 👈 lọc theo role
-            .map(({ key, icon, label, url }) => ({
-              key,
-              icon,
-              label,
-              onClick: () => navigate(url),
-            }))}
+          items={renderMenuItems(menuItems)}
         />
       </Sider>
       <Layout>

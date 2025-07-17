@@ -2,7 +2,7 @@ import { ApiResponse } from "../types/api";
 import axiosClient, { request } from "./axiosClient.setup";
 const tc = 'teachingassignment/'
 export const StudentServices = {
-    GetList: (params: any) => axiosClient.post('/students', params),
+    GetList: (params: any) => request.post<ApiResponse<any[]>>('/students', params),
     Export: () => axiosClient.get('/students/export-student')
 }
 
@@ -44,5 +44,8 @@ export const GradeServices = {
     GetStudentForGrading: (params) => axiosClient.post(`grade/GetStudentListForGrading`, params),
     CreateGrade: (params) => axiosClient.post(`grade/CreateGrade`, params),
     GetMyGrades: (params) => axiosClient.post(`grade/GetMyGrades`, params),
-
+}
+export const LeaveServices = {
+    GetAllLeave: (params) => request.post<ApiResponse<any[]>>(`leave/GetAllLeave`, params),
+    CreateLeave: (params) => request.post<ApiResponse<any[]>>(`leave/CreateLeave`, params),
 }
