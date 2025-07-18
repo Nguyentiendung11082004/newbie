@@ -8,12 +8,15 @@ import React from 'react';
 import PrivateRouter from './router/privaterouter';
 import LayoutDashboard from './layout';
 import { privateRoutes, publicRoutes } from './router';
+import { useAppSelector } from './redux/hook';
+import SSEListener from './components/SSEListener';
 function App() {
-
+ 
   return (
     <Provider store={store}>
       <BrowserRouter>
         <PersistGate loading={null} persistor={persistor}>
+          <SSEListener />
           <Routes>
             <Route path="/" element={
               <PrivateRouter>

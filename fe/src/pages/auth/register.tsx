@@ -23,7 +23,6 @@ const Register = () => {
       ...values,
       dob: values.dob.format('YYYY-MM-DD'), // Convert ngày về dạng string
     };
-    console.log('Form Data:', payload);
     const res = await AuthServices.Register(payload)
     if (res) {
       message.success('Đăng ký thành công!');

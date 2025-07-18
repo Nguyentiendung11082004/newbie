@@ -67,7 +67,6 @@ const EnrollmentApproval = (props: Props) => {
       },
     },
   ]
-  console.log("data", data)
   const handlePageChange = () => {
 
   }

@@ -42,7 +42,6 @@ const DialogTechngassment = ({ isModalOpen, setVisible, dataEdit, setDataEdit }:
                 setVisible(false)
             }
         } else {
-            console.log("payload", payload)
             let res = await TechingAssignmentServices.Add(payload);
             if (res) {
                 toast.success(res.data.message)
@@ -63,8 +62,7 @@ const DialogTechngassment = ({ isModalOpen, setVisible, dataEdit, setDataEdit }:
         }
     }
     const handleSetForm = (props: any, value: any, record?: any) => {
-        console.log("props", props)
-        console.log("value", value)
+  
         setPayload((prev: any) => {
             if (record) {
                 const result = prev.weeklySchedule.map((e: any) => {

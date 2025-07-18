@@ -90,7 +90,6 @@ export const GetEnrollmentBySemester = async (req: Request, res: Response) => {
             { $sort: { semester: 1, major: 1 } }
         ]);
 
-        console.log("result", result)
         res.status(StatusCodes.OK).json({
             message: 'Thành công',
             data: result

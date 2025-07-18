@@ -10,6 +10,7 @@ import AttendanceRouter from "./attendance"
 import StaticRoute from "./statistical"
 import GradeRoute from "./grade"
 import LeaveRoute from "./leave"
+import sseRouter from "./sse.route"
 export default function routes(app: Express) {
     app.use('/api/v1/students', StudentRouter)
     app.use('/api/v1/class', ClassRouter)
@@ -22,4 +23,5 @@ export default function routes(app: Express) {
     app.use('/api/v1/static', StaticRoute)
     app.use('/api/v1/grade', GradeRoute)
     app.use('/api/v1/leaverequest', LeaveRoute)
+    app.use('/sse', sseRouter)
 }

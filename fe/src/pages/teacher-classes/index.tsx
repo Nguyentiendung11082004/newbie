@@ -64,7 +64,7 @@ const TeacherClass = (props: Props) => {
   ]
 
   useEffect(() => {
-    getData(user.student._id)
+    getData(user.profile._id)
   }, [])
   return (
     <>

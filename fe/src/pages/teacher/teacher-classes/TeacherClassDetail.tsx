@@ -56,7 +56,6 @@ const TeacherClassDetail = (props: Props) => {
 
     }
     const onChange = (checked: boolean) => {
-        console.log(`switch to ${checked}`);
     };
     const columns: ColumnType<any[]>[] = [
         {

@@ -111,7 +111,7 @@ const DialogSubject = ({ isModalOpen, setIsOpen, dataEdit, setDataEdit }: Props)
             title: "Chi tiết",
             key: "action",
             render: (_: any, record: any) => (
-                <Button onClick={() => console.log("Chi tiết", record)}>Xem</Button>
+                <Button onClick={() => {}}>Xem</Button>
             ),
         },
     ];

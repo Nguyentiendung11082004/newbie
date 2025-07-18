@@ -5,6 +5,9 @@ import { LeaveServices } from '../../../services/student.services'
 import { Ileave } from '../../../types/leave'
 import { ColumnType } from 'antd/es/table'
 import { formatDateStringGMT } from '../../../common/helpfunction'
+import { useSSE } from '../../../common/hooks/useSSE'
+import { toast } from 'react-toastify'
+import { useAppSelector } from '../../../redux/hook'
 
 type Props = {}
 
@@ -12,6 +15,7 @@ const leave = (props: Props) => {
     const [filter, setFilter] = useState({
         page: 1
     })
+    const student = useAppSelector((state) => state.user.userInfo.profile);
     const [data, setData] = useState<Ileave[]>()
     const columns: ColumnType<any>[] = [
         {
@@ -51,34 +55,34 @@ const leave = (props: Props) => {
             title: "Trạng thái",
             dataIndex: "status",
             render: (status: Ileave['status']) => {
-              let color = "";
-              let text = "";
-              switch (status) {
-                case "pending":
-                  color = "orange";
-                  text = "Chờ duyệt";
-                  break;
-                case "approved":
-                  color = "green";
-                  text = "Đã duyệt";
-                  break;
-                case "rejected":
-                  color = "red";
-                  text = "Từ chối";
-                  break;
-                default:
-                  text = "Không rõ";
-              }
-              return <span style={{
-                padding: "4px 8px",
-                borderRadius: "8px",
-                backgroundColor: `${color}20`,
-                color: color,
-                fontWeight: 500
-              }}>{text}</span>;
+                let color = "";
+                let text = "";
+                switch (status) {
+                    case "pending":
+                        color = "orange";
+                        text = "Chờ duyệt";
+                        break;
+                    case "approved":
+                        color = "green";
+                        text = "Đã duyệt";
+                        break;
+                    case "rejected":
+                        color = "red";
+                        text = "Từ chối";
+                        break;
+                    default:
+                        text = "Không rõ";
+                }
+                return <span style={{
+                    padding: "4px 8px",
+                    borderRadius: "8px",
+                    backgroundColor: `${color}20`,
+                    color: color,
+                    fontWeight: 500
+                }}>{text}</span>;
             }
-          }
-          
+        }
+
     ];
     const handle = () => { }
     const getData = async (pay) => {
@@ -87,7 +91,10 @@ const leave = (props: Props) => {
             setData(res.data)
         }
     }
-
+    useSSE(student?._id, (message) => {
+        toast.info(`📢 ${message}`);
+        getData(filter)
+    });
     useEffect(() => {
         getData(filter)
     }, [filter])

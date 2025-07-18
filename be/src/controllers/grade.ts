@@ -99,7 +99,6 @@ export const CreateGrade = async (req: IRequest, res: Response) => {
             semester_id: new mongoose.Types.ObjectId(semester_id),
             teacher_id: new mongoose.Types.ObjectId(teacher_id),
         });
-        console.log("assignment",assignment)
         if (!assignment) {
             return res.status(StatusCodes.FORBIDDEN).json({
                 success: false,

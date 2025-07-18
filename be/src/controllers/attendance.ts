@@ -21,16 +21,13 @@ interface CustomRequest extends Request {
 export const CreateAttendance = async (req: Request, res: Response) => {
     try {
         const { teaching_assignment_id, date, attendances } = req.body;
-        // console.log("req.body", req.body)
         // Kiểm tra xem lớp học và buổi học có hợp lệ không
         const teachingAssignment = await TeachingAssignment.findById(teaching_assignment_id);
         if (!teachingAssignment) {
             return res.status(StatusCodes.BAD_REQUEST).json({ message: 'Lớp học không tồn tại' });
         }
-        console.log("teachingAssignment",teachingAssignment)
         // kiểm tra xem có đúng ngày đi học để điểm danh không
         const dateObj = new Date(date).toISOString().split('T')[0];; // '2025-07-03' => Date
-        console.log("dateObj",dateObj)
         const isInSchedule = teachingAssignment.schedule.some((schedule: any) => {
             return schedule.date === dateObj;
         });

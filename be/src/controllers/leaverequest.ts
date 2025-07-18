@@ -4,6 +4,7 @@ import Leave from "../model/leaverequest";
 import { StatusCodes } from "http-status-codes";
 import TeachingAssignment from "../model/teachingassignment";
 import Teacher from "../model/teacher";
+import { sendSSEToStudent } from "../routes/sse.route";
 interface CustomRequest extends Request {
     user: {
         _id: string;
@@ -124,6 +125,7 @@ export const ApproveLeave = async (req: CustomRequest, res: Response) => {
         }
         leave.status = "approved";
         await leave.save();
+        sendSSEToStudent(leave.student_id.toString(), 'Đơn xin nghỉ đã được duyệt')
         return res.status(StatusCodes.OK).json({ message: "Duyệt đơn nghỉ thành công", leave });
     } catch (error) {
         handleError(res, error)

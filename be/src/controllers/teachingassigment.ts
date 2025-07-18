@@ -39,11 +39,7 @@ const generateSchedule = (
     weeklySchedule: { dayOfWeek: string; startTime: string; endTime: string }[]
 ) => {
     const schedule: any[] = [];
-    console.log("hihi")
-    console.log("startDate",startDate)
     let currentDate = parseLocalDate(startDate.split("T")[0]); // ✅ dùng local date
-    console.log("currentDate")
-    console.log("currentDate",currentDate)
     let count = 0;
 
     while (count < numberOfClasses) {

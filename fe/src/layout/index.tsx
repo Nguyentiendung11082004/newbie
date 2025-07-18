@@ -21,6 +21,7 @@ import { clearUser } from '../redux/slices/userSlice';
 import { AuthServices } from '../services/auth.services';
 import { toast } from 'react-toastify';
 import React from 'react';
+import { useSSE } from '../common/hooks/useSSE';
 const { Header, Sider, Content } = Layout;
 
 
@@ -29,26 +30,27 @@ const LayoutDashboard = () => {
   const [collapsed, setCollapsed] = useState(false);
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const user = useAppSelector((state) => state.user.userInfo?.user);
+  const user = useAppSelector((state) => state.user.userInfo.user);
   const location = useLocation();
-  const token = useAppSelector((state) => state.user.userInfo?.token);
+  const token = useAppSelector((state) => state.user.userInfo.token);
   const student = useAppSelector((state) => state.user.userInfo);
+  const value = useAppSelector((state) => state);
   const menuItems = [
     // Admin Menu
-    {
+    { 
       key: 'dashboard',
       icon: <DashboardOutlined />,
       label: 'Dashboard',
       url: '/admin/dashboard',
       permission: ['admin', 'teacher', 'student'],
     },
-    {
-      key: 'history',
-      icon: <UserSwitchOutlined />,
-      label: 'Lịch sử điểm danh',
-      url: '/history',
-      permission: ['admin', 'teacher', 'student'],
-    },
+    // {
+    //   key: 'history',
+    //   icon: <UserSwitchOutlined />,
+    //   label: 'Lịch sử điểm danh',
+    //   url: '/history',
+    //   permission: ['admin', 'teacher', 'student'],
+    // },
     {
       key: 'students',
       icon: <TeamOutlined />,
@@ -101,13 +103,6 @@ const LayoutDashboard = () => {
 
     // Teacher Menu
     {
-      key: 'teacherDashboard',
-      icon: <DashboardOutlined />,
-      label: 'Dashboard Giảng viên',
-      url: '/teacher/dashboard',
-      permission: ['teacher'],  // Chỉ giảng viên có thể truy cập
-    },
-    {
       key: 'teacherClasses',
       icon: <SolutionOutlined />,
       label: 'Lớp giảng dạy',
@@ -131,24 +126,10 @@ const LayoutDashboard = () => {
 
     // Student Menu
     {
-      key: 'studentDashboard',
-      icon: <DashboardOutlined />,
-      label: 'Dashboard Sinh viên',
-      url: '/student/dashboard',
-      permission: ['student'],  // Chỉ sinh viên có thể truy cập
-    },
-    {
       key: 'studentSubjects',
       icon: <BookOutlined />,
       label: 'Môn học của tôi',
       url: '/student/subjects',
-      permission: ['student'],  // Chỉ sinh viên có thể truy cập
-    },
-    {
-      key: 'studentEnroll',
-      icon: <FormOutlined />,
-      label: 'Ghi danh môn học',
-      url: '/student/enroll',
       permission: ['student'],  // Chỉ sinh viên có thể truy cập
     },
     {

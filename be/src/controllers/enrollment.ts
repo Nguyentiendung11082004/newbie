@@ -255,7 +255,6 @@ export const GetEnrollmentsByTeachingAssignment = async (req: Request, res: Resp
         // Lấy danh sách điểm danh ứng với teaching_assignment_id + date
         const attendanceRecords = await Attendance.find();
 
-        console.log("attendanceRecords", attendanceRecords)
         // Map điểm danh theo student_id cho tiện tra cứu
         const attendanceMap = new Map();
         attendanceRecords.forEach((record: any) => {
@@ -266,12 +265,10 @@ export const GetEnrollmentsByTeachingAssignment = async (req: Request, res: Resp
                 });
             });
         });
-        console.log("attendanceMap", attendanceMap)
         // Gộp trạng thái điểm danh vào từng sinh viên
         const result = enrollments.map((enrollment) => {
             const studentId = enrollment.student_id._id.toString();
             const attendance = attendanceMap.get(studentId);
-            console.log("attendance", attendance)
             return {
                 ...enrollment.toObject(),
                 status: attendance?.status || 'absent',
