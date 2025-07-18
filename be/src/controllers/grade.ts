@@ -166,14 +166,13 @@ export const GetMyGrades = async (req: IRequest, res: Response) => {
         }
         if (class_id) {
             filter.class_id = class_id;
-        }
+        }   
 
         const grades = await Grade.find(filter)
             .populate('subject_id', 'name')
             .populate('class_id', 'name')
             .populate('teacher_id', 'name email')
             .populate('student_id', 'name email StudentCode');
-
         return res.status(200).json({
             success: true,
             message: 'Lấy bảng điểm thành công',

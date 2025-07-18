@@ -3,6 +3,7 @@ import { handleError } from "../middlewares/error";
 import Leave from "../model/leaverequest";
 import { StatusCodes } from "http-status-codes";
 import TeachingAssignment from "../model/teachingassignment";
+import Teacher from "../model/teacher";
 interface CustomRequest extends Request {
     user: {
         _id: string;
@@ -94,6 +95,36 @@ export const CreateLeave = async (req: CustomRequest, res: Response) => {
             StatusCodes: StatusCodes.CREATED,
             message: "Gửi đơn nghỉ thành công"
         });
+    } catch (error) {
+        handleError(res, error)
+    }
+}
+export const ApproveLeave = async (req: CustomRequest, res: Response) => {
+    try {
+        const { userId } = req.user;
+        const teacher = await Teacher.findById(userId)
+        if (!teacher) {
+            return res.status(StatusCodes.BAD_REQUEST).json({
+                message: "Chỉ giảng viên mới có quyền duyệt"
+            })
+        }
+        const { leaveId } = req.body;
+        const leave: any = await Leave.findById(leaveId)
+            .populate({
+                path: 'teaching_assignment_id',
+                select: 'teacher_id',
+            });
+        if (!leave) {
+            return res.status(StatusCodes.NOT_FOUND).json({
+                message: "Không tìm thấy đơn xin nghỉ"
+            })
+        }
+        if (leave.teaching_assignment_id?.teacher_id.toString() !== userId) {
+            return res.status(403).json({ message: "Bạn không có quyền duyệt đơn này" });
+        }
+        leave.status = "approved";
+        await leave.save();
+        return res.status(StatusCodes.OK).json({ message: "Duyệt đơn nghỉ thành công", leave });
     } catch (error) {
         handleError(res, error)
     }
