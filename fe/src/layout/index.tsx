@@ -10,7 +10,8 @@ import {
   TeamOutlined,
   UserOutlined,
   CheckCircleOutlined,
-  UserSwitchOutlined
+  UserSwitchOutlined,
+  AppstoreOutlined
 } from '@ant-design/icons';
 import { Avatar, Button, Dropdown, Layout, Menu, theme } from 'antd';
 import { useState } from 'react';
@@ -20,6 +21,7 @@ import { clearUser } from '../redux/slices/userSlice';
 import { AuthServices } from '../services/auth.services';
 import { toast } from 'react-toastify';
 import React from 'react';
+import { useSSE } from '../common/hooks/useSSE';
 const { Header, Sider, Content } = Layout;
 
 
@@ -28,26 +30,27 @@ const LayoutDashboard = () => {
   const [collapsed, setCollapsed] = useState(false);
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const user = useAppSelector((state) => state.user.userInfo?.user);
+  const user = useAppSelector((state) => state.user.userInfo.user);
   const location = useLocation();
-  const token = useAppSelector((state) => state.user.userInfo?.token);
+  const token = useAppSelector((state) => state.user.userInfo.token);
   const student = useAppSelector((state) => state.user.userInfo);
+  const value = useAppSelector((state) => state);
   const menuItems = [
     // Admin Menu
-    {
+    { 
       key: 'dashboard',
       icon: <DashboardOutlined />,
       label: 'Dashboard',
       url: '/admin/dashboard',
       permission: ['admin', 'teacher', 'student'],
     },
-    {
-      key: 'history',
-      icon: <UserSwitchOutlined />,
-      label: 'Lịch sử điểm danh',
-      url: '/history',
-      permission: ['admin', 'teacher', 'student'],
-    },
+    // {
+    //   key: 'history',
+    //   icon: <UserSwitchOutlined />,
+    //   label: 'Lịch sử điểm danh',
+    //   url: '/history',
+    //   permission: ['admin', 'teacher', 'student'],
+    // },
     {
       key: 'students',
       icon: <TeamOutlined />,
@@ -100,13 +103,6 @@ const LayoutDashboard = () => {
 
     // Teacher Menu
     {
-      key: 'teacherDashboard',
-      icon: <DashboardOutlined />,
-      label: 'Dashboard Giảng viên',
-      url: '/teacher/dashboard',
-      permission: ['teacher'],  // Chỉ giảng viên có thể truy cập
-    },
-    {
       key: 'teacherClasses',
       icon: <SolutionOutlined />,
       label: 'Lớp giảng dạy',
@@ -130,13 +126,6 @@ const LayoutDashboard = () => {
 
     // Student Menu
     {
-      key: 'studentDashboard',
-      icon: <DashboardOutlined />,
-      label: 'Dashboard Sinh viên',
-      url: '/student/dashboard',
-      permission: ['student'],  // Chỉ sinh viên có thể truy cập
-    },
-    {
       key: 'studentSubjects',
       icon: <BookOutlined />,
       label: 'Môn học của tôi',
@@ -144,17 +133,36 @@ const LayoutDashboard = () => {
       permission: ['student'],  // Chỉ sinh viên có thể truy cập
     },
     {
-      key: 'studentEnroll',
-      icon: <FormOutlined />,
-      label: 'Ghi danh môn học',
-      url: '/student/enroll',
-      permission: ['student'],  // Chỉ sinh viên có thể truy cập
+      key: 'services',
+      icon: <AppstoreOutlined />,
+      label: 'Dịch vụ',
+      permission: ['student', 'teacher', 'admin'],
+      children: [
+        {
+          key: 'leaveRequest',
+          label: 'Đăng ký nghỉ',
+          url: '/leave-request',
+          permission: ['student'],
+        },
+        {
+          key: 'tuition',
+          label: 'Quản lý học phí',
+          url: '/services/tuition',
+          permission: ['student', 'admin'],
+        },
+        {
+          key: 'notification',
+          label: 'Thông báo',
+          url: '/services/notification',
+          permission: ['admin', 'teacher'],
+        },
+      ]
     },
     {
       key: 'studentResult',
       icon: <FileDoneOutlined />,
       label: 'Kết quả học tập',
-      url: '/student/results',
+      url: '/student/grade',
       permission: ['student'],  // Chỉ sinh viên có thể truy cập
     },
     {
@@ -202,6 +210,32 @@ const LayoutDashboard = () => {
   };
 
 
+  const renderMenuItems = (items) => {
+    return items
+      .filter(item => item.permission.includes(user?.role))
+      .map(item => {
+        if (item.children && item.children.length > 0) {
+          const childrenItems = renderMenuItems(item.children);
+          if (childrenItems.length === 0) return null; // Nếu tất cả menu con bị filter hết theo role
+          return {
+            key: item.key,
+            icon: item.icon,
+            label: item.label,
+            children: childrenItems,
+          };
+        }
+
+        return {
+          key: item.key,
+          icon: item.icon,
+          label: item.label,
+          onClick: () => navigate(item.url),
+        };
+      }).filter(Boolean);
+  };
+
+
+
   return (
     <Layout style={{ minHeight: '100vh' }}>
       <Sider trigger={null} collapsible collapsed={collapsed} width={250}>
@@ -210,21 +244,10 @@ const LayoutDashboard = () => {
           theme="dark"
           mode="inline"
           selectedKeys={menuItems
+            .flatMap(item => item.children ? item.children : item) // flatten 1 level
             .filter(item => matchPath({ path: item.url, end: false }, location.pathname))
             .map(item => item.key)}
-          // items={menuItems.map(({ key, icon, label, url }) => ({
-          //     key,
-          //     icon,
-          //     label,
-          //     onClick: () => navigate(url),
-          // }))}
-          items={menuItems.filter(item => item.permission.includes(user?.role)) // 👈 lọc theo role
-            .map(({ key, icon, label, url }) => ({
-              key,
-              icon,
-              label,
-              onClick: () => navigate(url),
-            }))}
+          items={renderMenuItems(menuItems)}
         />
       </Sider>
       <Layout>

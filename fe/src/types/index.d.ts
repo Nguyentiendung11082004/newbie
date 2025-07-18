@@ -2,7 +2,7 @@ export interface Subject  {
     name: string;
     code: string;
     description: string;
-    credit: number;
+    credits: number;
     prerequisite: string[]; 
-  };
+  }
   

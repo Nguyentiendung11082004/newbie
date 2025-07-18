@@ -66,7 +66,7 @@ export const register = async (req: Request, res: Response) => {
         const auth = await AuthSchema.create({
             email,
             password: hassPass,
-            role,
+            role,   
         });
         let user;
         // Tạo bản ghi trong bảng students nếu là sinh viên
@@ -127,7 +127,6 @@ export const login = async (req: Request, res: Response) => {
                 })
             }
             user.password = undefined as unknown as string;
-            console.log("user", user)
             const token = await jwt.sign({ userId: user._id, role: user.role }, "dungnt", { expiresIn: "7d" });
             let userInfo = null;
             switch (user.role) {
@@ -149,7 +148,7 @@ export const login = async (req: Request, res: Response) => {
                 data: {
                     message: "Đăng nhập thành công",
                     user,
-                    student: userInfo,
+                    profile: userInfo,
                     token,
                     Status: StatusCodes.OK
                 }
@@ -215,7 +214,6 @@ export const authMiddleware = async (req: CustomRequest, res: Response, next: Ne
         };
         next();
     } catch (err) {
-        console.log("err", err)
         return res.status(401).json({ message: 'Invalid token' });
     }
 }

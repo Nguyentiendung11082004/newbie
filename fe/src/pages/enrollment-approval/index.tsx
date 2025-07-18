@@ -14,6 +14,7 @@ const EnrollmentApproval = (props: Props) => {
   const [payload, setPayload] = useState({
     teacher_id: user?._id,
     status: "Approved"
+    // Approved
   })
   const getData = async (pay: { teacher_id: string; status: string; }) => {
     let res = await StudentSubjectServices.GetEnrollmentByTeacher(pay)
@@ -66,7 +67,6 @@ const EnrollmentApproval = (props: Props) => {
       },
     },
   ]
-  console.log("data", data)
   const handlePageChange = () => {
 
   }

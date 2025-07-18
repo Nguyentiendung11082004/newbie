@@ -24,7 +24,7 @@ const TechingAssignment = (props: Props) => {
     },
     {
       title: 'Kỳ',
-      dataIndex: 'semester'
+      render: (_value: any, _record: any, index: any) => _record.semester_id?.name,
     },
     {
       title: 'Giảng viên',

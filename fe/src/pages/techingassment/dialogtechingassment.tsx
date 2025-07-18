@@ -20,22 +20,22 @@ const init = {
     teacher_id: "",
     subject_id: "",
     class_id: "",
-    semester: "",
+    semester_id: "6864d9e0352ab358356f77f9",
     startDate: "",
     numberOfClasses: 0,
     weeklySchedule: []
 }
 const format = 'HH:mm';
 const DialogTechngassment = ({ isModalOpen, setVisible, dataEdit, setDataEdit }: Props) => {
-    console.log("hihihi")
-    const [payload, setPayload] = useState(init)
+    const [payload, setPayload] = useState(init);
+
     const dispatch = useAppDispatch();
     const arrThu = getDayOffWeek();
     const subject = useAppSelector((state: any) => state.subject);
     const teacher = useAppSelector((state: any) => state.teacher);
     const arrClass = useAppSelector((state: any) => state.class);
     const handleOk = async () => {
-        if (dataEdit._id) {
+        if (dataEdit?._id) {
             let res = await TechingAssignmentServices.Update(dataEdit._id, payload);
             if (res) {
                 toast.success(res.data.message)
@@ -51,6 +51,7 @@ const DialogTechngassment = ({ isModalOpen, setVisible, dataEdit, setDataEdit }:
         }
     }
     const handleClose = () => {
+        setDataEdit(null)
         setVisible(false)
 
     }
@@ -60,7 +61,8 @@ const DialogTechngassment = ({ isModalOpen, setVisible, dataEdit, setDataEdit }:
             setPayload(res.data.data)
         }
     }
-    const handleSetform = (props: any, value: any, record?: any) => {
+    const handleSetForm = (props: any, value: any, record?: any) => {
+  
         setPayload((prev: any) => {
             if (record) {
                 const result = prev.weeklySchedule.map((e: any) => {
@@ -97,7 +99,7 @@ const DialogTechngassment = ({ isModalOpen, setVisible, dataEdit, setDataEdit }:
                     style={{ width: '100%' }}
                     placeholder="Thứ"
                     defaultValue={_record?.dayOfWeek}
-                    onChange={(e: any) => handleSetform('dayOfWeek', e, _record)}
+                    onChange={(e: any) => handleSetForm('dayOfWeek', e, _record)}
                     options={arrThu.map((e) => ({
                         value: e.value,
                         label: e.label
@@ -109,15 +111,16 @@ const DialogTechngassment = ({ isModalOpen, setVisible, dataEdit, setDataEdit }:
             title: 'Giờ bắt đầu',
             render: (_value: any, _record: any, index: any) => {
                 return (
-                    <TimePicker value={dayjs(_record?.startTime, format)} format={format} onChange={(time, timeString: any) => handleSetform("startTime", timeString, _record)} />
+                    <TimePicker value={_record?.startTime ? dayjs(_record.startTime, format) : null} format={format}
+                        onChange={(time, timeString: any) => handleSetForm("startTime", timeString, _record)} />
                 )
             }
         },
         {
             title: 'Giờ kết thúc',
             render: (_value: any, _record: any, index: any) => <div>
-                <TimePicker value={dayjs(_record?.endTime, format)} format={format}
-                    onChange={(time, timeString: any) => handleSetform("endTime", timeString, _record)}
+                <TimePicker value={_record?.endTime ? dayjs(_record.endTime, format) : null} format={format}
+                    onChange={(time, timeString: any) => handleSetForm("endTime", timeString, _record)}
                 />
             </div>
         },
@@ -155,7 +158,7 @@ const DialogTechngassment = ({ isModalOpen, setVisible, dataEdit, setDataEdit }:
         dispatch(GetDataSubject());
     }, []);
     useEffect(() => {
-        if (dataEdit._id) {
+        if (dataEdit?._id) {
             getById(dataEdit._id);
         } else {
             setPayload(init);
@@ -163,8 +166,8 @@ const DialogTechngassment = ({ isModalOpen, setVisible, dataEdit, setDataEdit }:
     }, [dataEdit]);
 
     return (
-        <Modal title="Phân công giảng dạy" open={isModalOpen} onOk={handleOk} onCancel={() => handleClose()} width={800}>
-            <div className="space-y-8">
+        <Modal title="Phân công giảng dạy" open={isModalOpen} onOk={handleOk} onCancel={() => handleClose()} width={1200}>
+            <div className="space-y-3">
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Chọn môn học</label>
                     <Select
@@ -173,23 +176,23 @@ const DialogTechngassment = ({ isModalOpen, setVisible, dataEdit, setDataEdit }:
                         style={{ width: '100%' }}
                         placeholder="Please select"
                         value={(payload?.subject_id)}
-                        onChange={(e) => handleSetform('subject_id', e)}
-                        options={subject.data?.data?.map((e: any) => ({
+                        onChange={(e) => handleSetForm('subject_id', e)}
+                        options={subject.data?.map((e: any) => ({
                             value: e._id,
                             label: e.name
                         }))}
                     />
                 </div>
 
-                <div className='my-2'>
+                <div className='my-1'>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Chọn lớp học</label>
                     <Select
                         // mode="multiple"
                         // disabled
                         style={{ width: '100%' }}
                         value={(payload?.class_id)}
-                        onChange={(e) => handleSetform('class_id', e)}
-                        options={arrClass.data?.data?.map((e: any) => ({
+                        onChange={(e) => handleSetForm('class_id', e)}
+                        options={arrClass?.data?.map((e: any) => ({
                             value: e._id,
                             label: e.ClassName
                         }))}
@@ -204,7 +207,7 @@ const DialogTechngassment = ({ isModalOpen, setVisible, dataEdit, setDataEdit }:
                         style={{ width: '100%' }}
                         placeholder="Please select"
                         value={(payload?.teacher_id)}
-                        onChange={(e) => handleSetform('teacher_id', e)}
+                        onChange={(e) => handleSetForm('teacher_id', e)}
                         options={teacher.data?.data?.map((e: any) => ({
                             value: e._id,
                             label: e.name
@@ -214,7 +217,7 @@ const DialogTechngassment = ({ isModalOpen, setVisible, dataEdit, setDataEdit }:
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Thời gian bắt đầu</label>
                     <DatePicker
-                        onChange={(e) => handleSetform('startDate', e)}
+                       onChange={(e) => handleSetForm('startDate', e ? e.format("YYYY-MM-DD") : "")}
                         style={{ width: 280 }}
                         className="border border-gray-300 rounded-lg p-2 mt-4  text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
                         placeholder="Chọn"
@@ -225,11 +228,11 @@ const DialogTechngassment = ({ isModalOpen, setVisible, dataEdit, setDataEdit }:
                 </div>
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Số buổi</label>
-                    <Input value={payload?.numberOfClasses} onChange={(e) => handleSetform('numberOfClasses', e.target.value)} />
+                    <Input value={payload?.numberOfClasses} onChange={(e) => handleSetForm('numberOfClasses', e.target.value)} />
                 </div>
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Nhập kỳ học</label>
-                    <Input value={payload?.semester} onChange={(e) => handleSetform('semester', e.target.value)} />
+                    <Input value={payload?.semester_id} onChange={(e) => handleSetForm('semester', e.target.value)} />
                 </div>
                 <Table
                     rowKey="GUID"

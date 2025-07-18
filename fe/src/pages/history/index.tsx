@@ -34,7 +34,6 @@ const History = () => {
     setLoading(true);
     try {
       const res = await HistoryServices.GetAttendanceHistory(id, from, to);
-      console.log("res", res)
       setData(res?.data);
     } catch (err) {
       message.error('Lỗi khi tải lịch sử điểm danh');
@@ -43,7 +42,6 @@ const History = () => {
     }
   };
 
-  console.log("data", data)
   useEffect(() => {
     if (id) {
       getData(id, range[0], range[1]);
@@ -64,7 +62,7 @@ const History = () => {
     {
       title: 'Tên sinh viên',
       dataIndex: 'studentName',
-      render: (_v, _record: any) => <span>{_record.attendances[0].student.name}</span>
+      render: (_v, _record: any) => <span>{_record.attendances[0].student?.name}</span>
     },
     {
       title: 'Trạng thái',

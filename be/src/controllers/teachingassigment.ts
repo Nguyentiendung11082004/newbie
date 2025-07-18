@@ -6,28 +6,40 @@ import Subject from "../model/subject";
 import Teacher from "../model/teacher";
 import TeachingAssignment from "../model/teachingassignment";
 import { request } from "http";
+import Semester from "../model/semester";
 const dayOfWeekToNumber = (day: string) => {
-    const daysMap = {
-        Sunday: 0,
-        Monday: 1,
-        Tuesday: 2,
-        Wednesday: 3,
-        Thursday: 4,
-        Friday: 5,
-        Saturday: 6,
-    } as const;
+    const daysMap: Record<string, number> = {
+        'Chủ nhật': 0,
+        'Thứ 2': 1,
+        'Thứ 3': 2,
+        'Thứ 4': 3,
+        'Thứ 5': 4,
+        'Thứ 6': 5,
+        'Thứ 7': 6
+    };
 
-    return daysMap[day as keyof typeof daysMap] ?? 0;
+    return daysMap[day.trim()] ?? 0;
 };
-
+const parseLocalDate = (dateStr: string): Date => {
+    if (!dateStr || typeof dateStr !== "string") {
+      throw new Error("Invalid startDate: " + dateStr);
+    }
+  
+    const [year, month, day] = dateStr.split('-').map(Number);
+    if (!year || !month || !day) {
+      throw new Error("startDate format must be YYYY-MM-DD. Got: " + dateStr);
+    }
+  
+    return new Date(year, month - 1, day);
+  };
+  
 const generateSchedule = (
     startDate: string,
     numberOfClasses: number,
     weeklySchedule: { dayOfWeek: string; startTime: string; endTime: string }[]
 ) => {
     const schedule: any[] = [];
-    let currentDate = new Date(startDate);
-
+    let currentDate = parseLocalDate(startDate.split("T")[0]); // ✅ dùng local date
     let count = 0;
 
     while (count < numberOfClasses) {
@@ -35,14 +47,14 @@ const generateSchedule = (
             const targetDay = dayOfWeekToNumber(slot.dayOfWeek);
             const tempDate = new Date(currentDate);
 
-            // Move to the next matching day of week
+            // Move tempDate đến đúng thứ cần tìm trong tuần
             while (tempDate.getDay() !== targetDay) {
                 tempDate.setDate(tempDate.getDate() + 1);
             }
 
             if (tempDate >= currentDate) {
                 schedule.push({
-                    date: tempDate.toISOString().split("T")[0],
+                    date: tempDate.toLocaleDateString('en-CA'), // ✅ YYYY-MM-DD theo local time
                     startTime: slot.startTime,
                     endTime: slot.endTime,
                 });
@@ -51,17 +63,18 @@ const generateSchedule = (
             }
         }
 
-        currentDate.setDate(currentDate.getDate() + 7); // sang tuần tiếp theo
+        // Sang tuần tiếp theo
+        currentDate.setDate(currentDate.getDate() + 7);
     }
 
+    // Sắp xếp theo ngày tăng dần
     return schedule.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 };
-
 export const CreateTeachingAssignment = async (req: Request, res: Response) => {
     try {
-        const { teacher_id, subject_id, class_id, semester, startDate, numberOfClasses, weeklySchedule } = req.body;
+        const { teacher_id, subject_id, class_id, semester_id, startDate, numberOfClasses, weeklySchedule } = req.body;
 
-        if (!teacher_id || !subject_id || !class_id || !semester || !startDate || !numberOfClasses || !weeklySchedule) {
+        if (!teacher_id || !subject_id || !class_id || !semester_id || !startDate || !numberOfClasses || !weeklySchedule) {
             return res.status(StatusCodes.BAD_REQUEST).json({
                 message: "Thiếu thông tin bắt buộc"
             });
@@ -88,13 +101,16 @@ export const CreateTeachingAssignment = async (req: Request, res: Response) => {
             return res.status(StatusCodes.BAD_REQUEST).json({ message: "Lớp không tồn tại" });
         }
 
+        const ky = await Semester.findById(semester_id);
+        if (!ky) {
+            return res.status(StatusCodes.BAD_REQUEST).json({ message: "Kỳ không tồn tại" });
+        }
         const generatedSchedule = generateSchedule(startDate, numberOfClasses, weeklySchedule);
-
         const newAssignment = await TeachingAssignment.create({
             teacher_id,
             subject_id,
             class_id,
-            semester,
+            semester_id,
             startDate,
             numberOfClasses,
             weeklySchedule,
@@ -117,6 +133,7 @@ export const GetTeachingassment = async (req: Request, res: Response) => {
             .populate('teacher_id', 'name')
             .populate('subject_id', 'name')
             .populate('class_id', 'ClassName')
+            .populate('semester_id', 'name')
             .exec();
 
         return res.status(StatusCodes.OK).json({

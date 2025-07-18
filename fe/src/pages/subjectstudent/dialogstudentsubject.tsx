@@ -6,6 +6,7 @@ import { GetDataSubject } from '../../redux/slices/subjectSlice';
 import { GetDataTeacher } from '../../redux/slices/teacherSlice';
 import { toast } from 'react-toastify';
 import { Modal as AntModal } from "antd"
+import React from 'react';
 type Props = {
     isModalOpen: boolean,
     setIsOpen: any,
@@ -15,7 +16,7 @@ type Props = {
 
 const DialogSubject = ({ isModalOpen, setIsOpen, dataEdit, setDataEdit }: Props) => {
     const dispatch = useAppDispatch()
-    const userId = useAppSelector((state) => state.user.userInfo.student._id);
+    const userId = useAppSelector((state) => state.user.userInfo.student?._id);
     const subject = useAppSelector((state: any) => state.subject);
     const teacher = useAppSelector((state: any) => state.teacher);
     const [data, setData] = useState<any[]>([]);
@@ -24,7 +25,6 @@ const DialogSubject = ({ isModalOpen, setIsOpen, dataEdit, setDataEdit }: Props)
         subject_id: '',
         student_id: userId,
         teacher_id: '',
-
     }
     const [payload, setPayload] = useState(init)
     const handleOk = async () => {
@@ -111,7 +111,7 @@ const DialogSubject = ({ isModalOpen, setIsOpen, dataEdit, setDataEdit }: Props)
             title: "Chi tiết",
             key: "action",
             render: (_: any, record: any) => (
-                <Button onClick={() => console.log("Chi tiết", record)}>Xem</Button>
+                <Button onClick={() => {}}>Xem</Button>
             ),
         },
     ];
@@ -172,7 +172,7 @@ const DialogSubject = ({ isModalOpen, setIsOpen, dataEdit, setDataEdit }: Props)
                             onChange={(e) => setPayload((prev) => ({ ...prev, subject_id: e }))}
                             style={{ width: '100%' }}
                         >
-                            {subject?.data?.data?.map((subject: any) => (
+                            {subject?.data?.map((subject: any) => (
                                 <Select.Option key={subject._id} value={subject._id}>
                                     {subject.name}
                                 </Select.Option>

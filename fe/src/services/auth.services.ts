@@ -6,5 +6,6 @@ export const AuthServices = {
         headers: {
             Authorization: `Bearer ${token}`
         }
-    })
+    }),
+    Register: (params:any) => axiosClient.post('/auth/register', params)
 }

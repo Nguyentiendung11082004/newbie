@@ -4,13 +4,15 @@ import mongoosePaginate from "mongoose-paginate-v2";
 export interface IEnrollment extends Document {
   student_id: mongoose.Types.ObjectId;
   teaching_assignment_id: mongoose.Types.ObjectId;
+  // semester?:  mongoose.Types.ObjectId;  // Học kỳ
   status: string;
+  StudentCode: string;
   enrolled_at: Date;
   course_schedule?: { dayOfWeek: string; startTime: string; endTime: string }[];
-  semester?: string;  // Học kỳ
   final_grade?: string;  // Điểm môn học khi kết thúc
 }
 
+// collection đăng ký môn học
 const EnrollmentSchema = new mongoose.Schema<IEnrollment>({
   student_id: {
     type: mongoose.Schema.Types.ObjectId,
@@ -22,6 +24,11 @@ const EnrollmentSchema = new mongoose.Schema<IEnrollment>({
     ref: 'TeachingAssignment',
     required: true
   },
+  // semester: {
+  //   type: mongoose.Schema.Types.ObjectId,
+  //   ref: 'Semester',
+  //   required: true
+  // },
   status: {
     type: String,
     enum: ['Pending', 'Approved', 'CancelledByStudent', 'Cancel'],
@@ -34,10 +41,6 @@ const EnrollmentSchema = new mongoose.Schema<IEnrollment>({
   course_schedule: {
     type: [{ dayOfWeek: String, startTime: String, endTime: String }],
     default: []
-  },
-  semester: {
-    type: String,
-    required: false
   },
   final_grade: {
     type: String,

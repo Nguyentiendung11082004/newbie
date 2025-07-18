@@ -1,9 +1,9 @@
-import axiosClient from "./axiosClient.setup";
-
+import { ApiResponse } from "../types/api";
+import axiosClient, { request } from "./axiosClient.setup";
 const tc = 'teachingassignment/'
 export const StudentServices = {
-    GetList: (params: any) => axiosClient.post('/students', params),
-    Export: ()=> axiosClient.get('/students/export-student')
+    GetList: (params: any) => request.post<ApiResponse<any[]>>('/students', params),
+    Export: () => axiosClient.get('/students/export-student')
 }
 
 export const StudentSubjectServices = {
@@ -15,7 +15,7 @@ export const StudentSubjectServices = {
     GetEnrollmentByTeacher: (params: any) => axiosClient.post(`enrollsubject/GetEnrollmentByTeacher`, params)
 }
 export const SubjectServices = {
-    GetList: (page: number, limit: any) => axiosClient.get(`subject?_page=${page}&_limit=${limit}&_sort=createdAt&_order=asc`),
+    GetList: (page: number, limit: number) => request.get<ApiResponse<any[]>>(`/subject?page=${page}&limit=${limit}`),
     GetAll: () => axiosClient.get('subject/all'),
     Add: (params: any) => axiosClient.post(`/subject`, params)
 }
@@ -25,7 +25,7 @@ export const TeacherServices = {
     GetById: (params: {}) => axiosClient.post('enrollsubject/GetEnrollmentsByTeachingAssignment', params)
 }
 export const ClassServices = {
-    GetList: (page: number, limit: any) => axiosClient.get(`/class?_page=${page}&_limit=${limit}&_sort=createdAt&_order=asc`),
+    GetList: (page: number, limit: any) => request.get<ApiResponse<any[]>>(`/class?_page=${page}&_limit=${limit}&_sort=createdAt&_order=asc`),
 };
 export const TechingAssignmentServices = {
     GetList: () => axiosClient.get(tc + `GetAllTeachingassignment`),
@@ -35,8 +35,17 @@ export const TechingAssignmentServices = {
     Delete: (id: string) => axiosClient.delete(tc + `DeleteTeachingassignment/${id}`),
 }
 export const AttendanceServices = {
-    CreateAttendance: (pay: {}) => axiosClient.post(`/attendance/CreateAttendance`, pay)
+    CreateAttendance: (pay: {}) => request.post<ApiResponse<any[]>>(`/attendance/CreateAttendance`, pay)
 }
 export const HistoryServices = {
     GetAttendanceHistory: (id: string, from: string, to: string) => axiosClient.get(`attendance?teaching_assignment_id=${id}&from=${from}&to=${to}`)
+}
+export const GradeServices = {
+    GetStudentForGrading: (params) => axiosClient.post(`grade/GetStudentListForGrading`, params),
+    CreateGrade: (params) => axiosClient.post(`grade/CreateGrade`, params),
+    GetMyGrades: (params) => axiosClient.post(`grade/GetMyGrades`, params),
+}
+export const LeaveServices = {
+    GetAllLeave: (params) => request.post<ApiResponse<any[]>>(`leaverequest/GetAllLeave`, params),
+    CreateLeave: (params) => request.post<ApiResponse<any[]>>(`leaverequest/CreateLeave`, params),
 }

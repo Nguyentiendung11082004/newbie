@@ -1,5 +1,7 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { SubjectServices } from "../../services/student.services";
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { RootState } from '../index';
+import { SubjectServices } from '../../services/student.services';
+import { ApiResponse } from '../../types/api';
 
 interface SubjectState {
     data: any[];
@@ -8,11 +10,10 @@ interface SubjectState {
     filter: {
         CurrentPage: number;
         PageSize: number;
-        totalDocs: number,
-        totalPages: number,
+        totalDocs: number;
+        totalPages: number;
     };
 }
-
 const initialState: SubjectState = {
     data: [],
     loading: false,
@@ -25,15 +26,17 @@ const initialState: SubjectState = {
     },
 };
 
-export const GetDataSubject = createAsyncThunk("getSubject", async (_, { getState }: any) => {
-    const { subject } = getState();
-    const res = await SubjectServices.GetList(subject.filter.CurrentPage, subject.filter.PageSize);
-    return res;
-}
+export const GetDataSubject = createAsyncThunk<ApiResponse<any[]>, void, { state: RootState }>(
+    'getSubject',
+    async (_, { getState }) => {
+        const { subject } = getState();
+        const res = await SubjectServices.GetList(subject.filter.CurrentPage, subject.filter.PageSize);
+        return res;
+    }
 );
 
 const subjectSlice = createSlice({
-    name: "subject",
+    name: 'subject',
     initialState,
     reducers: {
         setFilter: (state, action) => {
@@ -49,14 +52,14 @@ const subjectSlice = createSlice({
             .addCase(GetDataSubject.fulfilled, (state, action) => {
                 state.loading = false;
                 state.data = action.payload.data;
-                state.filter.totalDocs = action.payload.data.pagination.totalDocs;
-                state.filter.totalPages = action.payload.data.pagination.totalPages;
-                state.filter.CurrentPage = action.payload.data.pagination.page;
-                state.filter.PageSize = action.payload.data.pagination.limit;
+                state.filter.totalDocs = action.payload.pagination.totalDocs;
+                state.filter.totalPages = action.payload.pagination.totalPages;
+                state.filter.CurrentPage = action.payload.pagination.page;
+                state.filter.PageSize = action.payload.pagination.limit;
             })
             .addCase(GetDataSubject.rejected, (state, action) => {
                 state.loading = false;
-                state.error = action.error.message || "Có lỗi xảy ra";
+                state.error = action.error.message || 'Có lỗi xảy ra';
             });
     },
 });

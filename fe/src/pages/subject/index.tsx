@@ -32,7 +32,7 @@ const Subject = (props: Props) => {
     },
     {
       title: 'Tín chỉ',
-      dataIndex: 'credit',
+      dataIndex: 'credits',
     },
     {
       title: 'Thao tác',
@@ -67,7 +67,7 @@ const Subject = (props: Props) => {
       <Table
         rowKey="_id"
         columns={columns}
-        dataSource={data.data}
+        dataSource={data}
         pagination={{
           current: filter.CurrentPage,
           pageSize: filter.PageSize,
@@ -75,7 +75,7 @@ const Subject = (props: Props) => {
           onChange: handlePageChange
         }}
       />
-      <DialogSubject isModalOpen={open} setOpen={setOpen} />
+      <DialogSubject isModalOpen={open} setOpen={setOpen} data={data} />
     </>
   )
 }

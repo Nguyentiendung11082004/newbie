@@ -4,6 +4,7 @@ import { AttendanceServices, TeacherServices } from '../../../services/student.s
 import { Button, Switch, Table, Typography } from 'antd';
 import { ColumnType } from 'antd/es/table';
 import { formatDateStringGMT } from '../../../common/helpfunction';
+import { toast } from 'react-toastify';
 
 type Props = {}
 const { Title } = Typography;
@@ -14,12 +15,11 @@ const TeacherClassDetail = (props: Props) => {
     const [payload, setPayload] = useState({
         teaching_assignment_id: id,
         date: new Date().toISOString().split('T')[0],
+        // date: '2025-07-02',
         attendances: []
     })
     const handleSetForm = (key, value, item) => {
         const itemId = typeof item.student_id === 'object' ? item.student_id._id : item.student_id;
-    
-        // Cập nhật dữ liệu hiển thị (UI)
         setData((prev: any) =>
             prev.map((entry) => {
                 const entryId = typeof entry.student_id === 'object' ? entry.student_id._id : entry.student_id;
@@ -32,8 +32,6 @@ const TeacherClassDetail = (props: Props) => {
                 return entry;
             })
         );
-    
-        // Cập nhật dữ liệu sẽ gửi khi ấn "Xác nhận"
         setPayload((prev: any) => ({
             ...prev,
             attendances: prev.attendances.map((e) => {
@@ -47,18 +45,17 @@ const TeacherClassDetail = (props: Props) => {
             }),
         }));
     };
-    
-      
-
     const handleSubmitAttendance = async () => {
-        console.log("payload", payload.attendances)
-        let res = await AttendanceServices.CreateAttendance(payload)
-        if (res) {
+        try {
+            let res = await AttendanceServices.CreateAttendance(payload);
+            toast.success(res.message)
             getData(id as string)
+        } catch (error) {
+            toast.error(error.response.data?.message ?? 'Lỗi')
         }
+
     }
     const onChange = (checked: boolean) => {
-        console.log(`switch to ${checked}`);
     };
     const columns: ColumnType<any[]>[] = [
         {
@@ -107,47 +104,10 @@ const TeacherClassDetail = (props: Props) => {
                             checkedChildren="Có mặt"
                             unCheckedChildren="Vắng mặt"
                         />
-                        {/* <button
-                            style={{
-                                padding: '4px 12px',
-                                backgroundColor: '#ef4444',
-                                color: 'white',
-                                borderRadius: '4px',
-                                border: 'none',
-                                cursor: 'pointer',
-                                opacity: current === 'absent' ? 1 : 0.4,
-                                boxShadow: '0 0 10px rgba(220, 38, 38, 0.6)',
-                                transform: 'scale(1.05)', // phóng to nhẹ
-                                fontWeight: 'bold',       // chữ đậm
-                                transition: 'all 0.2s ease-in-out', // mượt hơn khi hover
-                            }}
-                            onClick={() => handleSetForm('status', "absent", _value)}
-                        >
-                            Vắng mặt
-                        </button>
-                        <button
-                            style={{
-                                padding: '4px 12px',
-                                backgroundColor: '#22c55e',
-                                color: 'white',
-                                borderRadius: '4px',
-                                border: 'none',
-                                cursor: 'pointer',
-                                opacity: current === 'present' ? 1 : 0.4,
-                                boxShadow: '0 0 10px rgbax(34, 197, 94, 0.6)', // đổ bóng xanhx
-                                transform: 'scale(1.05)', // phóng to nhẹ
-                                fontWeight: 'bold',       // chữ đậm
-                                transition: 'all 0.2s ease-in-out', // mượt hơn khi hover
-                            }}
-                            onClick={() => handleSetForm('status', "present", _value)}
-                        >
-                            Có mặt
-                        </button> */}
                     </div>
                 );
             },
         }
-
 
     ]
     const getData = async (id: string) => {
@@ -174,7 +134,7 @@ const TeacherClassDetail = (props: Props) => {
     return (
         <>
             <div className='flex justify-between items-center text-red'>
-                <Title level={4}>Điểm danh</Title>
+                <Title level={4}>{`Điểm danh ngày : ${formatDateStringGMT(payload.date, 'dd/mm/yyyy')}`}</Title>
                 <Button
                     type="primary"
                     onClick={handleSubmitAttendance}

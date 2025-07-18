@@ -5,6 +5,7 @@ import { useAppDispatch, useAppSelector } from '../../redux/hook';
 import { useEffect, useState } from 'react';
 import { GetDataClass } from '../../redux/slices/classSlice';
 import DialogClass from './dialogclass';
+import React from 'react';
 const { Title } = Typography;
 const Class = () => {
     const dispatch = useAppDispatch()
@@ -26,6 +27,11 @@ const Class = () => {
         {
             title: 'Năm học',
             dataIndex: 'AcademicYear',
+        },
+        {
+            title: 'Ngành học',
+            dataIndex: '',
+            render: (_value: any, _record: any, index: any) => _record.MajorId?.name,
         }
     ];
     const handlePageChange = () => {
@@ -43,7 +49,7 @@ const Class = () => {
             <Table
                 rowKey="_id"
                 columns={columns}
-                dataSource={data.data}
+                dataSource={data}
                 pagination={{
                     current: filter.CurrentPage,
                     pageSize: filter.PageSize,

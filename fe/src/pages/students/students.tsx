@@ -12,8 +12,9 @@ const { Title } = Typography;
 
 const initFilter = {
   CurrentPage: 1,
-  PageSize: 10,
+  PageSize: 5,
   KeyWord: "",
+  TotalItem: 0,
 };
 
 const Student = () => {
@@ -28,13 +29,16 @@ const Student = () => {
   const getData = async () => {
     const res = await StudentServices.GetList(params);
     if (res?.data) {
-      setData(res.data);
+      setData(res.data.map((e, index) => ({
+        ...e,
+        STT: (res?.pagination.page - 1) * res.pagination.limit + index + 1
+      })));
+      setFilter((prev) => ({ ...prev, TotalItem: res.pagination.totalDocs }))
     }
   };
-
   const handleExport = async () => {
     let res = await StudentServices.Export();
-    if(res) {
+    if (res) {
       toast.success(res.data.message)
     }
     // window.open(import.meta.env.VITE_API_URL + res.data.Url)
@@ -43,7 +47,7 @@ const Student = () => {
     {
       title: 'STT',
       dataIndex: 'STT',
-      render: (_value, _record, index) => (filter.CurrentPage - 1) * filter.PageSize + index + 1,
+      // render: (_value, _record, index) => (filter.CurrentPage - 1) * filter.PageSize + index + 1,
     },
     {
       title: 'Tên học sinh',
@@ -81,7 +85,7 @@ const Student = () => {
 
   useEffect(() => {
     getData();
-  }, [filter]);
+  }, [filter.CurrentPage]);
 
   return (
     <>
@@ -94,8 +98,8 @@ const Student = () => {
         pagination={{
           current: filter.CurrentPage,
           pageSize: filter.PageSize,
-          total: data.length,
-          showSizeChanger: true,
+          total: filter.TotalItem,
+          // showSizeChanger: true,
           onChange: (page, pageSize) => {
             setFilter({
               ...filter,

@@ -1,5 +1,3 @@
-import { ObjectId } from "mongoose";
-
 export interface IStudents {
     name: string;
     dob: Date;
@@ -8,5 +6,5 @@ export interface IStudents {
     phone: string;
     address: string;
     createdAt: string;
-    ClassId: string | ObjectId; 
+    ClassId: string; 
 }
