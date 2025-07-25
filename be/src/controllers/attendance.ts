@@ -33,7 +33,7 @@ export const CreateAttendance = async (req: Request, res: Response) => {
         });
 
         if (!isInSchedule) {
-            return res.status(StatusCodes.BAD_REQUEST).json({ message: 'Ngày này không nằm trong lịch học của lớp',status: StatusCodes.BAD_REQUEST });
+            return res.status(StatusCodes.BAD_REQUEST).json({ message: 'Ngày này không nằm trong lịch học của lớp', status: StatusCodes.BAD_REQUEST });
         }
 
 
@@ -107,14 +107,29 @@ export const getAttendanceHistory = async (req: CustomRequest, res: Response) =>
 
         // Tạo điều kiện lọc attendances theo role (student hoặc teacher)
         let filterCond = null;
+        const pipeline: any[] = [];
+        // Nếu là sinh viên thì lọc theo student_id của chính mình
         if (role === 'student') {
             filterCond = { $eq: ['$$attendance.student_id', new mongoose.Types.ObjectId(userId)] };
-        } else if (role === 'teacher') {
-            filterCond = { $eq: ['$$attendance.teacher_id', new mongoose.Types.ObjectId(userId)] };
+
+            // Chỉ push $addFields nếu là student
+            pipeline.push({
+                $addFields: {
+                    attendances: {
+                        $filter: {
+                            input: '$attendances',
+                            as: 'attendance',
+                            cond: filterCond,
+                        },
+                    },
+                },
+            });
         }
 
+        // Nếu là teacher => KHÔNG push $addFields => giữ nguyên attendances
+
+
         // Build pipeline aggregation
-        const pipeline: any[] = [];
 
         // 1. Lọc theo điều kiện chung
         pipeline.push({ $match: match });

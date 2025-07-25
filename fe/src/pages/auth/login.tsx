@@ -35,7 +35,10 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-red-100">
+    <div
+      className="flex items-center justify-center min-h-screen bg-cover bg-center"
+      style={{ backgroundImage: 'url("../../public/login.jpeg")' }}
+    >
       <div className="bg-white px-10 py-12 rounded-2xl shadow-2xl w-1/3 ">
         <h2 className="text-3xl font-bold text-center mb-2 text-red-800">Đăng nhập</h2>
         <Form
