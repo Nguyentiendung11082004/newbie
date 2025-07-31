@@ -12,6 +12,7 @@ import GradeRoute from "./grade"
 import LeaveRoute from "./leave"
 import sseRouter from "./sse.route"
 import StudentWalletRouter from "./wallet"
+import { sendMail } from "../middlewares/email"
 export default function routes(app: Express) {
     app.use('/api/v1/students', StudentRouter)
     app.use('/api/v1/class', ClassRouter)

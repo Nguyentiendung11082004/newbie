@@ -9,6 +9,7 @@ import Student from "../model/student";
 import StudentWallet from "../model/studentwallets";
 import { default as TeachingAssignment, default as TeachingAssignmentSchema } from "../model/teachingassignment";
 import { EnrollmentValidate } from "../schema/enrolment";
+import { sendMail } from "../middlewares/email";
 interface CustomRequest extends Request {
     user: {
         _id: string;
@@ -190,21 +191,30 @@ export const updateEnrollSubject = async (req: Request, res: Response) => {
 }
 export const DeleteEnroll = async (req: Request, res: Response) => {
     try {
-        const enroll = await Enrollment.findByIdAndDelete(req.params.id);
-        if (!enroll) {
-            return res.status(StatusCodes.BAD_REQUEST).json({
-                message: "Not Found"
-            })
-        }
-        return res.status(StatusCodes.OK).json({
-            data: {
-                message: "Thành công"
-            }
-        })
+      const enroll = await Enrollment.findById(req.params.id);
+      if (!enroll) {
+        return res.status(StatusCodes.NOT_FOUND).json({
+          message: "Không tìm thấy ghi danh"
+        });
+      }
+  
+      if (enroll.status === "Approved") {
+        return res.status(StatusCodes.BAD_REQUEST).json({
+          message: "Môn học đã được thanh toán, không thể huỷ"
+        });
+      }
+  
+      // Nếu chưa thanh toán thì xoá ghi danh
+      await Enrollment.findByIdAndDelete(req.params.id);
+  
+      return res.status(StatusCodes.OK).json({
+        message: "Huỷ ghi danh thành công"
+      });
     } catch (error) {
-        handleError(res, error)
+      handleError(res, error);
     }
-}
+  };
+  
 export const GetEnrollmentByTeacher = async (req: Request, res: Response) => {
     try {
         const { teacher_id, status = 'Pending', page = 1, limit = 10 } = req.body;
@@ -328,7 +338,7 @@ export const PayForEnrollment = async (req: CustomRequest, res: Response) => {
         if (!wallet || wallet.balance < tuitionFee) {
             return res.status(400).json({ message: 'Số dư không đủ để thanh toán học phí.' });
         }
-
+        console.log("enrollment", enrollment)
         // Trừ tiền
         wallet.balance -= tuitionFee;
         await wallet.save();
@@ -343,7 +353,16 @@ export const PayForEnrollment = async (req: CustomRequest, res: Response) => {
         // Cập nhật trạng thái ghi danh
         enrollment.status = 'Approved';
         await enrollment.save();
-
+        const tenhs: any = enrollment.student_id;
+        const monhoc: any = (enrollment.teaching_assignment_id as any).subject_id;
+        await sendMail(
+            tenhs.email,
+            'Thanh toán ghi danh thành công',
+            `<h3>Xin chào ${tenhs.name},</h3>
+             <p>Bạn đã thanh toán thành công học phí cho môn <strong>${monhoc.name}</strong>.</p>
+             <p>Mã lớp: ${monhoc.code}</p>
+             <p>Cảm ơn bạn!</p>`
+          );
         return res.status(200).json({ message: 'Thanh toán thành công.' });
 
     } catch (error) {
