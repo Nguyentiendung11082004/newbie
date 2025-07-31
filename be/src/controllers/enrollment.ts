@@ -1,14 +1,22 @@
-import { handleError } from "../middlewares/error"
-import { Request, Response } from "express"
-import Student from "../model/student";
-import TeachingAssignmentSchema from "../model/teachingassignment"
-import Subject from "../model/subject"
+import { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
-import Enrollment from "../model/enrollment";
 import { Types } from "mongoose";
-import TeachingAssignment from "../model/teachingassignment";
-import { EnrollmentValidate } from "../schema/enrolment";
+import { handleError } from "../middlewares/error";
+import { addTransaction } from "../middlewares/wallet";
 import Attendance from "../model/attdance";
+import Enrollment from "../model/enrollment";
+import Student from "../model/student";
+import StudentWallet from "../model/studentwallets";
+import { default as TeachingAssignment, default as TeachingAssignmentSchema } from "../model/teachingassignment";
+import { EnrollmentValidate } from "../schema/enrolment";
+interface CustomRequest extends Request {
+    user: {
+        _id: string;
+        role: string;
+        email: string;
+        userId: string;
+    };
+}
 export const getAllEnrollSubject = async (req: Request, res: Response): Promise<Response | void> => {
     try {
         const {
@@ -140,7 +148,7 @@ export const CreateEnrollSubject = async (req: Request, res: Response): Promise<
         const enrollment = await Enrollment.create({
             student_id,
             teaching_assignment_id: teachingAssignment._id,
-            status: 'Approved',
+            status: 'Pending',
             enrolled_at: new Date()
         });
         const class_id = teachingAssignment.class_id;
@@ -285,3 +293,60 @@ export const GetEnrollmentsByTeachingAssignment = async (req: Request, res: Resp
         handleError(res, error);
     }
 }
+
+export const PayForEnrollment = async (req: CustomRequest, res: Response) => {
+    try {
+        const { userId } = req.user;
+        const { IdEnrollment } = req.body;
+
+        const enrollment = await Enrollment.findById(IdEnrollment)
+            .populate({
+                path: 'teaching_assignment_id',
+                populate: {
+                    path: 'subject_id',
+                    model: 'Subject',
+                }
+            })
+            .populate('student_id');
+        if (!enrollment) {
+            return res.status(404).json({ message: 'Không tìm thấy ghi danh.' });
+        }
+
+        if (enrollment.student_id._id.toString() !== userId) {
+            return res.status(403).json({ message: 'Bạn không có quyền thanh toán ghi danh này.' });
+        }
+
+        if (enrollment.status !== 'Pending') {
+            return res.status(400).json({ message: 'Ghi danh đã được thanh toán hoặc không còn hiệu lực.' });
+        }
+        const teachingAssignment: any = enrollment.teaching_assignment_id as any;
+        const subject: any = teachingAssignment.subject_id;
+        const tuitionFee = subject.tuitionFee;
+
+
+        const wallet = await StudentWallet.findOne({ student_id: userId });
+        if (!wallet || wallet.balance < tuitionFee) {
+            return res.status(400).json({ message: 'Số dư không đủ để thanh toán học phí.' });
+        }
+
+        // Trừ tiền
+        wallet.balance -= tuitionFee;
+        await wallet.save();
+
+        // Ghi lịch sử giao dịch
+        await addTransaction(userId, {
+            amount: tuitionFee,
+            type: 'payment',
+            description: `Thanh toán học phí môn ${subject.name}`,
+        });
+
+        // Cập nhật trạng thái ghi danh
+        enrollment.status = 'Approved';
+        await enrollment.save();
+
+        return res.status(200).json({ message: 'Thanh toán thành công.' });
+
+    } catch (error) {
+        handleError(res, error);
+    }
+};

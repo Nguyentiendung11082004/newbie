@@ -6,6 +6,7 @@ export interface IEnrollment extends Document {
   teaching_assignment_id: mongoose.Types.ObjectId;
   // semester?:  mongoose.Types.ObjectId;  // Học kỳ
   status: string;
+  paymentStatus: string;
   StudentCode: string;
   enrolled_at: Date;
   course_schedule?: { dayOfWeek: string; startTime: string; endTime: string }[];
@@ -24,15 +25,16 @@ const EnrollmentSchema = new mongoose.Schema<IEnrollment>({
     ref: 'TeachingAssignment',
     required: true
   },
-  // semester: {
-  //   type: mongoose.Schema.Types.ObjectId,
-  //   ref: 'Semester',
-  //   required: true
-  // },
+
   status: {
     type: String,
     enum: ['Pending', 'Approved', 'CancelledByStudent', 'Cancel'],
     default: 'Pending'
+  },
+  paymentStatus: {
+    type: String,
+    enum: ['pending', 'paid', 'cancelled_by_student', 'cancelled_by_admin'],
+    default: 'pending'
   },
   enrolled_at: {
     type: Date,
@@ -44,7 +46,7 @@ const EnrollmentSchema = new mongoose.Schema<IEnrollment>({
   },
   final_grade: {
     type: String,
-    required: false
+    required: false 
   }
 });
 
