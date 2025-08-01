@@ -28,7 +28,7 @@ const init = {
 const format = 'HH:mm';
 const DialogTechngassment = ({ isModalOpen, setVisible, dataEdit, setDataEdit }: Props) => {
     const [payload, setPayload] = useState(init);
-
+    console.log("payload", payload)
     const dispatch = useAppDispatch();
     const arrThu = getDayOffWeek();
     const subject = useAppSelector((state: any) => state.subject);
@@ -62,7 +62,7 @@ const DialogTechngassment = ({ isModalOpen, setVisible, dataEdit, setDataEdit }:
         }
     }
     const handleSetForm = (props: any, value: any, record?: any) => {
-  
+
         setPayload((prev: any) => {
             if (record) {
                 const result = prev.weeklySchedule.map((e: any) => {
@@ -149,7 +149,7 @@ const DialogTechngassment = ({ isModalOpen, setVisible, dataEdit, setDataEdit }:
     const handleDelete = (value: any) => {
         setPayload((prev) => ({
             ...prev,
-            weeklySchedule: prev.weeklySchedule.filter((e: any) => e.GUID !== value.GUID)
+            weeklySchedule: prev.weeklySchedule.filter((e: any) => value.GUID ? e.GUID !== value.GUID : e._id !== value._id)
         }))
     }
     useEffect(() => {
@@ -217,7 +217,7 @@ const DialogTechngassment = ({ isModalOpen, setVisible, dataEdit, setDataEdit }:
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Thời gian bắt đầu</label>
                     <DatePicker
-                       onChange={(e) => handleSetForm('startDate', e ? e.format("YYYY-MM-DD") : "")}
+                        onChange={(e) => handleSetForm('startDate', e ? e.format("YYYY-MM-DD") : "")}
                         style={{ width: 280 }}
                         className="border border-gray-300 rounded-lg p-2 mt-4  text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
                         placeholder="Chọn"

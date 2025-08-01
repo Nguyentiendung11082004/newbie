@@ -4,6 +4,8 @@ import { StatusCodes } from "http-status-codes";
 import { handleError } from "../middlewares/error";
 import * as XLSX from 'xlsx';
 import path from "path";
+import Enrollment from "../model/enrollment";
+import { getDayOfWeekFromDate } from "../middlewares/utils";
 
 export const getAllStudents = async (req: Request, res: Response) => {
     try {
@@ -93,6 +95,50 @@ export const ImportExcel = async (req: Request, res: Response) => {
                 }
             })
         }
+    } catch (error) {
+        handleError(res, error)
+    }
+}
+interface Customer extends Request {
+    user: {
+        _id: string;
+        role: string;
+        email: string;
+        userId: string;
+    };
+}
+
+export const GetStudentTimeTable = async (req: Customer, res: Response) => {
+    try {
+        const studentId = req.user.userId;
+        const enrollments = await Enrollment.find({
+            student_id: studentId,
+            status: 'Approved'
+        }).populate({
+            path: 'teaching_assignment_id',
+            populate: [
+                { path: 'subject_id', select: 'name' },
+                { path: 'class_id', select: 'name' }
+            ]
+        });
+        const timetable = enrollments.flatMap((enroll: any) => {
+            const ta = enroll.teaching_assignment_id;
+            return ta.schedule.map((schedule: any) => {
+                const dayOfWeek = getDayOfWeekFromDate(schedule.date);
+                return {
+                    subject: ta.subject_id.name,
+                    class: ta.class_id.name,
+                    date: schedule.date,
+                    dayOfWeek: dayOfWeek,
+                    startTime: schedule.startTime,
+                    endTime: schedule.endTime
+                }
+            });
+        });
+        return res.status(StatusCodes.OK).json({
+            message: "Thành công",
+            data: timetable,
+        })
     } catch (error) {
         handleError(res, error)
     }
