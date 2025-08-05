@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response, Router } from "express";
-import { ExportExcel, GetStudentTimeTable, ImportExcel, getAllStudents } from "../controllers/student";
+import { CreateCardRequest, ExportExcel, GetAllCardRequest, GetMyCardRequest, GetStudentTimeTable, ImportExcel, UpdateCardRequest, getAllStudents } from "../controllers/student";
 import { upload } from "../middlewares/upload";
 import { authMiddleware } from "../controllers/auth";
 const asyncHandler = (fn: Function) => (req: Request, res: Response, next: NextFunction) =>
@@ -66,5 +66,9 @@ StudentRouter.get('/export-student', ExportExcel)
 StudentRouter.post('/import-student', upload.single('file'), ImportExcel)
 
 StudentRouter.get('/GetStudentTimeTable', asyncHandler(authMiddleware), asyncHandler(GetStudentTimeTable))
+StudentRouter.get('/GetAllCardRequest', asyncHandler(GetAllCardRequest))
+StudentRouter.post('/CreateCardRequest', asyncHandler(authMiddleware), asyncHandler(CreateCardRequest))
+StudentRouter.post('/UpdateCardRequest', asyncHandler(UpdateCardRequest))
+StudentRouter.post('/GetMyCardRequest', asyncHandler(authMiddleware), asyncHandler(GetMyCardRequest))
 export default StudentRouter
 
