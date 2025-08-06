@@ -1,5 +1,6 @@
 import cors from "cors";
 import dotenv from "dotenv";
+dotenv.config();
 import express from "express";
 import morgan from "morgan";
 import { ConnectDataBase } from "./config/dbconfig";
@@ -8,7 +9,6 @@ import { swaggerSpec, swaggerUi } from "./config/swagger";
 
 // Khởi tạo app
 const app = express();
-dotenv.config();
 
 // Middleware để parse data từ client
 app.use(express.urlencoded({ extended: true }));

@@ -5,6 +5,7 @@ export interface ISubject extends Document {
   code: string;
   description?: string;
   credits: number;
+  tuitionFee: number;
   majorId: mongoose.Types.ObjectId;
   semester: mongoose.Types.ObjectId;
   prerequisite?: mongoose.Types.ObjectId[];
@@ -15,6 +16,7 @@ const SubjectSchema = new mongoose.Schema({
   code: { type: String, required: true, unique: true },
   credits: { type: Number, required: true },
   description: { type: String },
+  tuitionFee: { type: Number, required: true },
   majorId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Major',

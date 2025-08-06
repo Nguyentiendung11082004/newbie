@@ -4,6 +4,8 @@ import Teacher from "../model/teacher";
 import { StatusCodes } from "http-status-codes";
 import TeachingAssignment from "../model/teachingassignment";
 import { Types } from "mongoose";
+import { CustomRequest, getDayOfWeekFromDate } from "../middlewares/utils";
+import Enrollment from "../model/enrollment";
 
 export const getAllTeacher = async (req: Request, res: Response) => {
     try {
@@ -56,3 +58,33 @@ export const GetClassesByTeacher = async (req: Request, res: Response) => {
     }
 };
 
+export const GetTeacherTimeTable = async (req: CustomRequest, res: Response) => {
+    try {
+        const teacherId = req.user.userId;
+        const enrollments: any = await TeachingAssignment.find({
+            teacher_id: teacherId,
+        }).populate([
+            { path: 'subject_id', select: 'name' },
+            { path: 'class_id', select: 'ClassName' }
+        ]);
+        const timetable = enrollments.flatMap((enroll: any) => {
+            return enroll.schedule.map((schedule: any) => {
+                const dayOfWeek = getDayOfWeekFromDate(schedule.date);
+                return {
+                    subject: enroll.subject_id.name,
+                    class: enroll.class_id.ClassName,
+                    date: schedule.date,
+                    dayOfWeek: dayOfWeek,
+                    startTime: schedule.startTime,
+                    endTime: schedule.endTime
+                }
+            });
+        });
+        return res.status(StatusCodes.OK).json({
+            message: "Thành công",
+            data: timetable,
+        })
+    } catch (error) {
+        handleError(res, error)
+    }
+}

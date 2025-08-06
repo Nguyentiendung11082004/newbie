@@ -22,17 +22,16 @@ const dayOfWeekToNumber = (day: string) => {
 };
 const parseLocalDate = (dateStr: string): Date => {
     if (!dateStr || typeof dateStr !== "string") {
-      throw new Error("Invalid startDate: " + dateStr);
+        throw new Error("Invalid startDate: " + dateStr);
     }
-  
+
     const [year, month, day] = dateStr.split('-').map(Number);
     if (!year || !month || !day) {
-      throw new Error("startDate format must be YYYY-MM-DD. Got: " + dateStr);
+        throw new Error("startDate format must be YYYY-MM-DD. Got: " + dateStr);
     }
-  
+
     return new Date(year, month - 1, day);
-  };
-  
+};
 const generateSchedule = (
     startDate: string,
     numberOfClasses: number,

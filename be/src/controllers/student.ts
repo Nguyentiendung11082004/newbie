@@ -4,7 +4,16 @@ import { StatusCodes } from "http-status-codes";
 import { handleError } from "../middlewares/error";
 import * as XLSX from 'xlsx';
 import path from "path";
-
+import Enrollment from "../model/enrollment";
+import { getDayOfWeekFromDate } from "../middlewares/utils";
+interface Customer extends Request {
+    user: {
+        _id: string;
+        role: string;
+        email: string;
+        userId: string;
+    };
+}
 export const getAllStudents = async (req: Request, res: Response) => {
     try {
         const {
@@ -97,3 +106,142 @@ export const ImportExcel = async (req: Request, res: Response) => {
         handleError(res, error)
     }
 }
+
+
+export const GetStudentTimeTable = async (req: Customer, res: Response) => {
+    try {
+        const studentId = req.user.userId;
+        const enrollments = await Enrollment.find({
+            student_id: studentId,
+            status: 'Approved'
+        }).populate({
+            path: 'teaching_assignment_id',
+            populate: [
+                { path: 'subject_id', select: 'name' },
+                { path: 'class_id', select: 'name' }
+            ]
+        });
+        const timetable = enrollments.flatMap((enroll: any) => {
+            const ta = enroll.teaching_assignment_id;
+            return ta.schedule.map((schedule: any) => {
+                const dayOfWeek = getDayOfWeekFromDate(schedule.date);
+                return {
+                    subject: ta.subject_id.name,
+                    class: ta.class_id.name,
+                    date: schedule.date,
+                    dayOfWeek: dayOfWeek,
+                    startTime: schedule.startTime,
+                    endTime: schedule.endTime
+                }
+            });
+        });
+        return res.status(StatusCodes.OK).json({
+            message: "Thành công",
+            data: timetable,
+        })
+    } catch (error) {
+        handleError(res, error)
+    }
+}
+export const GetAllCardRequest = async (req: Customer, res: Response) => {
+    try {
+        const { status } = req.query;
+        const filter: any = {};
+
+        if (status) {
+            filter['cardRequest.status'] = status;
+        } else {
+            filter['cardRequest.status'] = { $exists: true };
+        }
+
+        const data = await Student.find(filter)
+            .select('name StudentCode cardRequest')
+            .populate('classId', 'name')
+            .sort({ 'cardRequest.createdAt': -1 });
+
+        return res.status(200).json({
+            message: 'Lấy danh sách yêu cầu thành công',
+            data,
+        });
+    } catch (error) {
+        handleError(res, error);
+    }
+};
+
+export const CreateCardRequest = async (req: Customer, res: Response) => {
+    try {
+        const studentId = req.user.userId;
+        const { reason, photoUrl } = req.body;
+        const student = await Student.findById(studentId);
+        if (!student) {
+            return res.status(StatusCodes.NOT_FOUND).json({
+                message: "Sinh viên không tồn tại",
+            });
+        }
+        if (
+            student.cardRequest &&
+            student.cardRequest.status === "Pending"
+        ) {
+            return res.status(StatusCodes.BAD_REQUEST).json({
+                message: "Đã gửi yêu cầu trước đó, vui lòng chờ xử lý.",
+            });
+        }
+        student.cardRequest = {
+            reason,
+            photoUrl,
+            requestedAt: new Date(),
+            status: "Pending",
+        };
+        await student.save();
+        return res.status(StatusCodes.OK).json({
+            message: "Đã gửi yêu cầu cấp lại thẻ.",
+        });
+    } catch (error) {
+        handleError(res, error);
+    }
+};
+export const UpdateCardRequest = async (req: Request, res: Response) => {
+    try {
+        const { studentId, status, adminNote } = req.body;
+        if (!['Approved', 'Rejected'].includes(status)) {
+            return res.status(400).json({ message: 'Trạng thái không hợp lệ' });
+        }
+        const student = await Student.findById(studentId);
+        if (!student || !student.cardRequest) {
+          return res.status(404).json({ message: 'Không tìm thấy yêu cầu cấp thẻ' });
+        }
+        student.cardRequest.status = status;
+        student.cardRequest.adminNote = adminNote;
+        student.cardRequest.processedAt = new Date();
+        await student.save();
+        return res.status(200).json({ message: 'Cập nhật thành công' });
+    } catch (error) {
+        handleError(res, error);
+    }
+}
+export const GetMyCardRequest = async (req: Customer, res: Response) => {
+    try {
+        const studentId = req.user.userId;
+        const student = await Student.findById(studentId);
+
+        if (!student || !student.cardRequest) {
+            return res.status(StatusCodes.NOT_FOUND).json({
+                message: "Không tìm thấy yêu cầu cấp lại thẻ.",
+            });
+        }
+
+        return res.status(StatusCodes.OK).json(student.cardRequest);
+
+    } catch (error) {
+        handleError(res, error);
+    }
+};
+
+
+
+
+
+
+
+
+

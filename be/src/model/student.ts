@@ -10,6 +10,15 @@ export interface IStudent extends Document {
     address: string;
     classId: mongoose.Types.ObjectId[];
     major_id: mongoose.Types.ObjectId;
+    cardRequest?: {
+        requestedAt: Date;
+        status: 'Pending' | 'Approved' | 'Rejected' | 'Collected';
+        reason: string;
+        photoUrl: string;
+        processedAt?: Date;
+        adminNote?: string;
+    };
+
 }
 
 const StudentSchema = new mongoose.Schema({
@@ -60,7 +69,19 @@ const StudentSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Major',
         required: true
-    }
+    },
+    cardRequest: {
+        requestedAt: { type: Date },
+        status: {
+          type: String,
+          enum: ['Pending', 'Approved', 'Rejected', 'Collected'],
+        },
+        reason: { type: String },
+        photoUrl: { type: String },
+        processedAt: { type: Date },
+        adminNote: { type: String }
+      }
+      
 }, {
     timestamps: true,
     versionKey: false
