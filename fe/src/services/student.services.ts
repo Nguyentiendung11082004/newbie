@@ -48,4 +48,5 @@ export const GradeServices = {
 export const LeaveServices = {
     GetAllLeave: (params) => request.post<ApiResponse<any[]>>(`leaverequest/GetAllLeave`, params),
     CreateLeave: (params) => request.post<ApiResponse<any[]>>(`leaverequest/CreateLeave`, params),
+    ApproveLeave: (params) => request.post<ApiResponse<any[]>>(`leaverequest/ApproveLeave`, params),
 }

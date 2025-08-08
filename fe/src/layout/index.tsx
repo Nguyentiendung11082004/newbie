@@ -37,7 +37,7 @@ const LayoutDashboard = () => {
   const value = useAppSelector((state) => state);
   const menuItems = [
     // Admin Menu
-    { 
+    {
       key: 'dashboard',
       icon: <DashboardOutlined />,
       label: 'Dashboard',
@@ -143,6 +143,12 @@ const LayoutDashboard = () => {
           label: 'Đăng ký nghỉ',
           url: '/leave-request',
           permission: ['student'],
+        },
+        {
+          key: 'reviewLeaveRequest',
+          label: 'Duyệt đơn nghỉ',
+          url: '/leave-request/review',
+          permission: ['teacher'],
         },
         {
           key: 'tuition',

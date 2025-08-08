@@ -16,6 +16,7 @@ import TeacherClassDetail from '../pages/teacher/teacher-classes/TeacherClassDet
 import TechingAssignment from '../pages/techingassment'
 import Test from '../pages/test/test'
 import Leave from '../pages/services/leave/leave'
+import LeaveReview from '../pages/services/leave/leavereview'
 export const privateRoutes = [
   { path: '/admin/dashboard', element: <DashboardAdmin /> },
   { path: '/admin/classes', element: <Class /> },
@@ -29,6 +30,8 @@ export const privateRoutes = [
   { path: '/teacher/classes', element: <TeacherClass /> },
   { path: '/teacher/classes/:id', element: <TeacherClassDetail /> },
   { path: '/teacher/grade', element: <Grade /> },
+  { path: '/leave-request/review', element: <LeaveReview /> },
+
 
   { path: '/student/subjects', element: <SubjectStudent /> },
   { path: '/student/grade', element: <Grade /> },

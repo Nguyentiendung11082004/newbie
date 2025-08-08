@@ -58,7 +58,7 @@ const DialogTechngassment = ({ isModalOpen, setVisible, dataEdit, setDataEdit }:
     const getById = async (id: string) => {
         let res = await TechingAssignmentServices.GetById(id)
         if (res) {
-            setPayload(res.data.data)
+            setPayload(res.data)
         }
     }
     const handleSetForm = (props: any, value: any, record?: any) => {

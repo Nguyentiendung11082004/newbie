@@ -136,10 +136,8 @@ export const GetTeachingassment = async (req: Request, res: Response) => {
             .exec();
 
         return res.status(StatusCodes.OK).json({
-            data: {
-                message: 'Thành công',
-                data: techingassment
-            }
+            message: 'Thành công',
+            data: techingassment
         })
     } catch (error) {
         handleError(res, error)
