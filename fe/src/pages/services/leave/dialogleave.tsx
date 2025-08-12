@@ -10,11 +10,11 @@ type Props = {
     setIsOpen: any
 }
 const format = 'HH:mm';
-const init ={
+const init = {
     fromDate: "",
     toDate: "",
-    reason:"",
-    teaching_assignment_id:""
+    reason: "",
+    teaching_assignment_id: ""
 }
 const DialogLeave = ({ isModalOpen, setIsOpen }: Props) => {
     const [teching, setTeching] = useState([])
@@ -22,7 +22,6 @@ const DialogLeave = ({ isModalOpen, setIsOpen }: Props) => {
     const handleOk = async () => {
         if (checkValid(payload)) {
             let res = await LeaveServices.CreateLeave(payload);
-            console.log("res",res)
             if (res.StatusCodes === 201) {
                 toast.success('Thành công');
                 setPayload(init)
@@ -55,7 +54,10 @@ const DialogLeave = ({ isModalOpen, setIsOpen }: Props) => {
         }
         return true;
     }
-    const handleHuy = () => { };
+    const handleHuy = () => {
+        setPayload(init)
+        setIsOpen(false)
+    };
     const setForm = (prop: string, value: any) => {
         setPayload((prev) => ({
             ...prev,

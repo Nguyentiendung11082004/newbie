@@ -12,6 +12,7 @@ import { AuthValidate, StudentValidate, TeacherValidate } from "../schema/auth";
 import Student from "../model/student";
 import Teacher from "../model/teacher";
 import Auth from "../model/auth";
+import StudentWallet from "../model/studentwallets";
 interface DecodedToken {
     userId?: string;
     authId?: string;
@@ -80,6 +81,11 @@ export const register = async (req: Request, res: Response) => {
                 gender,
                 phone,
                 address,
+            });
+            await StudentWallet.create({
+                student_id: user._id, 
+                balance: 0,
+                transactions: []
             });
         } else if (role === 'teacher') {
             user = await TeacherSchema.create({

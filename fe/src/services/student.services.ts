@@ -50,3 +50,8 @@ export const LeaveServices = {
     CreateLeave: (params) => request.post<ApiResponse<any[]>>(`leaverequest/CreateLeave`, params),
     ApproveLeave: (params) => request.post<ApiResponse<any[]>>(`leaverequest/ApproveLeave`, params),
 }
+export const StudentWalletServices = {
+    GetStudentWalletById: (params) => request.post<ApiResponse<any[]>>(`wallet/GetStudentWalletById`, params),
+    TopUpWallter: (payload) => request.post<ApiResponse<any[]>>(`wallet/TopUpWallter`, payload),
+    MakePayment: (payload) => request.post<ApiResponse<any[]>>(`wallet/MakePayment`, payload),
+}

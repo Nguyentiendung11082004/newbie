@@ -18,6 +18,7 @@ interface Transaction {
     description?: string | null;
 }
 
+// hàm lấy ví
 export const getWalletById = async (req: CustomRequest, res: Response) => {
     try {
         const { userId } = req.user;
@@ -29,6 +30,12 @@ export const getWalletById = async (req: CustomRequest, res: Response) => {
                 message: 'Not found'
             })
         }
+        if (data?.transactions) {
+            data.transactions = data.transactions.sort(
+              (a: any, b: any) =>
+                new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+            );
+          }
         return res.status(StatusCodes.OK).json({
             message: 'Thành công',
             data: data
@@ -37,6 +44,7 @@ export const getWalletById = async (req: CustomRequest, res: Response) => {
         handleError(res, error)
     }
 }
+// hàm nạp
 export const topUpWallter = async (req: CustomRequest, res: Response) => {
     try {
         const { userId } = req.user;
@@ -69,12 +77,14 @@ export const topUpWallter = async (req: CustomRequest, res: Response) => {
         return res.status(StatusCodes.OK).json({
             message: "Nạp tiền thành công",
             data: updatedWallet,
+            StatusCodes: 200
         });
     } catch (error) {
         handleError(res, error);
     }
 };
 
+// hàm thanh toán
 export const makePayment = async (req: CustomRequest, res: Response) => {
     try {
         const { userId } = req.user;

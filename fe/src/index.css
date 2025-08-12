@@ -10,3 +10,10 @@ body {
 body {
   font-family: 'Roboto', sans-serif;
 } 
+.row-topup {
+  background-color: #f6ffed !important; /* xanh lá nhạt */
+}
+
+.row-payment {
+  background-color: #fff1f0 !important; /* đỏ nhạt */
+}

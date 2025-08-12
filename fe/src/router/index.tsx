@@ -17,6 +17,7 @@ import TechingAssignment from '../pages/techingassment'
 import Test from '../pages/test/test'
 import Leave from '../pages/services/leave/leave'
 import LeaveReview from '../pages/services/leave/leavereview'
+import StudentWalletPage from '../pages/students/StudentWalletPage'
 export const privateRoutes = [
   { path: '/admin/dashboard', element: <DashboardAdmin /> },
   { path: '/admin/classes', element: <Class /> },
@@ -38,7 +39,9 @@ export const privateRoutes = [
 
 
   { path: '/history/:id', element: <History /> },
-  { path: '/leave-request', element: <Leave /> }
+  { path: '/leave-request', element: <Leave /> },
+  { path: '/services/tuition', element: <StudentWalletPage /> }
+  
 
 ];
 

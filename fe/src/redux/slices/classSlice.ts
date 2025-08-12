@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { ClassServices } from "../../services/student.services";
 import { ApiResponse } from "../../types/api";
-import { RootState } from "..";
+import { RootState } from "redux";
 interface Class {
     _id: string;
     name: string;
