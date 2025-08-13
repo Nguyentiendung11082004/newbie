@@ -7,6 +7,10 @@ import DashboardAdmin from '../pages/dashboard'
 import EnrollmentApproval from '../pages/enrollment-approval'
 import Grade from '../pages/grade'
 import History from '../pages/history'
+import Leave from '../pages/services/leave/leave'
+import LeaveReview from '../pages/services/leave/leavereview'
+import StudentWalletPage from '../pages/students/StudentWalletPage'
+import StudentDebt from '../pages/students/studentdebt'
 import Students from '../pages/students/students'
 import Subject from '../pages/subject'
 import SubjectStudent from '../pages/subjectstudent'
@@ -15,9 +19,6 @@ import TeacherClass from '../pages/teacher/teacher-classes'
 import TeacherClassDetail from '../pages/teacher/teacher-classes/TeacherClassDetail'
 import TechingAssignment from '../pages/techingassment'
 import Test from '../pages/test/test'
-import Leave from '../pages/services/leave/leave'
-import LeaveReview from '../pages/services/leave/leavereview'
-import StudentWalletPage from '../pages/students/StudentWalletPage'
 export const privateRoutes = [
   { path: '/admin/dashboard', element: <DashboardAdmin /> },
   { path: '/admin/classes', element: <Class /> },
@@ -40,8 +41,8 @@ export const privateRoutes = [
 
   { path: '/history/:id', element: <History /> },
   { path: '/leave-request', element: <Leave /> },
-  { path: '/services/tuition', element: <StudentWalletPage /> }
-  
+  { path: '/services/tuition', element: <StudentWalletPage /> },
+  { path: '/services/debt', element: <StudentDebt /> }
 
 ];
 

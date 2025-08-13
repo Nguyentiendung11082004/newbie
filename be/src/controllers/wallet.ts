@@ -3,6 +3,7 @@ import { handleError } from "../middlewares/error";
 import StudentWallet from "../model/studentwallets";
 import { StatusCodes } from "http-status-codes";
 import { addTransaction } from "../middlewares/wallet";
+import Enrollment from "../model/enrollment";
 interface CustomRequest extends Request {
     user: {
         _id: string;
@@ -32,10 +33,10 @@ export const getWalletById = async (req: CustomRequest, res: Response) => {
         }
         if (data?.transactions) {
             data.transactions = data.transactions.sort(
-              (a: any, b: any) =>
-                new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+                (a: any, b: any) =>
+                    new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
             );
-          }
+        }
         return res.status(StatusCodes.OK).json({
             message: 'Thành công',
             data: data
@@ -88,28 +89,39 @@ export const topUpWallter = async (req: CustomRequest, res: Response) => {
 export const makePayment = async (req: CustomRequest, res: Response) => {
     try {
         const { userId } = req.user;
-        const { amount, description, paymentType } = req.body;
+        const { amount, description, enrollmentId } = req.body;
         let wallet: any = await StudentWallet.findOne({ student_id: userId });
         if (wallet?.balance < amount) {
             return res.status(StatusCodes.BAD_REQUEST).json({
                 message: "Số dư trong ví không đủ để thực hiện thanh toán này "
             })
         }
+        if (!enrollmentId) {
+            return res.status(StatusCodes.BAD_REQUEST).json({
+                message: "Không tìm thấy hoá đơn "
+            })
+        }
         const transaction = await addTransaction(userId, {
             type: "payment",
             amount,
-            description: description || "Trừ tiền",
+            description: description || "Thanh toán học phí",
         });
-        console.log("transaction", transaction)
+        if (enrollmentId) {
+            await Enrollment.findByIdAndUpdate(enrollmentId, {
+                status: "Approved",
+                paymentStatus:"paid"
+            });
+        }
         return res.status(StatusCodes.OK).json({
             message: "Thanh toán thành công",
+            StatusCodes: StatusCodes.OK,
             receipt: {
                 transactionId: transaction._id,
                 amount: transaction.amount,
                 description: transaction.description,
                 paymentType: transaction.type,
                 date: transaction.createdAt,
-            }
+            },
         });
     } catch (error) {
         handleError(res, error);
@@ -141,5 +153,32 @@ export const getTransactionHistory = async (req: CustomRequest, res: Response) =
         console.log("filteredTransactions", filteredTransactions)
     } catch (error) {
         handleError(res, error)
+    }
+}
+
+export const getDebtWallter = async (req: CustomRequest, res: Response) => {
+    try {
+
+        const { userId } = req.user;
+        const debts = await Enrollment.find({
+            student_id: userId,
+            paymentStatus: "pending"
+        })
+
+            .populate({
+                path: "teaching_assignment_id",
+                populate: [
+                    { path: "subject_id", select: "name credit tuitionFee" },
+                    { path: "class_id", select: "ClassName" }
+                ]
+            })
+            .lean();
+        return res.status(StatusCodes.OK).json({
+            message: 'Thành công',
+            data: debts
+        })
+        // console.log("debts",debts)
+    } catch (error) {
+        handleError(res, error);
     }
 }

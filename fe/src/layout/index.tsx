@@ -23,9 +23,6 @@ import { toast } from 'react-toastify';
 import React from 'react';
 import { useSSE } from '../common/hooks/useSSE';
 const { Header, Sider, Content } = Layout;
-
-
-
 const LayoutDashboard = () => {
   const [collapsed, setCollapsed] = useState(false);
   const navigate = useNavigate();
@@ -157,6 +154,12 @@ const LayoutDashboard = () => {
           permission: ['student', 'admin'],
         },
         {
+          key: 'debt',
+          label: 'Công nợ',
+          url: '/services/debt',
+          permission: ['student'],
+        },
+        {
           key: 'notification',
           label: 'Thông báo',
           url: '/services/notification',
@@ -244,20 +247,44 @@ const LayoutDashboard = () => {
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
-      <Sider trigger={null} collapsible collapsed={collapsed} width={250}>
+      <Sider
+        trigger={null}
+        collapsible
+        collapsed={collapsed}
+        width={250}
+        style={{
+          position: 'fixed',
+          height: '100vh',
+          left: 0,
+          top: 0,
+          overflow: 'auto',
+        }}
+      >
         <div style={{ height: 64, margin: 16, background: 'rgba(255,255,255,0.2)', borderRadius: 8 }} />
         <Menu
           theme="dark"
           mode="inline"
           selectedKeys={menuItems
-            .flatMap(item => item.children ? item.children : item) // flatten 1 level
+            .flatMap(item => item.children ? item.children : item)
             .filter(item => matchPath({ path: item.url, end: false }, location.pathname))
             .map(item => item.key)}
           items={renderMenuItems(menuItems)}
         />
       </Sider>
-      <Layout>
-        <Header style={{ padding: 0, background: colorBgContainer, display: 'flex', justifyContent: 'space-between' }}>
+
+      <Layout style={{ marginLeft: collapsed ? 80 : 250 }}>
+        <Header
+          style={{
+            padding: 0,
+            background: colorBgContainer,
+            display: 'flex',
+            justifyContent: 'space-between',
+            position: 'fixed',
+            top: 0,
+            zIndex: 1,
+            width: `calc(100% - ${collapsed ? 80 : 250}px)`,
+          }}
+        >
           <Button
             type="text"
             icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
@@ -282,19 +309,22 @@ const LayoutDashboard = () => {
               </div>
             </Dropdown>
           </div>
-
         </Header>
-        <Content style={{
-          margin: '24px 16px',
-          padding: 24,
-          minHeight: 280,
-          background: colorBgContainer,
-          borderRadius: 8,
-        }}>
+
+        <Content
+          style={{
+            margin: '88px 16px 24px',
+            padding: 24,
+            minHeight: 280,
+            background: colorBgContainer,
+            borderRadius: 8,
+          }}
+        >
           <Outlet />
         </Content>
       </Layout>
-    </Layout >
+    </Layout>
+
   );
 }
 export default LayoutDashboard
