@@ -65,7 +65,7 @@ StudentRouter.get('/export-student', ExportExcel)
  */
 StudentRouter.post('/import-student', upload.single('file'), ImportExcel)
 
-StudentRouter.get('/GetStudentTimeTable', asyncHandler(authMiddleware), asyncHandler(GetStudentTimeTable))
+StudentRouter.post('/GetStudentTimeTable', asyncHandler(authMiddleware), asyncHandler(GetStudentTimeTable))
 StudentRouter.get('/GetAllCardRequest', asyncHandler(GetAllCardRequest))
 StudentRouter.post('/CreateCardRequest', asyncHandler(authMiddleware), asyncHandler(CreateCardRequest))
 StudentRouter.post('/UpdateCardRequest', asyncHandler(UpdateCardRequest))

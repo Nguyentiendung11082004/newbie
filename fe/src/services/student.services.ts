@@ -56,3 +56,6 @@ export const StudentWalletServices = {
     MakePayment: (payload) => request.post<ApiResponse<any[]>>(`wallet/MakePayment`, payload),
     GetDebtWallter: () => request.get<ApiResponse<any[]>>(`wallet/GetDebtWallter`)
 }
+export const TimetableServices = {
+    GetStudentTimetable: (payload) => request.post<ApiResponse<any[]>>(`students/GetStudentTimeTable`, payload)
+}

@@ -19,6 +19,8 @@ import TeacherClass from '../pages/teacher/teacher-classes'
 import TeacherClassDetail from '../pages/teacher/teacher-classes/TeacherClassDetail'
 import TechingAssignment from '../pages/techingassment'
 import Test from '../pages/test/test'
+import StudentTimetable from '../pages/timetable/StudentTimetable'
+import TeacherTimetable from '../pages/timetable/TeacherTimetable'
 export const privateRoutes = [
   { path: '/admin/dashboard', element: <DashboardAdmin /> },
   { path: '/admin/classes', element: <Class /> },
@@ -33,11 +35,13 @@ export const privateRoutes = [
   { path: '/teacher/classes/:id', element: <TeacherClassDetail /> },
   { path: '/teacher/grade', element: <Grade /> },
   { path: '/leave-request/review', element: <LeaveReview /> },
+  { path: '/teacher/timetable', element: <TeacherTimetable /> },
+  
 
 
   { path: '/student/subjects', element: <SubjectStudent /> },
   { path: '/student/grade', element: <Grade /> },
-
+  { path: '/student/timetable', element: <StudentTimetable /> },
 
   { path: '/history/:id', element: <History /> },
   { path: '/leave-request', element: <Leave /> },

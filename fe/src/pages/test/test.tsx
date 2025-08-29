@@ -21,6 +21,18 @@ const Test = (props: Props) => {
     useEffect(() => {
         // hanndleClickA()
     }, [])
+
+    const arr = [
+        { id: 1, name: "a" }
+    ];
+    const item = { id: 2, name: "b" }
+
+    const result = [...arr, item]
+    const result1 = [...arr, { item }]
+    const result2 = [...arr, { ...item }];
+    console.log("result", result)
+    console.log("result1", result1)
+    console.log("result2", result2)
     return (
         <>
             <div>Test</div>

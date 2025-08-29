@@ -6,6 +6,7 @@ import * as XLSX from 'xlsx';
 import path from "path";
 import Enrollment from "../model/enrollment";
 import { getDayOfWeekFromDate } from "../middlewares/utils";
+import { listeners } from "process";
 interface Customer extends Request {
     user: {
         _id: string;
@@ -111,6 +112,7 @@ export const ImportExcel = async (req: Request, res: Response) => {
 export const GetStudentTimeTable = async (req: Customer, res: Response) => {
     try {
         const studentId = req.user.userId;
+        const { fromDate, toDate, subjects, classes, rooms } = req.body;
         const enrollments = await Enrollment.find({
             student_id: studentId,
             status: 'Approved'
@@ -118,16 +120,16 @@ export const GetStudentTimeTable = async (req: Customer, res: Response) => {
             path: 'teaching_assignment_id',
             populate: [
                 { path: 'subject_id', select: 'name' },
-                { path: 'class_id', select: 'name' }
+                { path: 'class_id', select: 'ClassName' }
             ]
         });
-        const timetable = enrollments.flatMap((enroll: any) => {
+        let timetable = enrollments.flatMap((enroll: any) => {
             const ta = enroll.teaching_assignment_id;
             return ta.schedule.map((schedule: any) => {
                 const dayOfWeek = getDayOfWeekFromDate(schedule.date);
                 return {
                     subject: ta.subject_id.name,
-                    class: ta.class_id.name,
+                    class: ta.class_id.ClassName,
                     date: schedule.date,
                     dayOfWeek: dayOfWeek,
                     startTime: schedule.startTime,
@@ -135,6 +137,26 @@ export const GetStudentTimeTable = async (req: Customer, res: Response) => {
                 }
             });
         });
+        if (fromDate && toDate) {
+            timetable = timetable.filter(item =>
+                item.date >= fromDate && toDate <= toDate
+            )
+        }
+        if (subjects?.length) {
+            timetable = timetable.filter(item =>
+                subjects.includes(item.subject)
+            )
+        }
+        if (classes?.length) {
+            timetable = timetable.filter(item =>
+                classes.includes(item.class)
+            )
+        }
+        if (rooms?.length) {
+            timetable = timetable.filter(item =>
+                rooms.includes(item.room)
+            )
+        }
         return res.status(StatusCodes.OK).json({
             message: "Thành công",
             data: timetable,
@@ -208,7 +230,7 @@ export const UpdateCardRequest = async (req: Request, res: Response) => {
         }
         const student = await Student.findById(studentId);
         if (!student || !student.cardRequest) {
-          return res.status(404).json({ message: 'Không tìm thấy yêu cầu cấp thẻ' });
+            return res.status(404).json({ message: 'Không tìm thấy yêu cầu cấp thẻ' });
         }
         student.cardRequest.status = status;
         student.cardRequest.adminNote = adminNote;

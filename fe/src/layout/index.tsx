@@ -107,6 +107,13 @@ const LayoutDashboard = () => {
       permission: ['teacher'],  // Chỉ giảng viên có thể truy cập
     },
     {
+      key: 'teacherTimeTable',
+      icon: <BookOutlined />,
+      label: 'Lịch dạy',
+      url: '/teacher/timetable',
+      permission: ['student'],  // Chỉ sinh viên có thể truy cập
+    },
+    {
       key: 'teacherEnrollmentApproval',
       icon: <CheckCircleOutlined />,
       label: 'Duyệt ghi danh',
@@ -129,6 +136,14 @@ const LayoutDashboard = () => {
       url: '/student/subjects',
       permission: ['student'],  // Chỉ sinh viên có thể truy cập
     },
+    {
+      key: 'studentTimeTable',
+      icon: <BookOutlined />,
+      label: 'Lịch học',
+      url: '/student/timetable',
+      permission: ['student'],  // Chỉ sinh viên có thể truy cập
+    },
+    
     {
       key: 'services',
       icon: <AppstoreOutlined />,
