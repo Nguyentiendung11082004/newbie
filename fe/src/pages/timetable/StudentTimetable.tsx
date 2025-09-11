@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import FullCalendar from "@fullcalendar/react";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
@@ -103,7 +103,6 @@ export default function StudentTimetable() {
   const todayMonday = startOfWeek(new Date(), 1);
   const [weekOffset, setWeekOffset] = useState(0);
   const currentMonday = useMemo(() => addDays(todayMonday, weekOffset * 7), [todayMonday, weekOffset]);
-  const events = useFakeEvents(currentMonday);
   const [data, setData] = useState<any[]>([]);
   const getData = async (pay) => {
     let res = await TimetableServices.GetStudentTimetable(pay);
@@ -111,19 +110,9 @@ export default function StudentTimetable() {
       setData(res?.data)
     }
   }
-
+  const calendarRef = useRef<any>(null);
   const [view, setView] = useState<"week" | "list">("week");
-  const [keyword, setKeyword] = useState("");
-  const filtered = useMemo(() => {
-    // const k = keyword.trim().toLowerCase();
-    // if (!k) return events;
-    return data.filter((e) =>
-      [e.title, e.classNameText, e.lecturer, e.room, e.note]
-      // [e.subject]
-      //   .filter(Boolean)
-      // .some((x) => String(x).toLowerCase().includes(k))
-    );
-  }, [data]);
+  const filtered = useMemo(() => data, [data, filter]);
   function fmtDate(d: Date) {
     return d.toLocaleDateString("vi-VN", { year: "numeric", month: "2-digit", day: "2-digit" });
   }
@@ -132,21 +121,29 @@ export default function StudentTimetable() {
     return d.toISOString().split("T")[0];
   }
   console.log("currentMonday", currentMonday)
-  // useEffect(() => {
-  //   const fromDate = fmtDateISO(currentMonday);
-  //   const toDate = fmtDateISO(addDays(currentMonday, 6));
-  //   const newFilter = {
-  //     ...filter,
-  //     fromDate,
-  //     toDate,
-  //   };
-  //   setFilter(newFilter);
-  //   // getData(newFilter);
-  // }, [currentMonday]);
-  console.log("filter",filter)
   useEffect(() => {
-    getData(filter);
-  }, [])
+    const fromDate = fmtDateISO(currentMonday);
+    const toDate = fmtDateISO(addDays(currentMonday, 6));
+
+    setFilter(prev => {
+      if (prev.fromDate === fromDate && prev.toDate === toDate) return prev;
+      return { ...prev, fromDate, toDate };
+    });
+  }, [currentMonday]);
+
+  useEffect(() => {
+    if (filter.fromDate && filter.toDate) {
+      getData(filter);
+    }
+  }, [filter]);
+
+  useEffect(() => {
+    if (calendarRef.current) {
+      const api = calendarRef.current.getApi();
+      api.gotoDate(currentMonday);
+    }
+  }, [currentMonday]);
+  console.log("filtered", filtered)
   return (
     <div className="w-full mx-auto p-4 space-y-4">
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
@@ -191,8 +188,8 @@ export default function StudentTimetable() {
             </button>
           </div>
           <input
-            value={keyword}
-            onChange={(e) => setKeyword(e.target.value)}
+            value={filter.classes}
+            onChange={(e) => setFilter((prev) => ({ ...prev, classes: e.target.value }))}
             placeholder="Tìm theo môn/lớp/phòng..."
             className="rounded-2xl border px-3 py-2 w-56 focus:outline-none focus:ring"
           />
@@ -202,6 +199,7 @@ export default function StudentTimetable() {
       {view === "week" ? (
         <div className="rounded-2xl border shadow-sm p-2 bg-white">
           <FullCalendar
+            ref={calendarRef}
             plugins={[timeGridPlugin, interactionPlugin]}
             initialView="timeGridWeek"
             locales={[viLocale]}
@@ -212,48 +210,64 @@ export default function StudentTimetable() {
             height="auto"
             headerToolbar={false}
             firstDay={1}
-            validRange={{ start: currentMonday, end: addDays(currentMonday, 7) }}
-            initialDate={addDays(currentMonday, 1)}
-            events={data.map((e) => {
-              // console.log("e", e)
+            events={filtered.map((e) => {
               const start = `${e.date}T${e.startTime}:00`;
               const end = `${e.date}T${e.endTime}:00`;
+
               return {
                 id: e.id,
                 title: `${e.subject} • ${e.classNameText}`,
-                start: start,
-                end: end,
+                start,
+                end,
                 extendedProps: e,
-              }
+              };
             })}
             eventContent={(arg) => {
               const ev = arg.event.extendedProps as TTEvent;
-              console.log("ev", ev)
               return (
                 <div className="text-[12px] leading-tight">
                   <div className="font-semibold">{ev.subject}</div>
                   <div className="opacity-80">Lớp: {ev.class}</div>
                   <div className="opacity-80">GV: {ev.lecturer}</div>
                   {ev.room && <div className="opacity-80">Phòng: {ev.room}</div>}
-                  {ev.note && <div className="text-xs italic opacity-70">{ev.note}</div>}
+                  {ev.note && (
+                    <div className="text-xs italic opacity-70">{ev.note}</div>
+                  )}
                 </div>
               );
             }}
           />
+
         </div>
       ) : (
         <div className="grid md:grid-cols-2 gap-4">
           {Array.from({ length: 7 }).map((_, i) => {
-            const dow = i + 1; // 1..7
+            const dayMap: Record<string, number> = {
+              "Chủ nhật": 0,
+              "Thứ 2": 1,
+              "Thứ 3": 2,
+              "Thứ 4": 3,
+              "Thứ 5": 4,
+              "Thứ 6": 5,
+              "Thứ 7": 6,
+            };
+
             const dayDate = addDays(currentMonday, i);
+
             const dayEvents = filtered
-              .filter((e) => e.dayOfWeek === dow)
-              .sort((a, b) => a.start.getTime() - b.start.getTime());
+              .filter((e) => dayMap[e.dayOfWeek] === i)
+              .sort((a, b) => {
+                const da = new Date(`${a.date}T${a.startTime}:00`);
+                const db = new Date(`${b.date}T${b.startTime}:00`);
+                return da.getTime() - db.getTime();
+              });
+            console.log("filtered", filtered)
+            console.log("dayEvents", dayEvents)
             return (
-              <div key={dow} className="rounded-2xl border shadow-sm p-4 bg-white">
+              <div className="rounded-2xl border shadow-sm p-4 bg-white">
                 <div className="font-semibold mb-3 flex items-center justify-between">
                   <span>
-                    {dayName(dow)} • {fmtDate(dayDate)}
+                    {fmtDate(dayDate)}
                   </span>
                   <span className="text-xs opacity-70">{dayEvents.length} buổi</span>
                 </div>
@@ -261,15 +275,38 @@ export default function StudentTimetable() {
                   {dayEvents.length === 0 && (
                     <div className="text-sm opacity-60">Không có lịch học</div>
                   )}
-                  {dayEvents.map((e) => (
-                    <div key={e.id} className="rounded-xl border p-3 hover:bg-gray-50">
-                      <div className="text-sm font-semibold">{e.title}</div>
-                      <div className="text-sm opacity-80">Lớp: {e.classNameText} • GV: {e.lecturer}</div>
-                      <div className="text-xs opacity-80">{e.start.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })} - {e.end.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</div>
-                      {e.room && <div className="text-xs opacity-80">Phòng: {e.room}</div>}
-                      {e.note && <div className="text-xs italic opacity-70">{e.note}</div>}
-                    </div>
-                  ))}
+                  {dayEvents.map((e) => {
+                    const start = new Date(`${e.date}T${e.startTime}:00`);
+                    const end = new Date(`${e.date}T${e.endTime}:00`);
+                    return (
+                      <div
+                        key={e.id}
+                        className="rounded-xl border p-3 hover:bg-gray-50"
+                      >
+                        <div className="text-sm font-semibold">{e.subject}</div>
+                        <div className="text-sm opacity-80">
+                          Lớp: {e.classNameText} • GV: {e.lecturer}
+                        </div>
+                        <div className="text-xs opacity-80">
+                          {start.toLocaleTimeString([], {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}{" "}
+                          -{" "}
+                          {end.toLocaleTimeString([], {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
+                        </div>
+                        {e.room && (
+                          <div className="text-xs opacity-80">Phòng: {e.room}</div>
+                        )}
+                        {e.note && (
+                          <div className="text-xs italic opacity-70">{e.note}</div>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             );
