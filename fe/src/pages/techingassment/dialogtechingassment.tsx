@@ -19,6 +19,7 @@ type Props = {
 const init = {
     teacher_id: "",
     subject_id: "",
+    room: "",
     class_id: "",
     semester_id: "6864d9e0352ab358356f77f9",
     startDate: "",
@@ -58,7 +59,7 @@ const DialogTechngassment = ({ isModalOpen, setVisible, dataEdit, setDataEdit }:
     const getById = async (id: string) => {
         let res = await TechingAssignmentServices.GetById(id)
         if (res) {
-            setPayload(res.data)
+            setPayload(res.data.data)
         }
     }
     const handleSetForm = (props: any, value: any, record?: any) => {
@@ -229,6 +230,10 @@ const DialogTechngassment = ({ isModalOpen, setVisible, dataEdit, setDataEdit }:
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Số buổi</label>
                     <Input value={payload?.numberOfClasses} onChange={(e) => handleSetForm('numberOfClasses', e.target.value)} />
+                </div>
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Phòng học</label>
+                    <Input value={payload?.room} onChange={(e) => handleSetForm('room', e.target.value)} />
                 </div>
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Nhập kỳ học</label>

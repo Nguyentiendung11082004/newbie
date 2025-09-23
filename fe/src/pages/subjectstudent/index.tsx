@@ -79,19 +79,19 @@ const SubjectStudent = (props: Props) => {
     {
       title: 'Tên môn học',
       render: (_, record) => (
-        <div>{record.teaching_assignment_id.subject_id.name}</div>
+        <div>{record?.teaching_assignment_id.subject_id.name}</div>
       )
     },
     {
       title: 'Số tín chỉ',
       render: (_, record) => (
-        <div>{record.teaching_assignment_id.subject_id.credits}</div>
+        <div>{record?.teaching_assignment_id.subject_id.credits}</div>
       )
     },
     {
       title: 'Lớp',
       render: (_, record) => (
-        <div>{record.teaching_assignment_id.class_id?.ClassName}</div>
+        <div>{record?.teaching_assignment_id.class_id?.ClassName}</div>
       )
     },
     {

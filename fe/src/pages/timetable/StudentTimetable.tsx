@@ -213,7 +213,6 @@ export default function StudentTimetable() {
             events={filtered.map((e) => {
               const start = `${e.date}T${e.startTime}:00`;
               const end = `${e.date}T${e.endTime}:00`;
-
               return {
                 id: e.id,
                 title: `${e.subject} • ${e.classNameText}`,
@@ -251,9 +250,7 @@ export default function StudentTimetable() {
               "Thứ 6": 5,
               "Thứ 7": 6,
             };
-
             const dayDate = addDays(currentMonday, i);
-
             const dayEvents = filtered
               .filter((e) => dayMap[e.dayOfWeek] === i)
               .sort((a, b) => {
@@ -261,8 +258,6 @@ export default function StudentTimetable() {
                 const db = new Date(`${b.date}T${b.startTime}:00`);
                 return da.getTime() - db.getTime();
               });
-            console.log("filtered", filtered)
-            console.log("dayEvents", dayEvents)
             return (
               <div className="rounded-2xl border shadow-sm p-4 bg-white">
                 <div className="font-semibold mb-3 flex items-center justify-between">
@@ -320,3 +315,6 @@ export default function StudentTimetable() {
     </div>
   );
 }
+
+
+

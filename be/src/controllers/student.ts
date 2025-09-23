@@ -125,17 +125,20 @@ export const GetStudentTimeTable = async (req: Customer, res: Response) => {
         });
         let timetable = enrollments.flatMap((enroll: any) => {
             const ta = enroll.teaching_assignment_id;
-            return ta.schedule.map((schedule: any) => {
-                const dayOfWeek = getDayOfWeekFromDate(schedule.date);
-                return {
-                    subject: ta.subject_id.name,
-                    class: ta.class_id.ClassName,
-                    date: schedule.date,
-                    dayOfWeek: dayOfWeek,
-                    startTime: schedule.startTime,
-                    endTime: schedule.endTime
-                }
-            });
+            if (!ta || !ta.schedule) return [];
+            return ta?.schedule
+                .filter((s: any) => s && s.date)
+                .map((schedule: any) => {
+                    const dayOfWeek = getDayOfWeekFromDate(schedule.date);
+                    return {
+                        subject: ta.subject_id.name,
+                        class: ta.class_id.ClassName,
+                        date: schedule?.date,
+                        dayOfWeek: dayOfWeek,
+                        startTime: schedule.startTime,
+                        endTime: schedule.endTime
+                    }
+                });
         });
         if (fromDate && toDate) {
             timetable = timetable.filter(item =>
@@ -162,6 +165,7 @@ export const GetStudentTimeTable = async (req: Customer, res: Response) => {
             data: timetable,
         })
     } catch (error) {
+        console.log("catch")
         handleError(res, error)
     }
 }

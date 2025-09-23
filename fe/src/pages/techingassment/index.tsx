@@ -11,7 +11,7 @@ const TechingAssignment = (props: Props) => {
   const [dataEdit,setDataEdit] = useState({})
   const getData = async () => {
     let res = await TechingAssignmentServices.GetList();
-    setData(res.data.data)
+    setData(res.data)
   }
   const handleOk = () => {
 

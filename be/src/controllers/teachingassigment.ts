@@ -71,7 +71,7 @@ const generateSchedule = (
 };
 export const CreateTeachingAssignment = async (req: Request, res: Response) => {
     try {
-        const { teacher_id, subject_id, class_id, semester_id, startDate, numberOfClasses, weeklySchedule } = req.body;
+        const { teacher_id, subject_id, class_id, semester_id, startDate, numberOfClasses, weeklySchedule, room } = req.body;
 
         if (!teacher_id || !subject_id || !class_id || !semester_id || !startDate || !numberOfClasses || !weeklySchedule) {
             return res.status(StatusCodes.BAD_REQUEST).json({
@@ -113,6 +113,7 @@ export const CreateTeachingAssignment = async (req: Request, res: Response) => {
             startDate,
             numberOfClasses,
             weeklySchedule,
+            room,
             schedule: generatedSchedule
         });
 
