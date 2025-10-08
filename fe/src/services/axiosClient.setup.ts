@@ -25,8 +25,6 @@ axiosClient.interceptors.response.use(
     (error) => {
         const status = error?.response?.status;
         const data = error?.response?.data;
-        console.log("data", data)
-        console.log("status", status)
         const errorMsg = Array.isArray(data?.message)
             ? data.message.join(', ')
             : data?.message || 'Đã có lỗi xảy ra';

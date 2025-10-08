@@ -338,7 +338,6 @@ export const PayForEnrollment = async (req: CustomRequest, res: Response) => {
         if (!wallet || wallet.balance < tuitionFee) {
             return res.status(400).json({ message: 'Số dư không đủ để thanh toán học phí.' });
         }
-        console.log("enrollment", enrollment)
         // Trừ tiền
         wallet.balance -= tuitionFee;
         await wallet.save();

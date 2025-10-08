@@ -89,7 +89,7 @@ const StudentWalletPage = () => {
 
             <Card style={{ backgroundColor: '#f6ffed', borderColor: '#b7eb8f' }}>
                 <Title level={3} style={{ color: '#389e0d' }}>
-                    💰 Số dư: {data?.balance?.toLocaleString()}₫
+                    💰 Số dư: {data?.balance?.toLocaleString() ?? 0}₫
                 </Title>
                 <Space>
                     <Button type="primary" onClick={() => setIsOpen(true)}>Nạp tiền</Button>
@@ -148,35 +148,40 @@ const DialogTopUp = ({ isOpen, setIsOpen }: Props) => {
     }
     return (
         <AntModal
-          title={<span className="text-lg font-semibold text-gray-800">💳 Nạp tiền vào ví</span>}
-          open={isOpen}
-          onOk={handleOk}
-          onCancel={handleHuy}
-          className="custom-modal"
+            title={<span className="text-lg font-semibold text-gray-800">💳 Nạp tiền vào ví</span>}
+            open={isOpen}
+            onOk={handleOk}
+            onCancel={handleHuy}
+            className="custom-modal"
         >
-          <div className="space-y-5">
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Số tiền</label>
-              <InputNumber
-                placeholder="Nhập số tiền"
-                className="mt-8 w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring focus:ring-blue-100"
-                type="number"
-                onChange={(e: any) => setForm("amount", e)}
-              />
+            <div className="space-y-5">
+                <div>
+                    <label className="block text-sm font-medium text-gray-700">Số tiền</label>
+                    <InputNumber
+                        placeholder="Nhập số tiền"
+                        type="number"
+                        style={{
+                            borderRadius: '8px',
+                            marginTop: '5px',
+                            width: '100%'
+                        }}
+                        min={0}
+                        onChange={(e: any) => setForm("amount", e)}
+                    />
+                </div>
+
+                <div>
+                    <label className="block text-sm font-medium text-gray-700">Mô tả</label>
+                    <Input.TextArea
+                        placeholder="Nhập mô tả"
+                        rows={3}
+                        className="mt-2 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-100"
+                        onChange={(e) => setForm("description", e.target.value)}
+                    />
+                </div>
             </div>
-    
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Mô tả</label>
-              <Input.TextArea
-                placeholder="Nhập mô tả"
-                rows={3}
-                className="mt-2 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-100"
-                onChange={(e) => setForm("description", e.target.value)}
-              />
-            </div>
-          </div>
         </AntModal>
-      );
+    );
 }
 
 export default StudentWalletPage;

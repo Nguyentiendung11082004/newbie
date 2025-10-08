@@ -14,8 +14,6 @@ const StudentDebt = () => {
     setData(res?.data || []);
   };
 
-
-
   const columns = [
     {
       title: "Môn học",
@@ -79,7 +77,6 @@ const StudentDebt = () => {
               Thanh toán
             </Button>
           </Popconfirm>
-
         </Space>
       ),
     },
@@ -89,9 +86,12 @@ const StudentDebt = () => {
       amount: data.teaching_assignment_id.subject_id.tuitionFee,
       enrollmentId: data._id
     })
+    console.log("res", res)
     if (res.StatusCodes === 200) {
       toast.success(res.message);
       getData()
+    } else {
+      toast.error(res.message)
     }
   }
   useEffect(() => {
