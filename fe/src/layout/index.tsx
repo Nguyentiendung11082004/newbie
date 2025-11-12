@@ -166,7 +166,13 @@ const LayoutDashboard = () => {
           key: 'tuition',
           label: 'Quản lý học phí',
           url: '/services/tuition',
-          permission: ['student', 'admin'],
+          permission: ['student'],
+        },
+        {
+          key: 'tuition',
+          label: 'Quản lý học phí',
+          url: 'admin/services/tuition',
+          permission: ['admin'],
         },
         {
           key: 'debt',

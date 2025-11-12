@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { ClassServices } from "../../services/student.services";
 import { ApiResponse } from "../../types/api";
-import { RootState } from "redux";
+// import { RootState } from "redux";
 interface Class {
     _id: string;
     name: string;
@@ -31,7 +31,7 @@ const initialState: ClassState = {
     },
 };
 
-export const GetDataClass = createAsyncThunk<ApiResponse<any[]>, void, { state: RootState }>("getClass", async (_, { getState }: any) => {
+export const GetDataClass = createAsyncThunk<ApiResponse<any[]>, void, { state: any }>("getClass", async (_, { getState }: any) => {
     const { class: classState } = getState();
     const res = await ClassServices.GetList(classState.filter.CurrentPage, classState.filter.PageSize);
     return res;

@@ -130,3 +130,63 @@ export const GetStudentByMajor = async (req: Request, res: Response) => {
         handleError(res, error)
     }
 }
+
+export const AdminGetPayments = async (req: Request, res: Response) => {
+    try {
+      const { classId, subjectId, semesterId, page = "1", limit = "10" } = req.query;
+      const pageNumber = parseInt(page as string, 10);
+      const pageSize = parseInt(limit as string, 10);
+  
+      const query: any = {};
+      if (classId) query["teaching_assignment_id.class_id"] = classId;
+      if (subjectId) query["teaching_assignment_id.subject_id"] = subjectId;
+      if (semesterId) query["teaching_assignment_id.semester_id"] = semesterId;
+  
+      const totalDocs = await Enrollment.countDocuments(query);
+  
+      const enrollments = await Enrollment.find(query)
+        .populate({
+          path: "student_id",
+          select: "name StudentCode classId",
+        })
+        .populate({
+          path: "teaching_assignment_id",
+          populate: [
+            { path: "subject_id", select: "name tuitionFee" },
+            { path: "class_id", select: "ClassName" },
+            { path: "semester_id", select: "name" },
+            { path: "teacher_id", select: "name" },
+          ],
+        })
+        .skip((pageNumber - 1) * pageSize)
+        .limit(pageSize);
+  
+      const result = enrollments.map((e: any) => ({
+        studentName: e.student_id?.name,
+        studentCode: e.student_id?.StudentCode,
+        className: e.teaching_assignment_id?.class_id?.ClassName,
+        subjectName: e.teaching_assignment_id?.subject_id?.name,
+        tuitionFee: e.teaching_assignment_id?.subject_id?.tuitionFee || 0,
+        status: e.status,
+      }));
+  
+      const totalPages = Math.ceil(totalDocs / pageSize);
+  
+      return res.status(StatusCodes.OK).json({
+        status: StatusCodes.OK,
+        message: "Thành công",
+        data: {
+            data: result,
+            pagination: {
+                totalDocs,
+                totalPages,
+                page: pageNumber,
+                limit: pageSize,
+              },
+        },
+        StatusCodes: StatusCodes.OK,
+      });
+    } catch (error) {
+      handleError(res, error);
+    }
+  };

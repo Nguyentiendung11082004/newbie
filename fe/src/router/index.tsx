@@ -21,6 +21,7 @@ import TechingAssignment from '../pages/techingassment'
 import Test from '../pages/test/test'
 import StudentTimetable from '../pages/timetable/StudentTimetable'
 import TeacherTimetable from '../pages/timetable/TeacherTimetable'
+import Tuition from '../pages/services/adminservices/tuition'
 export const privateRoutes = [
   { path: '/admin/dashboard', element: <DashboardAdmin /> },
   { path: '/admin/classes', element: <Class /> },
@@ -28,6 +29,7 @@ export const privateRoutes = [
   { path: '/admin/students', element: <Students /> },
   { path: '/admin/subjects', element: <Subject /> },
   { path: '/admin/teaching-assignment', element: <TechingAssignment /> },
+  { path: '/admin/services/tuition', element: <Tuition /> },
   { path: '/admin/test', element: <Test /> },
 
   { path: '/teacher/enrollment-approval', element: <EnrollmentApproval /> },

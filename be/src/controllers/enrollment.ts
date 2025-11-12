@@ -150,7 +150,8 @@ export const CreateEnrollSubject = async (req: Request, res: Response): Promise<
             student_id,
             teaching_assignment_id: teachingAssignment._id,
             status: 'Pending',
-            enrolled_at: new Date()
+            enrolled_at: new Date(),
+            dueDate: new Date(Date.now() + 7*24*60*60*1000)
         });
         const class_id = teachingAssignment.class_id;
         // Cập nhật vào mảng classId của sinh viên (nếu chưa có)
@@ -358,7 +359,8 @@ export const PayForEnrollment = async (req: CustomRequest, res: Response) => {
             tenhs.email,
             'Thanh toán ghi danh thành công',
             `<h3>Xin chào ${tenhs.name},</h3>
-             <p>Bạn đã thanh toán thành công học phí cho môn <strong>${monhoc.name}</strong>.</p>
+             <p>Bạn đã thanh toán thành công học phí
+              cho môn <strong>${monhoc.name}</strong>.</p>
              <p>Mã lớp: ${monhoc.code}</p>
              <p>Cảm ơn bạn!</p>`
         );

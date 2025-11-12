@@ -11,7 +11,11 @@ export interface IEnrollment extends Document {
   enrolled_at: Date;
   course_schedule?: { dayOfWeek: string; startTime: string; endTime: string }[];
   final_grade?: string;  // Điểm môn học khi kết thúc
+  dueDate: Date;
+  reminderSentBefore: Boolean;
+  reminderSentAfter: Boolean;
 }
+
 
 // collection đăng ký môn học
 const EnrollmentSchema = new mongoose.Schema<IEnrollment>({
@@ -25,12 +29,14 @@ const EnrollmentSchema = new mongoose.Schema<IEnrollment>({
     ref: 'TeachingAssignment',
     required: true
   },
-
   status: {
     type: String,
     enum: ['Pending', 'Approved', 'CancelledByStudent', 'Cancel'],
     default: 'Pending'
   },
+  dueDate: { type: Date, required: true }, 
+  reminderSentBefore: { type: Boolean, default: false }, 
+  reminderSentAfter: { type: Boolean, default: false },  
   paymentStatus: {
     type: String,
     enum: ['pending', 'paid', 'cancelled_by_student', 'cancelled_by_admin'],

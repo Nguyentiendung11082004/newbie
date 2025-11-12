@@ -18,8 +18,7 @@ const Subject = (props: Props) => {
   }
   const columns: ColumnType<any>[] = [
     {
-      title: 'STT',
-      dataIndex: 'STT',
+      
       render: (_value, _record, index) => (filter.CurrentPage - 1) * filter.PageSize + index + 1,
     },
     {

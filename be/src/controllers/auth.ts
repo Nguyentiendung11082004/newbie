@@ -26,7 +26,7 @@ export interface CustomRequest extends Request {
 }
 export const register = async (req: Request, res: Response) => {
     try {
-        const { email, password, role, name, subject, dob, major, gender, phone, address } = req.body;
+        const { email, password, role, name, dob, major, gender, phone, address } = req.body;
         let result;
         switch (role) {
             case 'student':
@@ -60,7 +60,6 @@ export const register = async (req: Request, res: Response) => {
                 message: "Email đã tồn tại",
             });
         }
-
         // Mã hóa mật khẩu
         const hassPass = await bcryptjs.hash(password, 10);
         // Tạo bản ghi trong bảng auths
@@ -99,8 +98,8 @@ export const register = async (req: Request, res: Response) => {
                 address,
             });
         }
-
         res.status(StatusCodes.OK).json({
+            success: true,
             message: "Đăng ký thành công",
             data: user,
         });
@@ -122,7 +121,7 @@ export const login = async (req: Request, res: Response) => {
         const user = await AuthSchema.findOne({ email });
         if (!user) {
             res.status(StatusCodes.BAD_REQUEST).json({
-                message: ["user không tồn tại"]
+                message: ["User không tồn tại"]
             })
         }
         if (user) {

@@ -1,8 +1,11 @@
 import React from 'react'
 
-type Props = {}
+type Props = {
+  isModalOpen: boolean,
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+}
 
-const DialogClass = (props: Props) => {
+const DialogClass = ({ isModalOpen, setOpen }: Props) => {
   return (
     <div>DialogClass</div>
   )
