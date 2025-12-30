@@ -37,12 +37,14 @@ export const getAllTeacher = async (req: Request, res: Response) => {
         handleError(res, error)
     }
 }
-export const GetClassesByTeacher = async (req: Request, res: Response) => {
+export const GetClassesByTeacher = async (req: CustomRequest, res: Response) => {
     try {
-        const { teacher_id } = req.body; // Nhận teacher_id từ params
+        // const { teacher_id } = req.body; // Nhận teacher_id từ params
+        const teacher_id = req.user.userId;
         if (!teacher_id || !Types.ObjectId.isValid(teacher_id)) {
             return res.status(400).json({ message: "teacher_id không hợp lệ" });
         }
+        console.log("teacher_id",teacher_id)
         // Truy vấn tất cả phân công giảng dạy của giảng viên theo teacher_id
         const assignments = await TeachingAssignment.find({ teacher_id })
             .populate('class_id')     // Lấy tên lớp học từ class_id

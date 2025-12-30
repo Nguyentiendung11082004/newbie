@@ -143,7 +143,7 @@ export default function StudentTimetable() {
       api.gotoDate(currentMonday);
     }
   }, [currentMonday]);
-  console.log("filtered", filtered)
+  console.log("view", view)
   return (
     <div className="w-full mx-auto p-4 space-y-4">
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
@@ -187,12 +187,12 @@ export default function StudentTimetable() {
               <ListIcon className="w-4 h-4" /> Danh sách
             </button>
           </div>
-          <input
+          {/* <input
             value={filter.classes}
             onChange={(e) => setFilter((prev) => ({ ...prev, classes: e.target.value }))}
             placeholder="Tìm theo môn/lớp/phòng..."
             className="rounded-2xl border px-3 py-2 w-56 focus:outline-none focus:ring"
-          />
+          /> */}
         </div>
       </div>
 
@@ -223,6 +223,7 @@ export default function StudentTimetable() {
             })}
             eventContent={(arg) => {
               const ev = arg.event.extendedProps as TTEvent;
+              console.log("ev", ev)
               return (
                 <div className="text-[12px] leading-tight">
                   <div className="font-semibold">{ev.subject}</div>

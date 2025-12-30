@@ -9,23 +9,23 @@ type Props = {}
 const { Title } = Typography;
 const TeacherClass = (props: Props) => {
   const nav = useNavigate()
-  const user = useAppSelector((state) => state.user.userInfo);
+  const user = useAppSelector((state) => state.user?.userInfo?.user);
   const [data, setData] = useState([])
-  const getData = async (id: string) => {
-    let res = await TeacherServices.GetClassesByTeacher({
-      teacher_id: id
-    });
+  const getData = async () => {
+    let res = await TeacherServices.GetClassesByTeacher();
     setData(res.data)
   }
   const columns: ColumnType<any[]>[] = [
     {
       title: 'STT',
       dataIndex: 'STT',
+      align: 'center',
       render: (_value, _record, index) => index + 1,
     },
     {
       title: 'Tên môn học',
       dataIndex: '',
+      align: 'center',
       render: (_value, _record, index) => {
         return <div>
           {_value?.subject_id?.name}
@@ -35,6 +35,7 @@ const TeacherClass = (props: Props) => {
     {
       title: 'Tên lớp học',
       dataIndex: '',
+      align: 'center',
       render: (_value, _record, index) => {
         return <div>
           {_value?.class_id?.ClassName}
@@ -44,6 +45,7 @@ const TeacherClass = (props: Props) => {
     {
       title: 'Thời gian',
       dataIndex: '',
+      align: 'center',
       render: (_: any, record: any) =>
         record.weeklySchedule.map(
           (s: any) => `${s.dayOfWeek} (${s.startTime} - ${s.endTime})`
@@ -52,9 +54,10 @@ const TeacherClass = (props: Props) => {
     {
       title: 'Thao tác',
       dataIndex: '',
+      align: 'center',
       render: (_value, _record, index) => {
         return (
-          <div className="flex gap-2">
+          <div className="flex gap-2 justify-center">
             <Button
               size="small"
               className="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-3 py-1 rounded shadow-sm transition duration-200"
@@ -77,7 +80,7 @@ const TeacherClass = (props: Props) => {
   ]
 
   useEffect(() => {
-    getData(user.profile._id)
+    getData()
   }, [])
   return (
     <>

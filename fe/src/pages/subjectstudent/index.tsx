@@ -28,8 +28,7 @@ interface SubjectStudent {
 const { Title } = Typography;
 
 const SubjectStudent = (props: Props) => {
-  const user = useAppSelector((state) => state.user.userInfo);
-  console.log("user",user)
+  const user = useAppSelector((state) => state.user.userInfo?.profile);
   const nav = useNavigate();
   const [filter, setFilter] = useState(initFilter);
   const [isOpen, setIsOpen] = useState(false);
@@ -47,13 +46,12 @@ const SubjectStudent = (props: Props) => {
   };
 
   const huyDangKy = async (record: SubjectStudent) => {
-    const res = await StudentSubjectServices.DeleteEnroll(record._id) as any;
-    console.log("res",res)
-    if (res) {
+    try {
+      const res = await StudentSubjectServices.DeleteEnroll(record._id) as any;
       toast.success(res.data.message);
       getData();
-    } else {
-      toast.error(res?.message)
+    } catch (error) {
+      toast.error(error?.message)
     }
   };
 

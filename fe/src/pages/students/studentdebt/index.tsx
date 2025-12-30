@@ -82,18 +82,20 @@ const StudentDebt = () => {
     },
   ];
   const handleThanhToan = async (data) => {
-    let res = await StudentWalletServices.MakePayment({
-      amount: data.teaching_assignment_id.subject_id.tuitionFee,
-      enrollmentId: data._id
-    })
-    console.log("res", res)
-    if (res.StatusCodes === 200) {
-      toast.success(res.message);
-      getData()
-    } else {
-      toast.error(res.message)
+    try {
+      const res = await StudentWalletServices.MakePayment({
+        amount: data.teaching_assignment_id.subject_id.tuitionFee,
+        enrollmentId: data._id
+      });
+      if (res.StatusCodes === 200) {
+        toast.success(res.message);
+        getData();
+      }
+    } catch (err) {
+      toast.error(err?.message || "Thanh toán thất bại");
     }
-  }
+  };
+  
   useEffect(() => {
     getData();
   }, []);

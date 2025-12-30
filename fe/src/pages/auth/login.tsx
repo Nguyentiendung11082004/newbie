@@ -15,23 +15,15 @@ const Login: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const onFinish: FormProps<FieldType>['onFinish'] = async (values) => {
-    try {
-      const res = await AuthServices.Login(values);
-      const { accessToken, user, message } = res.data;
+    const res = await AuthServices.Login(values);
+    if (res.data.Status === 200) {
+      const accessToken = res.data.accessToken;
       dispatch(setAccessToken(accessToken));
-      dispatch(setUser(user));
-      toast.success(message);
+      dispatch(setUser(res.data));
+      toast.success(res.data.message);
       navigate('/admin/dashboard');
-    } catch (err: any) {
-      const message = err?.message;
-      if (Array.isArray(message)) {
-        message.forEach((msg) => toast.error(msg));
-      } else {
-        toast.error(message || 'Đăng nhập thất bại');
-      }
     }
   };
-  
 
   return (
     <div

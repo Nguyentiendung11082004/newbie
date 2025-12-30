@@ -27,7 +27,7 @@ const LayoutDashboard = () => {
   const [collapsed, setCollapsed] = useState(false);
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const user = useAppSelector((state) => state.user.userInfo);
+  const user = useAppSelector((state) => state.user.userInfo.user);
   const location = useLocation();
   const token = useAppSelector((state) => state.user.accessToken);
   const menuItems = [
