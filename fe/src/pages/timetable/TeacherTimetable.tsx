@@ -1,73 +1,187 @@
-import React, { useMemo } from "react";
-import FullCalendar from "@fullcalendar/react";
-import timeGridPlugin from "@fullcalendar/timegrid";
-import interactionPlugin from "@fullcalendar/interaction";
-import viLocale from "@fullcalendar/core/locales/vi";
-import { Calendar, Presentation, BookOpen, Clock } from "lucide-react";
+import { Button, Select, Table } from "antd";
+import React, { useEffect, useMemo, useState } from "react";
+import { TimetableServices } from "../../services/student.services";
+const TeacherTimetable: React.FC = () => {
+  const [filter, setFilter] = useState({
+    subject: "",
+    className: "",
+  });
+  const [data, setData] = useState<any[]>([]);
+  const getData = async () => {
+    const res = await TimetableServices.GetTeacherTimeTable();
+    setData(res?.data || []);
+  };
+  useEffect(() => {
+    getData();
+  }, []);
+  // ✅ FILTER DATA TỪ BE
+  const filteredData = useMemo(() => {
+    return data.filter((item) => {
+      if (filter.subject && item.subject.name !== filter.subject) return false;
+      if (filter.className && item.class.name !== filter.className) return false;
+      return true;
+    });
+  }, [data, filter]);
+  const days = useMemo(() => {
+    const set = new Set<string>();
+    data.forEach((item) => {
+      item.weeklySchedule?.forEach((s: any) => {
+        set.add(s.dayOfWeek);
+      });
+    });
 
-export default function TeacherTimetable() {
-  // Fake data lịch dạy giảng viên
-  const events = useMemo(
-    () => [
-      {
-        id: "1",
-        title: "Frontend Framework 1 (WEB2025)",
-        start: "2025-08-22T08:00:00",
-        end: "2025-08-22T10:00:00",
-        extendedProps: {
-          class: "WEB2025",
-          subject: "Frontend Framework 1",
-        },
-      },
-      {
-        id: "2",
-        title: "Cơ sở dữ liệu (DB2025)",
-        start: "2025-08-23T13:30:00",
-        end: "2025-08-23T15:30:00",
-        extendedProps: {
-          class: "DB2025",
-          subject: "Cơ sở dữ liệu",
-        },
-      },
-      {
-        id: "3",
-        title: "Java OOP (JAVA2025)",
-        start: "2025-08-24T15:30:00",
-        end: "2025-08-24T17:30:00",
-        extendedProps: {
-          class: "JAVA2025",
-          subject: "Lập trình hướng đối tượng Java",
-        },
-      },
-    ],
-    []
-  );
+    return Array.from(set).map((d) => ({
+      label: d,
+      value: d,
+    }));
+  }, [data]);
+  const timeSlots = useMemo(() => {
+    const set = new Set<string>();
+    data.forEach((item) => {
+      item.weeklySchedule?.forEach((s: any) => {
+        set.add(`${s.startTime}-${s.endTime}`);
+      });
+    });
+    return Array.from(set)
+      .map((t) => {
+        const [start, end] = t.split("-");
+        return { start, end };
+      })
+      .sort((a, b) => a.start.localeCompare(b.start));
+  }, [data]);
+  // ✅ FIND SCHEDULE TỪ DATA THẬT
+  const findSchedules = (day: string, start: string, end: string) => {
+    const results: any[] = [];
 
-  return (
-    <div className="p-6">
-      {/* Header */}
-      <div className="flex items-center gap-3 mb-6">
-        <Calendar className="w-7 h-7 text-blue-500" />
-        <Presentation className="w-7 h-7 text-green-500" />
-        <BookOpen className="w-7 h-7 text-purple-500" />
-        <Clock className="w-7 h-7 text-orange-500" />
-        <h1 className="text-xl font-bold">Lịch giảng dạy của giảng viên</h1>
-      </div>
+    for (const item of filteredData) {
+      const matches = item.weeklySchedule?.filter(
+        (s: any) =>
+          s.dayOfWeek === day &&
+          s.startTime === start &&
+          s.endTime === end
+      );
 
-      {/* FullCalendar */}
-      <FullCalendar
-        plugins={[timeGridPlugin, interactionPlugin]}
-        initialView="timeGridWeek"
-        locale={viLocale}
-        events={events}
-        slotMinTime="07:00:00"
-        slotMaxTime="20:00:00"
-        allDaySlot={false}
-        height="80vh"
-        eventClassNames={() =>
-          "bg-blue-500 text-white rounded-md shadow p-1 text-sm"
+      if (matches?.length) {
+        matches.forEach((m: any) => {
+          results.push({
+            subject: item.subject.name,
+            className: item.class.name,
+            room: item.room || "—",
+          });
+        });
+      }
+    }
+
+    return results;
+  };
+
+
+  // ✅ OPTIONS FILTER (KHÔNG MOCK)
+  const subjectOptions = useMemo(() => {
+    return [...new Set(data.map((i) => i.subject.name))].map((s) => ({
+      label: s,
+      value: s,
+    }));
+  }, [data]);
+
+  const classOptions = useMemo(() => {
+    return [...new Set(data.map((i) => i.class.name))].map((c) => ({
+      label: c,
+      value: c,
+    }));
+  }, [data]);
+
+  // ✅ COLUMNS
+  const columns: any = [
+    {
+      title: "Ca học",
+      dataIndex: "time",
+      fixed: "left",
+      width: 140,
+      render: (v: string) => (
+        <div style={{ fontWeight: 600 }}>{v}</div>
+      ),
+    },
+    ...days.map((d) => ({
+      title: d.label,
+      dataIndex: d.value,
+      render: (_: any, record: any) => {
+        const schedules = findSchedules(d.value, record.start, record.end);
+        if (!schedules.length) {
+          return (
+            <div
+              style={{
+                height: 90,
+                background: "#fafafa",
+                borderRadius: 8,
+              }}
+            />
+          );
         }
-      />
-    </div>
+
+        return (
+          <div
+            style={{
+              minHeight: 90,
+              display: "flex",
+              flexDirection: "column",
+              gap: 8,
+            }}
+          >
+            {schedules.map((sc, idx) => (
+              <div
+                key={idx}
+                style={{
+                  padding: 8,
+                  borderRadius: 8,
+                  background: "#fff",
+                  boxShadow: "0 1px 4px rgba(0,0,0,0.1)",
+                }}
+              >
+                <div style={{ fontWeight: 600, color: "#1677ff" }}>
+                  {sc.subject}
+                </div>
+                <div style={{ fontSize: 13 }}>{sc.className}</div>
+                <div style={{ fontSize: 12, color: "#888" }}>
+                  Phòng {sc.room}
+                </div>
+              </div>
+            ))}
+          </div>
+        );
+      }
+    })),
+  ];
+  // ✅ DATASOURCE = KHUNG GIỜ
+  const dataSource = timeSlots.map((t, idx) => ({
+    key: idx,
+    time: `${t.start} - ${t.end}`,
+    start: t.start,
+    end: t.end,
+  }));
+  return (
+    <>
+      {/* TABLE */}
+      <div
+        style={{
+          padding: 24,
+          background: "#f5f7fa",
+          borderRadius: 12,
+        }}
+      >
+        <h2 style={{ marginBottom: 16, fontWeight: 600 }}>
+          📅 Thời khoá biểu giảng dạy
+        </h2>
+
+        <Table
+          columns={columns}
+          dataSource={dataSource}
+          bordered
+          pagination={false}
+        />
+      </div>
+    </>
   );
-}
+};
+
+export default TeacherTimetable;

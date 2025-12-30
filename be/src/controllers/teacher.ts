@@ -44,7 +44,7 @@ export const GetClassesByTeacher = async (req: CustomRequest, res: Response) => 
         if (!teacher_id || !Types.ObjectId.isValid(teacher_id)) {
             return res.status(400).json({ message: "teacher_id không hợp lệ" });
         }
-        console.log("teacher_id",teacher_id)
+        console.log("teacher_id", teacher_id)
         // Truy vấn tất cả phân công giảng dạy của giảng viên theo teacher_id
         const assignments = await TeachingAssignment.find({ teacher_id })
             .populate('class_id')     // Lấy tên lớp học từ class_id
@@ -63,30 +63,42 @@ export const GetClassesByTeacher = async (req: CustomRequest, res: Response) => 
 export const GetTeacherTimeTable = async (req: CustomRequest, res: Response) => {
     try {
         const teacherId = req.user.userId;
-        const enrollments: any = await TeachingAssignment.find({
+
+        const assignments = await TeachingAssignment.find({
             teacher_id: teacherId,
         }).populate([
             { path: 'subject_id', select: 'name' },
             { path: 'class_id', select: 'ClassName' }
         ]);
-        const timetable = enrollments.flatMap((enroll: any) => {
-            return enroll.schedule.map((schedule: any) => {
-                const dayOfWeek = getDayOfWeekFromDate(schedule.date);
-                return {
-                    subject: enroll.subject_id.name,
-                    class: enroll.class_id.ClassName,
-                    date: schedule.date,
-                    dayOfWeek: dayOfWeek,
-                    startTime: schedule.startTime,
-                    endTime: schedule.endTime
-                }
-            });
-        });
+        const timetable = assignments.map((assign: any) => ({
+            teachingAssignmentId: assign._id,
+            subject: {
+                id: assign.subject_id._id,
+                name: assign.subject_id.name
+            },
+            class: {
+                id: assign.class_id._id,
+                name: assign.class_id.ClassName
+            },
+            weeklySchedule: assign.weeklySchedule.map((s: any) => ({
+                dayOfWeek: s.dayOfWeek,
+                startTime: s.startTime,
+                endTime: s.endTime,
+                room: s.room
+            })),
+            dateRange: {
+                start: assign.startDate,
+                end: assign.endDate
+            },
+            room: assign.room
+        }));
+
         return res.status(StatusCodes.OK).json({
             message: "Thành công",
-            data: timetable,
-        })
+            data: timetable
+        });
+
     } catch (error) {
-        handleError(res, error)
+        handleError(res, error);
     }
-}
+};

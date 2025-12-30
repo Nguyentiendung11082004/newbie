@@ -62,7 +62,7 @@ axiosClient.interceptors.response.use(
         const originalRequest = error.config;
         const status = error?.response?.status;
         const isLoginApi = originalRequest.url?.includes("/auth/login");
-        const isRefreshApi = originalRequest.url?.includes("/refreshToken");
+        const isRefreshApi = originalRequest.url?.includes("/auth/refreshToken");
         if (
             status === 401 &&
             !originalRequest._retry &&
