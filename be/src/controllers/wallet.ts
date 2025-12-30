@@ -23,9 +23,17 @@ interface Transaction {
 export const getWalletById = async (req: CustomRequest, res: Response) => {
     try {
         const { userId } = req.user;
-        const data = await StudentWallet.findOne({ student_id: userId })
+        console.log("userId", userId)
+        let data = await StudentWallet.findOne({ student_id: userId })
             // .populate('student', 'name email studentCode')
             .populate('student_id', 'name email StudentCode');
+        if (!data) {
+            data = await StudentWallet.create({
+                student_id: userId,
+                balance: 0,
+                transactions: []
+            });
+        }
         if (!data) {
             return res.status(StatusCodes.BAD_REQUEST).json({
                 message: 'Not found'
@@ -109,7 +117,7 @@ export const makePayment = async (req: CustomRequest, res: Response) => {
         if (enrollmentId) {
             await Enrollment.findByIdAndUpdate(enrollmentId, {
                 status: "Approved",
-                paymentStatus:"paid"
+                paymentStatus: "paid"
             });
         }
         return res.status(StatusCodes.OK).json({
@@ -168,7 +176,7 @@ export const getDebtWallter = async (req: CustomRequest, res: Response) => {
             .populate({
                 path: "teaching_assignment_id",
                 populate: [
-                    { path: "subject_id", select: "name credit tuitionFee" },
+                    { path: "subject_id", select: "name credits tuitionFee" },
                     { path: "class_id", select: "ClassName" }
                 ]
             })

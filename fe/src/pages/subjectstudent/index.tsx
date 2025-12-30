@@ -29,6 +29,7 @@ const { Title } = Typography;
 
 const SubjectStudent = (props: Props) => {
   const user = useAppSelector((state) => state.user.userInfo);
+  console.log("user",user)
   const nav = useNavigate();
   const [filter, setFilter] = useState(initFilter);
   const [isOpen, setIsOpen] = useState(false);
@@ -36,7 +37,7 @@ const SubjectStudent = (props: Props) => {
   const [dataEdit, setDataEdit] = useState({});
 
   const getData = async () => {
-    const payload = { student_id: user.profile?._id };
+    const payload = { student_id: user?._id };
     const res = await StudentSubjectServices.GetSubjectEnroll(payload);
     setData(res?.data || []);
   };
@@ -46,10 +47,13 @@ const SubjectStudent = (props: Props) => {
   };
 
   const huyDangKy = async (record: SubjectStudent) => {
-    const res = await StudentSubjectServices.DeleteEnroll(record._id);
+    const res = await StudentSubjectServices.DeleteEnroll(record._id) as any;
+    console.log("res",res)
     if (res) {
       toast.success(res.data.message);
       getData();
+    } else {
+      toast.error(res?.message)
     }
   };
 
@@ -79,19 +83,19 @@ const SubjectStudent = (props: Props) => {
     {
       title: 'Tên môn học',
       render: (_, record) => (
-        <div>{record?.teaching_assignment_id.subject_id.name}</div>
+        <div>{record?.teaching_assignment_id?.subject_id?.name}</div>
       )
     },
     {
       title: 'Số tín chỉ',
       render: (_, record) => (
-        <div>{record?.teaching_assignment_id.subject_id.credits}</div>
+        <div>{record?.teaching_assignment_id?.subject_id.credits}</div>
       )
     },
     {
       title: 'Lớp',
       render: (_, record) => (
-        <div>{record?.teaching_assignment_id.class_id?.ClassName}</div>
+        <div>{record?.teaching_assignment_id?.class_id?.ClassName}</div>
       )
     },
     {
@@ -103,9 +107,6 @@ const SubjectStudent = (props: Props) => {
       render: (_, record) => (
         <Space >
           <Button size="small" onClick={() => handleChiTiet(record)}>Chi tiết</Button>
-
-
-
           <Popconfirm
             title="Bạn có chắc muốn huỷ đăng ký môn học này không?"
             onConfirm={() => huyDangKy(record)}

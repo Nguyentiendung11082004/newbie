@@ -53,16 +53,27 @@ const TeacherClass = (props: Props) => {
       title: 'Thao tác',
       dataIndex: '',
       render: (_value, _record, index) => {
-        return <>
-          <Button className='mr-4' size="small" onClick={() => nav(`/teacher/classes/${_value._id}`)}>
-            Điểm danh
-          </Button>
-          <Button className='mr-4' size="small" onClick={() => nav(`/history/${_value._id}`)}>
-            Xem lịch sử
-          </Button>
-        </>
+        return (
+          <div className="flex gap-2">
+            <Button
+              size="small"
+              className="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-3 py-1 rounded shadow-sm transition duration-200"
+              onClick={() => nav(`/teacher/classes/${_value._id}`)}
+            >
+              Điểm danh
+            </Button>
+            <Button
+              size="small"
+              className="bg-gray-500 hover:bg-gray-600 text-white font-semibold px-3 py-1 rounded shadow-sm transition duration-200"
+              onClick={() => nav(`/history/${_value._id}`)}
+            >
+              Xem lịch sử
+            </Button>
+          </div>
+        );
       }
-    },
+    }
+
   ]
 
   useEffect(() => {

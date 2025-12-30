@@ -4,7 +4,7 @@ import type { FormProps } from 'antd';
 import { AuthServices } from '../../services/auth.services';
 import { toast } from 'react-toastify';
 import { Link, useNavigate, useNavigation } from 'react-router-dom';
-import { setUser } from '../../redux/slices/userSlice';
+import { setAccessToken, setUser } from '../../redux/slices/userSlice';
 import { useAppDispatch } from '../../redux/hook';
 
 type FieldType = {
@@ -14,25 +14,24 @@ type FieldType = {
 const Login: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  // const onFinish: FormProps<FieldType>['onFinish'] = async (values) => {
-  //   const res = await AuthServices.Login(values);
-  //   if (res.data.Status === 200) {
-  //     dispatch(setUser(res.data));
-  //     localStorage.setItem("User", JSON.stringify(res.data));
-  //     toast.success(res.data.message);
-  //     navigate('/admin/classes')
-  //   }
-  // };
   const onFinish: FormProps<FieldType>['onFinish'] = async (values) => {
-    const res = await AuthServices.Login(values);
-    if (res.data.Status === 200) {
-      const token = res.data.token;
-      localStorage.setItem("token", token);
-      dispatch(setUser(res.data));
-      toast.success(res.data.message);
+    try {
+      const res = await AuthServices.Login(values);
+      const { accessToken, user, message } = res.data;
+      dispatch(setAccessToken(accessToken));
+      dispatch(setUser(user));
+      toast.success(message);
       navigate('/admin/dashboard');
+    } catch (err: any) {
+      const message = err?.message;
+      if (Array.isArray(message)) {
+        message.forEach((msg) => toast.error(msg));
+      } else {
+        toast.error(message || 'Đăng nhập thất bại');
+      }
     }
   };
+  
 
   return (
     <div

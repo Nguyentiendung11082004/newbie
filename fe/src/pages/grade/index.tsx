@@ -151,7 +151,7 @@ const Grade = () => {
         } catch (error) {
             const message = error.response?.data?.message || "Đã có lỗi xảy ra";
             setPayload((prev) => ({ ...prev, grades: [] }));
-            toast.error(message);
+            // toast.error(message);
         }
     };
 

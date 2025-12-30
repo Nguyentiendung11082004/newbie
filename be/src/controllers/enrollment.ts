@@ -58,7 +58,8 @@ export const getTeachingAssignmentsForEnroll = async (req: Request, res: Respons
         const assignments = await TeachingAssignment.find(query)
             .populate('subject_id')
             .populate('teacher_id')
-            .populate('class_id');
+            .populate('class_id')
+            .populate('semester_id')
 
         if (!assignments) {
             return res.status(StatusCodes.BAD_REQUEST).json({

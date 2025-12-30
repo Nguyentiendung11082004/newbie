@@ -9,7 +9,6 @@ import Grade from '../pages/grade'
 import History from '../pages/history'
 import Leave from '../pages/services/leave/leave'
 import LeaveReview from '../pages/services/leave/leavereview'
-import StudentWalletPage from '../pages/students/StudentWalletPage'
 import StudentDebt from '../pages/students/studentdebt'
 import Students from '../pages/students/students'
 import Subject from '../pages/subject'
@@ -22,6 +21,7 @@ import Test from '../pages/test/test'
 import StudentTimetable from '../pages/timetable/StudentTimetable'
 import TeacherTimetable from '../pages/timetable/TeacherTimetable'
 import Tuition from '../pages/services/adminservices/tuition'
+import StudentWalletPage from '../pages/students/studentwalletpage'
 export const privateRoutes = [
   { path: '/admin/dashboard', element: <DashboardAdmin /> },
   { path: '/admin/classes', element: <Class /> },

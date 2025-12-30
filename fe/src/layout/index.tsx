@@ -21,17 +21,15 @@ import { clearUser } from '../redux/slices/userSlice';
 import { AuthServices } from '../services/auth.services';
 import { toast } from 'react-toastify';
 import React from 'react';
-import { useSSE } from '../common/hooks/useSSE';
+import { persistor, store } from '../redux';
 const { Header, Sider, Content } = Layout;
 const LayoutDashboard = () => {
   const [collapsed, setCollapsed] = useState(false);
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const user = useAppSelector((state) => state.user.userInfo.user);
+  const user = useAppSelector((state) => state.user.userInfo);
   const location = useLocation();
-  const token = useAppSelector((state) => state.user.userInfo.token);
-  const student = useAppSelector((state) => state.user.userInfo);
-  const value = useAppSelector((state) => state);
+  const token = useAppSelector((state) => state.user.accessToken);
   const menuItems = [
     // Admin Menu
     {
@@ -39,7 +37,14 @@ const LayoutDashboard = () => {
       icon: <DashboardOutlined />,
       label: 'Dashboard',
       url: '/admin/dashboard',
-      permission: ['admin', 'teacher', 'student'],
+      permission: ['admin'],
+    },
+    {
+      key: 'notification',
+      icon: <DashboardOutlined />,
+      label: 'Thông báo',
+      url: '/admin/notification',
+      permission: ['admin', 'student', 'teacher'],
     },
     // {
     //   key: 'history',
@@ -111,7 +116,7 @@ const LayoutDashboard = () => {
       icon: <BookOutlined />,
       label: 'Lịch dạy',
       url: '/teacher/timetable',
-      permission: ['student'],  // Chỉ sinh viên có thể truy cập
+      permission: ['teacher'],  // Chỉ sinh viên có thể truy cập
     },
     {
       key: 'teacherEnrollmentApproval',
@@ -143,7 +148,7 @@ const LayoutDashboard = () => {
       url: '/student/timetable',
       permission: ['student'],  // Chỉ sinh viên có thể truy cập
     },
-    
+
     {
       key: 'services',
       icon: <AppstoreOutlined />,
@@ -219,27 +224,13 @@ const LayoutDashboard = () => {
     if (res.data.StatusCodes == 200) {
       toast.success('Đăng xuất thành công')
       dispatch(clearUser());
+      persistor.purge();
       navigate("/login");
-      localStorage.removeItem("token");
     }
   }
   const {
     token: { colorBgContainer },
   } = theme.useToken();
-  const matchMenuKey = (pathname: string) => {
-    const matchedItem = menuItems.find(item => {
-      if (!item.url) return false;
-      // Nếu item có path động thì dùng matchPath
-      if (item.url.includes(':')) {
-        return matchPath({ path: item.url, end: true }, pathname);
-      }
-      // Còn lại thì match chính xác
-      return pathname === item.url;
-    });
-    return matchedItem?.key;
-  };
-
-
   const renderMenuItems = (items) => {
     return items
       .filter(item => item.permission.includes(user?.role))
@@ -319,7 +310,7 @@ const LayoutDashboard = () => {
           <div>
             <Dropdown overlay={menu} trigger={['click']}>
               <div style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
-                <span>{student?.student?.name || student?.user?.email}</span>
+                <span>{user?.email}</span>
                 <Avatar
                   style={{
                     margin: '0px 10px',

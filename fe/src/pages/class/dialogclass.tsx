@@ -7,7 +7,8 @@ type Props = {
 
 const DialogClass = ({ isModalOpen, setOpen }: Props) => {
   return (
-    <div>DialogClass</div>
+    // <div>DialogClass</div>
+    <></>
   )
 }
 

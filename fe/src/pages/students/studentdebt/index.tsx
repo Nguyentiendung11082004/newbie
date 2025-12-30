@@ -53,7 +53,7 @@ const StudentDebt = () => {
       dataIndex: "amount",
       key: "amount",
       render: (_, record: any) =>
-        formatVND(record.teaching_assignment_id.subject_id.tuitionFee)
+        formatVND(record.teaching_assignment_id.subject_id.tuitionFee ?? 0)
     },
     {
       title: "Hạn thanh toán",

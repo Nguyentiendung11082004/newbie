@@ -16,7 +16,7 @@ type Props = {
 
 const DialogSubject = ({ isModalOpen, setIsOpen, dataEdit, setDataEdit }: Props) => {
     const dispatch = useAppDispatch()
-    const userId = useAppSelector((state) => state.user.userInfo.profile?._id);
+    const userId = useAppSelector((state) => state.user.userInfo?._id);
     const subject = useAppSelector((state: any) => state.subject);
     const teacher = useAppSelector((state: any) => state.teacher);
     const [data, setData] = useState<any[]>([]);
@@ -49,7 +49,7 @@ const DialogSubject = ({ isModalOpen, setIsOpen, dataEdit, setDataEdit }: Props)
                 })
                 setErrors(obj)
             } else {
-                toast.error(error.response.data.message)
+                // toast.error(error.response.data.message)
                 setErrors({})
             }
         }
@@ -82,11 +82,12 @@ const DialogSubject = ({ isModalOpen, setIsOpen, dataEdit, setDataEdit }: Props)
         {
             title: "Lớp học",
             key: "class",
+            render: (data: any) => data?.class_id?.ClassName
         },
         {
             title: "Học kỳ",
-            dataIndex: "semester",
             key: "semester",
+            render: (data: any) => data?.semester_id?.name
         },
         {
             title: "Ngày bắt đầu",
@@ -111,7 +112,7 @@ const DialogSubject = ({ isModalOpen, setIsOpen, dataEdit, setDataEdit }: Props)
             title: "Chi tiết",
             key: "action",
             render: (_: any, record: any) => (
-                <Button onClick={() => {}}>Xem</Button>
+                <Button onClick={() => { }}>Xem</Button>
             ),
         },
     ];
@@ -146,10 +147,10 @@ const DialogSubject = ({ isModalOpen, setIsOpen, dataEdit, setDataEdit }: Props)
     }, [dataEdit, isModalOpen])
     useEffect(() => {
         if (payload.subject_id && payload.teacher_id && isModalOpen) {
-          handleXem();
+            handleXem();
         }
-      }, [payload, isModalOpen]);
-      
+    }, [payload, isModalOpen]);
+
     return (
         <>
             <AntModal
