@@ -1,12 +1,23 @@
-import { Button, Select, Table } from "antd";
+import { Button, DatePicker, Select, Space, Table } from "antd";
 import React, { useEffect, useMemo, useState } from "react";
 import { TimetableServices } from "../../services/student.services";
+import { useAppDispatch, useAppSelector } from "../../redux/hook";
+import { formatDateStringGMT } from "../../common/helpfunction";
+import { GetDataClass } from "../../redux/slices/classSlice";
+import { GetDataSubject } from "../../redux/slices/subjectSlice";
+import dayjs from 'dayjs';
+
 const TeacherTimetable: React.FC = () => {
-  const [filter, setFilter] = useState({
-    subject: "",
-    className: "",
+  const dispatch = useAppDispatch()
+  const [filter, setFilter] = useState<any>({
+    subjectId: "",
+    classId: "",
+    fromDate: "",
+    toDate: "",
   });
+  const format = 'HH:mm';
   const [data, setData] = useState<any[]>([]);
+  const listSearch = useAppSelector((state: any) => state);
   const getData = async () => {
     const res = await TimetableServices.GetTeacherTimeTable();
     setData(res?.data || []);
@@ -15,13 +26,13 @@ const TeacherTimetable: React.FC = () => {
     getData();
   }, []);
   // ✅ FILTER DATA TỪ BE
-  const filteredData = useMemo(() => {
-    return data.filter((item) => {
-      if (filter.subject && item.subject.name !== filter.subject) return false;
-      if (filter.className && item.class.name !== filter.className) return false;
-      return true;
-    });
-  }, [data, filter]);
+  // const filteredData = useMemo(() => {
+  //   return data.filter((item) => {
+  //     if (filter.subject && item.subject.name !== filter.subject) return false;
+  //     if (filter.className && item.class.name !== filter.className) return false;
+  //     return true;
+  //   });
+  // }, [data, filter]);
   const days = useMemo(() => {
     const set = new Set<string>();
     data.forEach((item) => {
@@ -53,7 +64,7 @@ const TeacherTimetable: React.FC = () => {
   const findSchedules = (day: string, start: string, end: string) => {
     const results: any[] = [];
 
-    for (const item of filteredData) {
+    for (const item of data) {
       const matches = item.weeklySchedule?.filter(
         (s: any) =>
           s.dayOfWeek === day &&
@@ -91,6 +102,16 @@ const TeacherTimetable: React.FC = () => {
     }));
   }, [data]);
 
+  const handleFilter = async () => {
+    const params: any = {};
+    if (filter.subjectId) params.subjectId = filter.subjectId;
+    if (filter.classId) params.classId = filter.classId;
+    if (filter.fromDate) params.fromDate = filter.fromDate;
+    if (filter.toDate) params.toDate = formatDateStringGMT(filter.toDate, "yyyy-mm-dd");
+
+    const res = await TimetableServices.GetTeacherTimeTable(params);
+    setData(res?.data || []);
+  };
   // ✅ COLUMNS
   const columns: any = [
     {
@@ -159,8 +180,87 @@ const TeacherTimetable: React.FC = () => {
     start: t.start,
     end: t.end,
   }));
+  useEffect(() => {
+    dispatch(GetDataClass())
+    dispatch(GetDataSubject());
+
+  }, [])
+  console.log("filter.fromDate", filter.fromDate)
   return (
     <>
+      <div
+        style={{
+          marginBottom: 24,
+          padding: 24,
+          background: "#f5f7fa",
+          borderRadius: 12,
+        }}
+      >
+        <h2 style={{ marginBottom: 16, fontWeight: 600 }}>🔍 Lọc thời khoá biểu</h2>
+
+        <Space style={{ flexWrap: "wrap", gap: 16 }}>
+          {/* Subject */}
+          <Select
+            style={{ width: 200 }}
+            placeholder="Chọn môn học"
+            value={filter.subjectId || undefined}
+            onChange={(value) => setFilter({ ...filter, subjectId: value })}
+            allowClear
+          >
+            {listSearch?.subject?.data?.map((sub) => (
+              <Select.Option key={sub._id} value={sub._id}>
+                {sub.name}
+              </Select.Option>
+            ))}
+          </Select>
+
+          {/* Class */}
+          <Select
+            style={{ width: 200 }}
+            placeholder="Chọn lớp"
+            value={filter.classId || undefined}
+            onChange={(value) => setFilter({ ...filter, classId: value })}
+            allowClear
+          >
+            {listSearch?.class?.data?.map((cl) => (
+              <Select.Option key={cl._id} value={cl._id}>
+                {cl.ClassName}
+              </Select.Option>
+            ))}
+          </Select>
+
+          {/* From - To Date */}
+          <DatePicker
+            style={{ width: '100%' }}
+            placeholder="Từ ngày"
+            onChange={(date) => setFilter({ ...filter, fromDate: date.format("YYYY-MM-DD") })}
+            picker={'date'}
+            value={filter?.fromDate ? dayjs(filter.fromDate) : null}
+            format="DD/MM/YYYY"
+          />
+          <DatePicker
+            style={{ width: '100%' }}
+            placeholder="Đến ngày"
+            onChange={(date) => setFilter({ ...filter, toDate: date.format("YYYY-MM-DD") })}
+            picker={'date'}
+            value={filter?.toDate ? dayjs(filter.toDate) : null}
+            format="DD/MM/YYYY"
+          />
+
+          {/* Button Lọc */}
+          <Button
+            type="primary"
+            onClick={() => handleFilter()}
+          >
+            Lọc
+          </Button>
+          <Button
+            onClick={() => setFilter({ subjectId: "", classId: "", fromDate: "", toDate: "" })}
+          >
+            Reset
+          </Button>
+        </Space>
+      </div>
       {/* TABLE */}
       <div
         style={{

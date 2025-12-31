@@ -63,12 +63,32 @@ export const GetClassesByTeacher = async (req: CustomRequest, res: Response) => 
 export const GetTeacherTimeTable = async (req: CustomRequest, res: Response) => {
     try {
         const teacherId = req.user.userId;
-
-        const assignments = await TeachingAssignment.find({
+        const { subjectId, classId, fromDate, toDate } = req.query;
+        const query: any = {
             teacher_id: teacherId,
-        }).populate([
-            { path: 'subject_id', select: 'name' },
-            { path: 'class_id', select: 'ClassName' }
+        };
+        if (subjectId) query.subject_id = subjectId;
+        if (classId) query.class_id = classId;
+        if (fromDate && toDate) {
+            const from = new Date(fromDate as string);
+            const to = new Date(toDate as string);
+
+            // Set giờ để lấy nguyên ngày
+            from.setUTCHours(0, 0, 0, 0);
+            to.setUTCHours(23, 59, 59, 999);
+
+            query.startDate = { $gte: from, $lte: to };
+        }
+        // const assignments = await TeachingAssignment.find({
+        //     teacher_id: teacherId,
+        // }).populate([
+        //     { path: 'subject_id', select: 'name' },
+        //     { path: 'class_id', select: 'ClassName' }
+        // ]);
+        console.log("query",query)
+        const assignments = await TeachingAssignment.find(query).populate([
+            { path: "subject_id", select: "name" },
+            { path: "class_id", select: "ClassName" },
         ]);
         const timetable = assignments.map((assign: any) => ({
             teachingAssignmentId: assign._id,

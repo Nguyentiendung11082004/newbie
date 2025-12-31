@@ -132,7 +132,7 @@ export const login = async (req: Request, res: Response) => {
                 })
             }
             user.password = undefined as unknown as string;
-            const accessToken = await jwt.sign({ userId: user._id, role: user.role }, "dungnt", { expiresIn: "15m" });
+            const accessToken = await jwt.sign({ userId: user._id, role: user.role }, "dungnt", { expiresIn: "7d" });
             const refreshToken = await jwt.sign({ userId: user._id, role: user.role }, "dungnt", { expiresIn: "7d" });
             res.cookie("refreshToken", refreshToken, {
                 httpOnly: true,
