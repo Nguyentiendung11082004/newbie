@@ -164,6 +164,8 @@ export const getTransactionHistory = async (req: CustomRequest, res: Response) =
     }
 }
 
+
+// hàm lấy công nợ cần thanh toán 
 export const getDebtWallter = async (req: CustomRequest, res: Response) => {
     try {
 

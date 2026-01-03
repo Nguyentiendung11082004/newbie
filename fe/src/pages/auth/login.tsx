@@ -15,13 +15,17 @@ const Login: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const onFinish: FormProps<FieldType>['onFinish'] = async (values) => {
-    const res = await AuthServices.Login(values);
-    if (res.data.Status === 200) {
-      const accessToken = res.data.accessToken;
-      dispatch(setAccessToken(accessToken));
-      dispatch(setUser(res.data));
-      toast.success(res.data.message);
-      navigate('/admin/dashboard');
+    try {
+      const res = await AuthServices.Login(values);
+      if (res.data.Status === 200) {
+        const accessToken = res.data.accessToken;
+        dispatch(setAccessToken(accessToken));
+        dispatch(setUser(res.data));
+        toast.success(res.data.message);
+        navigate('/admin/dashboard');
+      }
+    } catch (error) {
+      toast.error(error.message[0])
     }
   };
 

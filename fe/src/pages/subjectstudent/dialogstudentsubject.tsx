@@ -16,7 +16,7 @@ type Props = {
 
 const DialogSubject = ({ isModalOpen, setIsOpen, dataEdit, setDataEdit }: Props) => {
     const dispatch = useAppDispatch()
-    const userId = useAppSelector((state) => state.user.userInfo?._id);
+    const userId = useAppSelector((state: any) => state.user.userInfo.profile?._id);
     const subject = useAppSelector((state: any) => state.subject);
     const teacher = useAppSelector((state: any) => state.teacher);
     const [data, setData] = useState<any[]>([]);
