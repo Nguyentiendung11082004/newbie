@@ -132,7 +132,7 @@ const DialogTopUp = ({ isOpen, setIsOpen }: Props) => {
     }
     const [payload, setPayload] = useState(init)
     const handleOk = async () => {
-        let res = await StudentWalletServices.TopUpWallter(payload);
+        let res = await StudentWalletServices.TopUpWallet(payload);
         if (res.StatusCodes === 200) {
             handleHuy()
             toast.success(res.message)

@@ -252,6 +252,6 @@ export const authMiddleware = async (req: CustomRequest, res: Response, next: Ne
         };
         next();
     } catch (err) {
-        return res.status(401).json({ message: 'Invalid token' });
+        return res.status(401).json({ message: 'Chưa đăng nhập' });
     }
 }

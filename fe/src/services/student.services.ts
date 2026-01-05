@@ -52,7 +52,7 @@ export const LeaveServices = {
 }
 export const StudentWalletServices = {
     GetStudentWalletById: (params) => request.post<ApiResponse<any[]>>(`wallet/GetStudentWalletById`, params),
-    TopUpWallter: (payload) => request.post<ApiResponse<any[]>>(`wallet/TopUpWallter`, payload),
+    TopUpWallet: (payload) => request.post<ApiResponse<any[]>>(`wallet/TopUpWallet`, payload),
     MakePayment: (payload) => request.post<ApiResponse<any[]>>(`wallet/MakePayment`, payload),
     GetDebtWallter: () => request.get<ApiResponse<any[]>>(`wallet/GetDebtWallter`)
 }
