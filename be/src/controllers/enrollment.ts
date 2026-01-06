@@ -358,7 +358,7 @@ export const PayForEnrollment = async (req: CustomRequest, res: Response) => {
         const monhoc: any = (enrollment.teaching_assignment_id as any).subject_id;
         await sendMail(
             tenhs.email,
-            'Thanh toán ghi danh thành công',
+            'Thanh toán thành công',
             `<h3>Xin chào ${tenhs.name},</h3>
              <p>Bạn đã thanh toán thành công học phí
               cho môn <strong>${monhoc.name}</strong>.</p>

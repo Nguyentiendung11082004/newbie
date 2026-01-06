@@ -1,7 +1,7 @@
 import { Button, Popconfirm, Space, Table, Typography } from 'antd';
 import React, { useEffect, useState } from 'react'
 import { useAppSelector } from '../../redux/hook';
-import { StudentSubjectServices } from '../../services/student.services';
+import { StudentSubjectServices, StudentWalletServices } from '../../services/student.services';
 import { initFilter } from '../../common/helpfunction';
 import { ColumnType } from 'antd/es/table';
 import DialogSubject from './dialogstudentsubject';
@@ -62,11 +62,13 @@ const SubjectStudent = (props: Props) => {
 
   const handlePayment = async (record: SubjectStudent) => {
     try {
-      // const res = await StudentSubjectServices.PayEnroll(record._id);
-      // if (res?.data?.message) {
-      //   toast.success(res.data.message);
-      //   getData();
-      // }
+      const res = await StudentWalletServices.PayEnrollmentOnline({
+        enrollmentId: record._id
+      }) as any;
+      console.log("res", res)
+      if (res) {
+        window.open(res.paymentUrl);
+      }
     } catch (error) {
       toast.error("Thanh toán thất bại");
     }

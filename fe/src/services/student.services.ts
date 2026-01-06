@@ -12,7 +12,9 @@ export const StudentSubjectServices = {
     GetTeachingAssignmentsForEnroll: (params: any) => axiosClient.post('enrollsubject/getTeachingAssignmentsForEnroll', params),
     DeleteEnroll: (id: string) => axiosClient.delete(`enrollsubject/DeleteEnroll/${id}`),
     UpdateEnroll: (id: string) => axiosClient.put(`enrollsubject/updateEnrollSubject/${id}`),
-    GetEnrollmentByTeacher: (params: any) => axiosClient.post(`enrollsubject/GetEnrollmentByTeacher`, params)
+    GetEnrollmentByTeacher: (params: any) => axiosClient.post(`enrollsubject/GetEnrollmentByTeacher`, params),
+
+
 }
 export const SubjectServices = {
     GetList: (page: number, limit: number) => request.get<ApiResponse<any[]>>(`/subject?page=${page}&limit=${limit}`),
@@ -54,7 +56,9 @@ export const StudentWalletServices = {
     GetStudentWalletById: (params) => request.post<ApiResponse<any[]>>(`wallet/GetStudentWalletById`, params),
     TopUpWallet: (payload) => request.post<ApiResponse<any[]>>(`wallet/TopUpWallet`, payload),
     MakePayment: (payload) => request.post<ApiResponse<any[]>>(`wallet/MakePayment`, payload),
-    GetDebtWallter: () => request.get<ApiResponse<any[]>>(`wallet/GetDebtWallter`)
+    GetDebtWallter: () => request.get<ApiResponse<any[]>>(`wallet/GetDebtWallter`),
+
+    PayEnrollmentOnline: (payload) => request.post<ApiResponse<any[]>>('wallet/PayEnrollmentOnline', payload)
 }
 export const TimetableServices = {
     GetStudentTimetable: (payload) => request.post<ApiResponse<any[]>>(`students/GetStudentTimeTable`, payload),

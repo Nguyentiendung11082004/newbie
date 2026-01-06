@@ -6,6 +6,7 @@ import Transaction from "../model/transaction";
 import Enrollment from "../model/enrollment";
 import crypto from "crypto";
 import qs from "qs";
+import { sendMail } from "../middlewares/email";
 interface CustomRequest extends Request {
     user: {
         _id: string;
@@ -14,13 +15,16 @@ interface CustomRequest extends Request {
         userId: string;
     };
 }
-function sortObject(obj: any) {
+const sortObject = (obj: any) => {
     const sorted: any = {};
-    Object.keys(obj).sort().forEach(key => {
-        sorted[key] = obj[key];
+    const keys = Object.keys(obj).sort();
+
+    keys.forEach((key) => {
+        sorted[key] = encodeURIComponent(obj[key]).replace(/%20/g, "+");
     });
+
     return sorted;
-}
+};
 
 // interface Transaction {
 //     type: "topup" | "payment" | "refund";
@@ -589,16 +593,16 @@ export const payEnrollmentOnline = async (req: CustomRequest, res: Response) => 
     if (enrollment.paymentStatus === "paid") {
         return res.status(400).json({ message: "Đã thanh toán" });
     }
-
-    const amount = enrollment.teaching_assignment_id.price;
-
+    const wallet: any = await StudentWallet.findOne({ student_id: userId });
+    const amount = enrollment.teaching_assignment_id.subject_id.tuitionFee;
     const transaction = await Transaction.create({
         student_id: userId,
         enrollment_id: enrollment._id,
+        wallet_id: wallet._id,
         type: "payment",
-        amount,
+        amount: amount,
         payment_method: "vnpay",
-        status: "pending",
+        status: "Pending",
         description: "Thanh toán học phí online"
     });
 
@@ -612,8 +616,6 @@ export const payEnrollmentOnline = async (req: CustomRequest, res: Response) => 
         .replace(/[-T:.Z]/g, "")
         .slice(0, 14);
 
-    // tạo URL VNPay giống topUpIntent
-    // khác mỗi OrderInfo + TxnRef
     let vnpParams: any = {
         vnp_Version: "2.1.0",
         vnp_Command: "pay",
@@ -632,16 +634,20 @@ export const payEnrollmentOnline = async (req: CustomRequest, res: Response) => 
     vnpParams = sortObject(vnpParams);
 
     const signData = qs.stringify(vnpParams, { encode: false });
-    const hmac = crypto.createHmac("sha512", process.env.VNP_HASH_SECRET!);
-    const secureHash = hmac.update(signData).digest("hex");
+
+    const hmac = crypto.createHmac(
+        "sha512",
+        process.env.VNP_HASH_SECRET!.trim()
+    );
+
+    const secureHash = hmac.update(signData, "utf-8").digest("hex");
 
     vnpParams.vnp_SecureHash = secureHash;
 
     const paymentUrl =
-        process.env.VNP_URL +
-        "?" +
-        qs.stringify(vnpParams, { encode: false });
-    // return res.json({ paymentUrl });
+        process.env.VNP_URL + "?" + qs.stringify(vnpParams, { encode: false });
+
+    return res.json({ paymentUrl });
 };
 
 export const adminGetTransactions = async (req: Request, res: Response) => {
@@ -694,4 +700,90 @@ export const adminGetTransactions = async (req: Request, res: Response) => {
     } catch (error) {
         handleError(res, error);
     }
+};
+export const ResultVnpayCallback = async (req: Request, res: Response) => {
+    let vnpParams: any = { ...req.query };
+
+    const secureHash = vnpParams.vnp_SecureHash;
+    delete vnpParams.vnp_SecureHash;
+    delete vnpParams.vnp_SecureHashType;
+
+    // RE-ENCODE giống VNPay
+    Object.keys(vnpParams).forEach((key) => {
+        vnpParams[key] = encodeURIComponent(vnpParams[key] as string).replace(/%20/g, "+");
+    });
+
+    // sort A-Z
+    vnpParams = Object.keys(vnpParams)
+        .sort()
+        .reduce((acc: any, key) => {
+            acc[key] = vnpParams[key];
+            return acc;
+        }, {});
+
+    const signData = qs.stringify(vnpParams, { encode: false });
+
+    const signed = crypto
+        .createHmac("sha512", process.env.VNP_HASH_SECRET!.trim())
+        .update(signData, "utf-8")
+        .digest("hex");
+
+    if (secureHash !== signed) {
+        return res.status(400).json({ message: "Sai chữ ký" });
+    }
+
+    // 2️⃣ xử lý kết quả
+    const transaction = await Transaction.findById(vnpParams.vnp_TxnRef);
+    if (!transaction) {
+        return res.status(404).json({ message: "Transaction không tồn tại" });
+    }
+
+    if (transaction.status !== "Pending") {
+        return res.redirect("/payment-result?status=processed");
+    }
+
+    if (vnpParams.vnp_ResponseCode !== "00") {
+        transaction.status = "Failed";
+        await transaction.save();
+        return res.redirect("/payment-result?status=failed");
+    }
+
+    // 3️⃣ thành công
+    transaction.status = "Success";
+    await transaction.save();
+
+    if (transaction.type === "topup") {
+        const wallet: any = await StudentWallet.findById(transaction.wallet_id);
+        wallet.balance += transaction.amount;
+        await wallet.save();
+    }
+
+    if (transaction.type === "payment") {
+        await Enrollment.findByIdAndUpdate(transaction.enrollment_id, {
+            paymentStatus: "paid",
+            status: "Approved",
+        });
+    }
+    const enrollment: any = await Enrollment.findById(transaction.enrollment_id)
+        .populate({
+            path: 'teaching_assignment_id',
+            populate: {
+                path: 'subject_id',
+                model: 'Subject',
+            }
+        })
+        .populate('student_id');
+    const tenhs: any = enrollment.student_id;
+    const monhoc: any = (enrollment.teaching_assignment_id as any).subject_id;
+    await sendMail(
+        tenhs.email,
+        'Thanh toán thành công',
+        `<h3>Xin chào ${tenhs.name},</h3>
+         <p>Bạn đã thanh toán thành công học phí
+          cho môn <strong>${monhoc.name}</strong>.</p>
+         <p>Mã lớp: ${monhoc.code}</p>
+         <p>Cảm ơn bạn!</p>`
+    );
+    return res.redirect("http://localhost:5173/student/subjects");
+
 };
