@@ -180,6 +180,12 @@ const LayoutDashboard = () => {
           permission: ['admin'],
         },
         {
+          key: 'transaction-history',
+          label: 'Lịch sử giao dịch',
+          url: 'admin/services/transaction-history',
+          permission: ['admin'],
+        },
+        {
           key: 'debt',
           label: 'Công nợ',
           url: '/services/debt',

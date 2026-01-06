@@ -22,6 +22,7 @@ import StudentTimetable from '../pages/timetable/StudentTimetable'
 import TeacherTimetable from '../pages/timetable/TeacherTimetable'
 import Tuition from '../pages/services/adminservices/tuition'
 import StudentWalletPage from '../pages/students/studentwalletpage'
+import TransactionHistory from '../pages/services/adminservices/transactionhistory'
 export const privateRoutes = [
   { path: '/admin/dashboard', element: <DashboardAdmin /> },
   { path: '/admin/classes', element: <Class /> },
@@ -30,6 +31,7 @@ export const privateRoutes = [
   { path: '/admin/subjects', element: <Subject /> },
   { path: '/admin/teaching-assignment', element: <TechingAssignment /> },
   { path: '/admin/services/tuition', element: <Tuition /> },
+  { path: '/admin/services/transaction-history', element: <TransactionHistory /> },
   { path: '/admin/test', element: <Test /> },
 
   { path: '/teacher/enrollment-approval', element: <EnrollmentApproval /> },
