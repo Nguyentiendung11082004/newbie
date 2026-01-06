@@ -15,17 +15,23 @@ const StudentWalletPage = () => {
     const [isOpen, setIsOpen] = useState(false)
     const [currentPage, setCurrentPage] = useState(1);
     const [pageSize, setPageSize] = useState(5);
+    const [dataHis,setDataHis] = useState<any[]>([])
     const getData = async () => {
         let res = await StudentWalletServices.GetStudentWalletById({});
         if (res) {
             setData(res?.data)
         }
     }
+    const getDataHis = async () => {
+        let res = await StudentWalletServices.GetTransactions({});
+        setDataHis(res.data)
+    }
 
 
     useEffect(() => {
         if (!isOpen) {
             getData()
+            getDataHis()
         }
     }, [isOpen]);
     const columns: ColumnsType<any> = [
@@ -99,7 +105,7 @@ const StudentWalletPage = () => {
             <Card title="Lịch sử giao dịch">
                 <Table
                     columns={columns}
-                    dataSource={data?.transactions}
+                    dataSource={dataHis}
                     rowKey="_id"
                     pagination={false}
                     // pagination={{

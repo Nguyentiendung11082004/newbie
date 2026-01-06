@@ -363,47 +363,7 @@ export const makePayment = async (req: CustomRequest, res: Response) => {
         handleError(res, error);
     }
 }
-export const getTransactions = async (req: CustomRequest, res: Response) => {
-    try {
-        const { userId } = req.user;
-        const { type, fromDate, toDate, page = 1, limit = 10 } = req.query;
 
-        const filter: any = { student_id: userId };
-
-        if (type) {
-            filter.type = type;
-        }
-
-        if (fromDate || toDate) {
-            filter.createdAt = {};
-            if (fromDate) filter.createdAt.$gte = new Date(fromDate as string);
-            if (toDate) filter.createdAt.$lte = new Date(toDate as string);
-        }
-        const skip = (Number(page) - 1) * Number(limit);
-
-        const [transactions, total] = await Promise.all([
-            Transaction.find(filter)
-                .sort({ createdAt: -1 })
-                .skip(skip)
-                .limit(Number(limit)),
-            Transaction.countDocuments(filter)
-        ]);
-
-        return res.status(StatusCodes.OK).json({
-            message: "Lấy lịch sử giao dịch thành công",
-            data: transactions,
-            pagination: {
-                total,
-                page: Number(page),
-                limit: Number(limit),
-                totalPages: Math.ceil(total / Number(limit))
-            }
-        });
-
-    } catch (error) {
-        handleError(res, error);
-    }
-};
 export const refundPayment = async (req: CustomRequest, res: Response) => {
     try {
         const { enrollmentId } = req.body;
@@ -649,58 +609,6 @@ export const payEnrollmentOnline = async (req: CustomRequest, res: Response) => 
 
     return res.json({ paymentUrl });
 };
-
-export const adminGetTransactions = async (req: Request, res: Response) => {
-    try {
-        const {
-            page = 1,
-            limit = 10,
-            type,
-            status,
-            studentId,
-            fromDate,
-            toDate
-        } = req.query;
-
-        const filter: any = {};
-
-        if (type) filter.type = type;
-        if (status) filter.status = status;
-        if (studentId) filter.student_id = studentId;
-
-        if (fromDate || toDate) {
-            filter.createdAt = {};
-            if (fromDate) filter.createdAt.$gte = new Date(fromDate as string);
-            if (toDate) filter.createdAt.$lte = new Date(toDate as string);
-        }
-
-        const skip = (Number(page) - 1) * Number(limit);
-
-        const [transactions, total] = await Promise.all([
-            Transaction.find(filter)
-                .populate("student_id", "name email StudentCode")
-                .populate("enrollment_id", "subject_id class_id semester_id")
-                .sort({ createdAt: -1 })
-                .skip(skip)
-                .limit(Number(limit)),
-            Transaction.countDocuments(filter)
-        ]);
-
-        return res.status(200).json({
-            message: "Lấy danh sách giao dịch thành công",
-            data: transactions,
-            pagination: {
-                total,
-                page: Number(page),
-                limit: Number(limit),
-                totalPages: Math.ceil(total / Number(limit))
-            }
-        });
-
-    } catch (error) {
-        handleError(res, error);
-    }
-};
 export const ResultVnpayCallback = async (req: Request, res: Response) => {
     let vnpParams: any = { ...req.query };
 
@@ -787,3 +695,98 @@ export const ResultVnpayCallback = async (req: Request, res: Response) => {
     return res.redirect("http://localhost:5173/student/subjects");
 
 };
+
+// lich su giao dich
+export const getTransactions = async (req: CustomRequest, res: Response) => {
+    try {
+        const { userId } = req.user;
+        const { type, fromDate, toDate, page = 1, limit = 10 } = req.query;
+
+        const filter: any = { student_id: userId };
+
+        if (type) {
+            filter.type = type;
+        }
+
+        if (fromDate || toDate) {
+            filter.createdAt = {};
+            if (fromDate) filter.createdAt.$gte = new Date(fromDate as string);
+            if (toDate) filter.createdAt.$lte = new Date(toDate as string);
+        }
+        const skip = (Number(page) - 1) * Number(limit);
+
+        const [transactions, total] = await Promise.all([
+            Transaction.find(filter)
+                .sort({ createdAt: -1 })
+                .skip(skip)
+                .limit(Number(limit)),
+            Transaction.countDocuments(filter)
+        ]);
+
+        return res.status(StatusCodes.OK).json({
+            message: "Lấy lịch sử giao dịch thành công",
+            data: transactions,
+            pagination: {
+                total,
+                page: Number(page),
+                limit: Number(limit),
+                totalPages: Math.ceil(total / Number(limit))
+            }
+        });
+
+    } catch (error) {
+        handleError(res, error);
+    }
+};
+export const getAllTransactions = async (req: Request, res: Response) => {
+    try {
+        const {
+            page = 1,
+            limit = 10,
+            type,
+            status,
+            studentId,
+            fromDate,
+            toDate
+        } = req.query;
+
+        const filter: any = {};
+
+        if (type) filter.type = type;
+        if (status) filter.status = status;
+        if (studentId) filter.student_id = studentId;
+
+        if (fromDate || toDate) {
+            filter.createdAt = {};
+            if (fromDate) filter.createdAt.$gte = new Date(fromDate as string);
+            if (toDate) filter.createdAt.$lte = new Date(toDate as string);
+        }
+
+        const skip = (Number(page) - 1) * Number(limit);
+
+        const [transactions, total] = await Promise.all([
+            Transaction.find(filter)
+                .populate("student_id", "name email StudentCode")
+                .populate("enrollment_id", "subject_id class_id semester_id")
+                .sort({ createdAt: -1 })
+                .skip(skip)
+                .limit(Number(limit)),
+            Transaction.countDocuments(filter)
+        ]);
+
+        return res.status(200).json({
+            message: "Lấy danh sách giao dịch thành công",
+            data: transactions,
+            pagination: {
+                total,
+                page: Number(page),
+                limit: Number(limit),
+                totalPages: Math.ceil(total / Number(limit))
+            }
+        });
+
+    } catch (error) {
+        handleError(res, error);
+    }
+};
+
