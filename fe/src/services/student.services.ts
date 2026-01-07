@@ -67,9 +67,17 @@ export const TimetableServices = {
     // GetTeacherTimeTable: () => request.get<ApiResponse<any[]>>(`teacher/GetTeacherTimeTable`),
     GetTeacherTimeTable: (params?: Record<string, any>) =>
         request.get<ApiResponse<any[]>>(`teacher/GetTeacherTimeTable`, { params })
-
 }
 
 export const SemestersServices = {
     GetSemesters: () => request.get<ApiResponse<any[]>>('semesters/GetSemesters')
+}
+
+export const NotificationServices = {
+    GetList: () => request.get<ApiResponse<any[]>>('notification/GetNotification'),
+    Get: (id) => request.get<ApiResponse<any[]>>(`notification/GetNotificationById/${id}`),
+    Add: (payload) => request.post<ApiResponse<any[]>>('notification/CreateNotification', payload),
+    Update: (payload) => request.put<ApiResponse<any[]>>('notification/UpdateNotification', payload),
+    Delete: (id) => request.delete<ApiResponse<any[]>>(`notification/DeleteNotification/${id}`),
+
 }

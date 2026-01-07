@@ -22,7 +22,7 @@ const NotificationSchema = new mongoose.Schema(
     },
     sender_id: {
       type: mongoose.Schema.Types.ObjectId,
-      refPath: "sender_role",
+      ref: "Auth",
       required: true,
     },
     sender_role: {

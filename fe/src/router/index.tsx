@@ -23,6 +23,8 @@ import TeacherTimetable from '../pages/timetable/TeacherTimetable'
 import Tuition from '../pages/services/adminservices/tuition'
 import StudentWalletPage from '../pages/students/studentwalletpage'
 import TransactionHistory from '../pages/services/adminservices/transactionhistory'
+import ListNotification from '../pages/notification/listnotification'
+import NotificationFeed from '../pages/notification/feednotification'
 export const privateRoutes = [
   { path: '/admin/dashboard', element: <DashboardAdmin /> },
   { path: '/admin/classes', element: <Class /> },
@@ -50,7 +52,11 @@ export const privateRoutes = [
   { path: '/history/:id', element: <History /> },
   { path: '/leave-request', element: <Leave /> },
   { path: '/services/tuition', element: <StudentWalletPage /> },
-  { path: '/services/debt', element: <StudentDebt /> }
+  { path: '/services/debt', element: <StudentDebt /> },
+  { path: '/notification', element: <ListNotification /> },
+  { path: '/feednotification', element: <NotificationFeed /> },
+
+  
 
 ];
 

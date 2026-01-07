@@ -11,7 +11,9 @@ import {
   UserOutlined,
   CheckCircleOutlined,
   UserSwitchOutlined,
-  AppstoreOutlined
+  AppstoreOutlined,
+  BellOutlined,
+  NotificationOutlined
 } from '@ant-design/icons';
 import { Avatar, Button, Dropdown, Layout, Menu, theme } from 'antd';
 import { useState } from 'react';
@@ -40,12 +42,20 @@ const LayoutDashboard = () => {
       permission: ['admin'],
     },
     {
-      key: 'notification',
-      icon: <DashboardOutlined />,
-      label: 'Thông báo',
-      url: '/admin/notification',
+      key: 'feednotification',
+      icon: <NotificationOutlined />,
+      label: 'Thông báo và tin tức',
+      url: '/feednotification',
       permission: ['admin', 'student', 'teacher'],
     },
+    {
+      key: 'notification',
+      icon: <BellOutlined />,
+      label: 'Quản lý thông báo',
+      url: '/notification',
+      permission: ['admin', 'teacher'],
+    },
+
     // {
     //   key: 'history',
     //   icon: <UserSwitchOutlined />,
@@ -190,12 +200,6 @@ const LayoutDashboard = () => {
           label: 'Công nợ',
           url: '/services/debt',
           permission: ['student'],
-        },
-        {
-          key: 'notification',
-          label: 'Thông báo',
-          url: '/services/notification',
-          permission: ['admin', 'teacher'],
         },
       ]
     },
