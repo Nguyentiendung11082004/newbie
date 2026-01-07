@@ -37,7 +37,7 @@ const LayoutDashboard = () => {
     {
       key: 'dashboard',
       icon: <DashboardOutlined />,
-      label: 'Dashboard',
+      label: 'Tổng quan',
       url: '/admin/dashboard',
       permission: ['admin'],
     },

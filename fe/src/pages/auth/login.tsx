@@ -22,7 +22,11 @@ const Login: React.FC = () => {
         dispatch(setAccessToken(accessToken));
         dispatch(setUser(res.data));
         toast.success(res.data.message);
-        navigate('/admin/dashboard');
+        if (res.data.user.role === "admin") {
+          navigate('/admin/dashboard');
+        } else {
+          navigate('/feednotification');
+        }
       }
     } catch (error) {
       toast.error(error.message[0])
