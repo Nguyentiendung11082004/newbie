@@ -2,13 +2,18 @@ import React from 'react'
 
 type Props = {
     stateB: any;
+    info: any;
+    header: any;
 }
 
-const CpnB = ({ stateB }: Props) => {
-    console.log("stateB",stateB);
+const CpnB = ({ info, header }: Props) => {
+    // console.log("stateB",stateB);
+    console.log("header", header);
     return (
-        <div>CpnB</div>
+        <div>CpnB
+            {/* {header} */}
+        </div>
     )
 }
-
-export default CpnB
+// export default CpnB
+export default React.memo(CpnB);

@@ -6,6 +6,7 @@ import morgan from "morgan";
 import { ConnectDataBase } from "./config/dbconfig";
 import routes from "./routes";
 import { swaggerSpec, swaggerUi } from "./config/swagger";
+import { startReminderCron } from "./config/reminderCron";
 
 // Khởi tạo app
 const app = express();
@@ -28,8 +29,9 @@ ConnectDataBase(uri || '');
 // Router
 routes(app);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
+startReminderCron();
 // Khởi chạy server
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
-  console.log(`🚀 Server is running at http://localhost:${PORT}`);
+  console.log(`Server is running at http://localhost:${PORT}`);
 });

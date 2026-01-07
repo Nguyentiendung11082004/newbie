@@ -14,7 +14,8 @@ const Grade = () => {
     const dispatch = useAppDispatch();
     const { data: classList } = useAppSelector((state: any) => state.class);
     const { data: subjectList } = useAppSelector((state: any) => state.subject);
-    const user = useAppSelector((state) => state.user.userInfo?.user);
+    const user = useAppSelector((state) => state.user.userInfo.user);
+    console.log("user",user)
     const [data, setData] = useState([]);
     const [payload, setPayload] = useState({
         class_id: '',
@@ -151,7 +152,7 @@ const Grade = () => {
         } catch (error) {
             const message = error.response?.data?.message || "Đã có lỗi xảy ra";
             setPayload((prev) => ({ ...prev, grades: [] }));
-            toast.error(message);
+            // toast.error(message);
         }
     };
 

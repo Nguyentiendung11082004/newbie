@@ -7,6 +7,9 @@ import DashboardAdmin from '../pages/dashboard'
 import EnrollmentApproval from '../pages/enrollment-approval'
 import Grade from '../pages/grade'
 import History from '../pages/history'
+import Leave from '../pages/services/leave/leave'
+import LeaveReview from '../pages/services/leave/leavereview'
+import StudentDebt from '../pages/students/studentdebt'
 import Students from '../pages/students/students'
 import Subject from '../pages/subject'
 import SubjectStudent from '../pages/subjectstudent'
@@ -15,7 +18,13 @@ import TeacherClass from '../pages/teacher/teacher-classes'
 import TeacherClassDetail from '../pages/teacher/teacher-classes/TeacherClassDetail'
 import TechingAssignment from '../pages/techingassment'
 import Test from '../pages/test/test'
-import Leave from '../pages/services/leave/leave'
+import StudentTimetable from '../pages/timetable/StudentTimetable'
+import TeacherTimetable from '../pages/timetable/TeacherTimetable'
+import Tuition from '../pages/services/adminservices/tuition'
+import StudentWalletPage from '../pages/students/studentwalletpage'
+import TransactionHistory from '../pages/services/adminservices/transactionhistory'
+import ListNotification from '../pages/notification/listnotification'
+import NotificationFeed from '../pages/notification/feednotification'
 export const privateRoutes = [
   { path: '/admin/dashboard', element: <DashboardAdmin /> },
   { path: '/admin/classes', element: <Class /> },
@@ -23,19 +32,31 @@ export const privateRoutes = [
   { path: '/admin/students', element: <Students /> },
   { path: '/admin/subjects', element: <Subject /> },
   { path: '/admin/teaching-assignment', element: <TechingAssignment /> },
+  { path: '/admin/services/tuition', element: <Tuition /> },
+  { path: '/admin/services/transaction-history', element: <TransactionHistory /> },
   { path: '/admin/test', element: <Test /> },
 
   { path: '/teacher/enrollment-approval', element: <EnrollmentApproval /> },
   { path: '/teacher/classes', element: <TeacherClass /> },
   { path: '/teacher/classes/:id', element: <TeacherClassDetail /> },
   { path: '/teacher/grade', element: <Grade /> },
+  { path: '/leave-request/review', element: <LeaveReview /> },
+  { path: '/teacher/timetable', element: <TeacherTimetable /> },
+  
+
 
   { path: '/student/subjects', element: <SubjectStudent /> },
   { path: '/student/grade', element: <Grade /> },
-
+  { path: '/student/timetable', element: <StudentTimetable /> },
 
   { path: '/history/:id', element: <History /> },
-  { path: '/leave-request', element: <Leave /> }
+  { path: '/leave-request', element: <Leave /> },
+  { path: '/services/tuition', element: <StudentWalletPage /> },
+  { path: '/services/debt', element: <StudentDebt /> },
+  { path: '/notification', element: <ListNotification /> },
+  { path: '/feednotification', element: <NotificationFeed /> },
+
+  
 
 ];
 

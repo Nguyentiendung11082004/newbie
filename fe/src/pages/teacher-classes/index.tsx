@@ -9,12 +9,10 @@ type Props = {}
 const { Title } = Typography;
 const TeacherClass = (props: Props) => {
   const nav = useNavigate()
-  const user = useAppSelector((state) => state.user.userInfo);
+  const user = useAppSelector((state) => state.user.userInfo?.user);
   const [data, setData] = useState([])
-  const getData = async (id: string) => {
-    let res = await TeacherServices.GetClassesByTeacher({
-      teacher_id: id
-    });
+  const getData = async () => {
+    let res = await TeacherServices.GetClassesByTeacher();
     setData(res.data)
   }
   const columns: ColumnType<any[]>[] = [
@@ -64,7 +62,7 @@ const TeacherClass = (props: Props) => {
   ]
 
   useEffect(() => {
-    getData(user.profile._id)
+    getData()
   }, [])
   return (
     <>

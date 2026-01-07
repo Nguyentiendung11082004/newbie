@@ -12,6 +12,7 @@ import { AuthValidate, StudentValidate, TeacherValidate } from "../schema/auth";
 import Student from "../model/student";
 import Teacher from "../model/teacher";
 import Auth from "../model/auth";
+import StudentWallet from "../model/studentwallets";
 interface DecodedToken {
     userId?: string;
     authId?: string;
@@ -25,7 +26,7 @@ export interface CustomRequest extends Request {
 }
 export const register = async (req: Request, res: Response) => {
     try {
-        const { email, password, role, name, subject, dob, major, gender, phone, address } = req.body;
+        const { email, password, role, name, dob, major, gender, phone, address } = req.body;
         let result;
         switch (role) {
             case 'student':
@@ -59,14 +60,13 @@ export const register = async (req: Request, res: Response) => {
                 message: "Email đã tồn tại",
             });
         }
-
         // Mã hóa mật khẩu
         const hassPass = await bcryptjs.hash(password, 10);
         // Tạo bản ghi trong bảng auths
         const auth = await AuthSchema.create({
             email,
             password: hassPass,
-            role,   
+            role,
         });
         let user;
         // Tạo bản ghi trong bảng students nếu là sinh viên
@@ -81,6 +81,11 @@ export const register = async (req: Request, res: Response) => {
                 phone,
                 address,
             });
+            await StudentWallet.create({
+                student_id: user._id,
+                balance: 0,
+                transactions: []
+            });
         } else if (role === 'teacher') {
             user = await TeacherSchema.create({
                 authId: auth._id,
@@ -93,8 +98,8 @@ export const register = async (req: Request, res: Response) => {
                 address,
             });
         }
-
         res.status(StatusCodes.OK).json({
+            success: true,
             message: "Đăng ký thành công",
             data: user,
         });
@@ -116,7 +121,7 @@ export const login = async (req: Request, res: Response) => {
         const user = await AuthSchema.findOne({ email });
         if (!user) {
             res.status(StatusCodes.BAD_REQUEST).json({
-                message: ["user không tồn tại"]
+                message: ["User không tồn tại"]
             })
         }
         if (user) {
@@ -127,7 +132,14 @@ export const login = async (req: Request, res: Response) => {
                 })
             }
             user.password = undefined as unknown as string;
-            const token = await jwt.sign({ userId: user._id, role: user.role }, "dungnt", { expiresIn: "7d" });
+            const accessToken = await jwt.sign({ userId: user._id, role: user.role }, "dungnt", { expiresIn: "7d" });
+            const refreshToken = await jwt.sign({ userId: user._id, role: user.role }, "dungnt", { expiresIn: "7d" });
+            res.cookie("refreshToken", refreshToken, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === "production",
+                sameSite: "strict",
+                maxAge: 7 * 24 * 60 * 60 * 1000, 
+            })
             let userInfo = null;
             switch (user.role) {
                 case 'student':
@@ -149,7 +161,7 @@ export const login = async (req: Request, res: Response) => {
                     message: "Đăng nhập thành công",
                     user,
                     profile: userInfo,
-                    token,
+                    accessToken: accessToken,
                     Status: StatusCodes.OK
                 }
             })
@@ -158,6 +170,32 @@ export const login = async (req: Request, res: Response) => {
         handleError(res, error)
     }
 }
+// refresh-token.ts
+export const refreshToken = async (req: Request, res: Response) => {
+    try {
+        const token = req.cookies.refreshToken;
+        if (!token) return res.status(401).json({ message: "No refresh token" });
+
+        // verify refresh token
+        const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET || "dungnt_refresh") as any;
+
+        // check user exist
+        const user = await Auth.findById(decoded.userId);
+        if (!user) return res.status(401).json({ message: "User not found" });
+
+        // tạo access token mới
+        const newAccessToken = jwt.sign(
+            { userId: user._id, role: user.role },
+            process.env.JWT_SECRET || "dungnt",
+            { expiresIn: "15m" }
+        );
+
+        res.json({ accessToken: newAccessToken });
+    } catch (err) {
+        return res.status(401).json({ message: "Invalid refresh token" });
+    }
+};
+
 export const logout = async (req: Request, res: Response) => {
     try {
         const authHeader = req.headers.authorization;
@@ -214,6 +252,6 @@ export const authMiddleware = async (req: CustomRequest, res: Response, next: Ne
         };
         next();
     } catch (err) {
-        return res.status(401).json({ message: 'Invalid token' });
+        return res.status(401).json({ message: 'Chưa đăng nhập' });
     }
 }

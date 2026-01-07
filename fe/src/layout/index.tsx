@@ -11,7 +11,9 @@ import {
   UserOutlined,
   CheckCircleOutlined,
   UserSwitchOutlined,
-  AppstoreOutlined
+  AppstoreOutlined,
+  BellOutlined,
+  NotificationOutlined
 } from '@ant-design/icons';
 import { Avatar, Button, Dropdown, Layout, Menu, theme } from 'antd';
 import { useState } from 'react';
@@ -21,29 +23,39 @@ import { clearUser } from '../redux/slices/userSlice';
 import { AuthServices } from '../services/auth.services';
 import { toast } from 'react-toastify';
 import React from 'react';
-import { useSSE } from '../common/hooks/useSSE';
+import { persistor, store } from '../redux';
 const { Header, Sider, Content } = Layout;
-
-
-
 const LayoutDashboard = () => {
   const [collapsed, setCollapsed] = useState(false);
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const user = useAppSelector((state) => state.user.userInfo.user);
   const location = useLocation();
-  const token = useAppSelector((state) => state.user.userInfo.token);
-  const student = useAppSelector((state) => state.user.userInfo);
-  const value = useAppSelector((state) => state);
+  const token = useAppSelector((state) => state.user.accessToken);
   const menuItems = [
     // Admin Menu
-    { 
+    {
       key: 'dashboard',
       icon: <DashboardOutlined />,
-      label: 'Dashboard',
+      label: 'Tổng quan',
       url: '/admin/dashboard',
-      permission: ['admin', 'teacher', 'student'],
+      permission: ['admin'],
     },
+    {
+      key: 'feednotification',
+      icon: <NotificationOutlined />,
+      label: 'Thông báo và tin tức',
+      url: '/feednotification',
+      permission: ['admin', 'student', 'teacher'],
+    },
+    {
+      key: 'notification',
+      icon: <BellOutlined />,
+      label: 'Quản lý thông báo',
+      url: '/notification',
+      permission: ['admin', 'teacher'],
+    },
+
     // {
     //   key: 'history',
     //   icon: <UserSwitchOutlined />,
@@ -110,6 +122,13 @@ const LayoutDashboard = () => {
       permission: ['teacher'],  // Chỉ giảng viên có thể truy cập
     },
     {
+      key: 'teacherTimeTable',
+      icon: <BookOutlined />,
+      label: 'Lịch dạy',
+      url: '/teacher/timetable',
+      permission: ['teacher'],  // Chỉ sinh viên có thể truy cập
+    },
+    {
       key: 'teacherEnrollmentApproval',
       icon: <CheckCircleOutlined />,
       label: 'Duyệt ghi danh',
@@ -133,6 +152,14 @@ const LayoutDashboard = () => {
       permission: ['student'],  // Chỉ sinh viên có thể truy cập
     },
     {
+      key: 'studentTimeTable',
+      icon: <BookOutlined />,
+      label: 'Lịch học',
+      url: '/student/timetable',
+      permission: ['student'],  // Chỉ sinh viên có thể truy cập
+    },
+
+    {
       key: 'services',
       icon: <AppstoreOutlined />,
       label: 'Dịch vụ',
@@ -145,16 +172,34 @@ const LayoutDashboard = () => {
           permission: ['student'],
         },
         {
+          key: 'reviewLeaveRequest',
+          label: 'Duyệt đơn nghỉ',
+          url: '/leave-request/review',
+          permission: ['teacher'],
+        },
+        {
           key: 'tuition',
           label: 'Quản lý học phí',
           url: '/services/tuition',
-          permission: ['student', 'admin'],
+          permission: ['student'],
         },
         {
-          key: 'notification',
-          label: 'Thông báo',
-          url: '/services/notification',
-          permission: ['admin', 'teacher'],
+          key: 'tuition',
+          label: 'Quản lý học phí',
+          url: 'admin/services/tuition',
+          permission: ['admin'],
+        },
+        {
+          key: 'transaction-history',
+          label: 'Lịch sử giao dịch',
+          url: 'admin/services/transaction-history',
+          permission: ['admin'],
+        },
+        {
+          key: 'debt',
+          label: 'Công nợ',
+          url: '/services/debt',
+          permission: ['student'],
         },
       ]
     },
@@ -189,27 +234,13 @@ const LayoutDashboard = () => {
     if (res.data.StatusCodes == 200) {
       toast.success('Đăng xuất thành công')
       dispatch(clearUser());
+      persistor.purge();
       navigate("/login");
-      localStorage.removeItem("token");
     }
   }
   const {
     token: { colorBgContainer },
   } = theme.useToken();
-  const matchMenuKey = (pathname: string) => {
-    const matchedItem = menuItems.find(item => {
-      if (!item.url) return false;
-      // Nếu item có path động thì dùng matchPath
-      if (item.url.includes(':')) {
-        return matchPath({ path: item.url, end: true }, pathname);
-      }
-      // Còn lại thì match chính xác
-      return pathname === item.url;
-    });
-    return matchedItem?.key;
-  };
-
-
   const renderMenuItems = (items) => {
     return items
       .filter(item => item.permission.includes(user?.role))
@@ -238,20 +269,44 @@ const LayoutDashboard = () => {
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
-      <Sider trigger={null} collapsible collapsed={collapsed} width={250}>
+      <Sider
+        trigger={null}
+        collapsible
+        collapsed={collapsed}
+        width={250}
+        style={{
+          position: 'fixed',
+          height: '100vh',
+          left: 0,
+          top: 0,
+          overflow: 'auto',
+        }}
+      >
         <div style={{ height: 64, margin: 16, background: 'rgba(255,255,255,0.2)', borderRadius: 8 }} />
         <Menu
           theme="dark"
           mode="inline"
           selectedKeys={menuItems
-            .flatMap(item => item.children ? item.children : item) // flatten 1 level
+            .flatMap(item => item.children ? item.children : item)
             .filter(item => matchPath({ path: item.url, end: false }, location.pathname))
             .map(item => item.key)}
           items={renderMenuItems(menuItems)}
         />
       </Sider>
-      <Layout>
-        <Header style={{ padding: 0, background: colorBgContainer, display: 'flex', justifyContent: 'space-between' }}>
+
+      <Layout style={{ marginLeft: collapsed ? 80 : 250 }}>
+        <Header
+          style={{
+            padding: 0,
+            background: colorBgContainer,
+            display: 'flex',
+            justifyContent: 'space-between',
+            position: 'fixed',
+            top: 0,
+            zIndex: 1,
+            width: `calc(100% - ${collapsed ? 80 : 250}px)`,
+          }}
+        >
           <Button
             type="text"
             icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
@@ -265,7 +320,7 @@ const LayoutDashboard = () => {
           <div>
             <Dropdown overlay={menu} trigger={['click']}>
               <div style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
-                <span>{student?.student?.name || student?.user?.email}</span>
+                <span>{user?.email}</span>
                 <Avatar
                   style={{
                     margin: '0px 10px',
@@ -276,19 +331,22 @@ const LayoutDashboard = () => {
               </div>
             </Dropdown>
           </div>
-
         </Header>
-        <Content style={{
-          margin: '24px 16px',
-          padding: 24,
-          minHeight: 280,
-          background: colorBgContainer,
-          borderRadius: 8,
-        }}>
+
+        <Content
+          style={{
+            margin: '88px 16px 24px',
+            padding: 24,
+            minHeight: 280,
+            background: colorBgContainer,
+            borderRadius: 8,
+          }}
+        >
           <Outlet />
         </Content>
       </Layout>
-    </Layout >
+    </Layout>
+
   );
 }
 export default LayoutDashboard

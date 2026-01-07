@@ -18,54 +18,89 @@ interface CustomRequest extends Request {
         to?: string;
     };
 }
-export const GetAllLeave = async (req: Request, res: Response) => {
+export const GetAllLeave = async (req: CustomRequest, res: Response) => {
     try {
-        const {
-            _page = '1',
-            _limit = '10',
-            _sort = 'createAt',
-            _order = 'asc',
-            teaching_assignment_id,
-            status,
-            fromDate,
-            toDate,
-        } = req.body;
-        const filter: any = {};
-        if (teaching_assignment_id) filter.teaching_assignment_id = teaching_assignment_id;
-        if (status) filter.status = status;
-        if (fromDate || toDate) {
-            filter.fromDate = {};
-            if (fromDate) filter.fromDate.$gte = new Date(fromDate);
-            if (toDate) filter.fromDate.$lte = new Date(toDate);
-        }
-        const options = {
-            page: parseInt(_page as string),
-            limit: parseInt(_limit as string),
-            sort: { [_sort as string]: _order === 'asc' ? 1 : -1 },
-            populate: {
-                path: 'teaching_assignment_id',
-                populate: [
-                    { path: 'subject_id', select: 'name' },
-                    { path: 'class_id', select: 'ClassName' },
-                ]
-            }
-        }
-        const leave = await Leave.paginate(filter, options);
-        res.status(StatusCodes.OK).json({
-            message: 'Thành công',
+      const {
+        _page = '1',
+        _limit = '10',
+        _sort = 'createAt',
+        _order = 'asc',
+        status,
+        fromDate,
+        toDate,
+      } = req.body;
+  
+      const userId = req.user?.userId;
+      const role = req.user?.role;
+  
+      const filter: any = {};
+  
+      if (role === 'teacher') {
+        const assignments = await TeachingAssignment.find({ teacher_id: userId });
+        const teachingIds = assignments.map(a => a._id);
+  
+        if (teachingIds.length === 0) {
+          return res.status(StatusCodes.OK).json({
+            message: 'Không có lớp nào đang dạy',
             StatusCodes: StatusCodes.OK,
-            data: leave.docs,
+            data: [],
             pagination: {
-                totalDocs: leave.totalDocs,
-                totalPages: leave.totalPages,
-                page: leave.page,
-                limit: leave.limit
+              totalDocs: 0,
+              totalPages: 0,
+              page: parseInt(_page),
+              limit: parseInt(_limit),
             }
-        })
+          });
+        }
+  
+        filter.teaching_assignment_id = { $in: teachingIds };
+      }
+  
+      if (role === 'student') {
+        filter.student_id = userId;
+      }
+  
+      if (status) filter.status = status;
+      if (fromDate || toDate) {
+        filter.fromDate = {};
+        if (fromDate) filter.fromDate.$gte = new Date(fromDate);
+        if (toDate) filter.fromDate.$lte = new Date(toDate);
+      }
+  
+      const options = {
+        page: parseInt(_page),
+        limit: parseInt(_limit),
+        sort: { [_sort]: _order === 'asc' ? 1 : -1 },
+        populate: [
+          {
+            path: 'teaching_assignment_id',
+            populate: [
+              { path: 'subject_id', select: 'name' },
+              { path: 'class_id', select: 'ClassName' },
+            ]
+          },
+          { path: 'student_id', select: 'name studentCode' }
+        ]
+      }
+  
+      const leave = await Leave.paginate(filter, options);
+  
+      res.status(StatusCodes.OK).json({
+        message: 'Thành công',
+        StatusCodes: StatusCodes.OK,
+        data: leave.docs,
+        pagination: {
+          totalDocs: leave.totalDocs,
+          totalPages: leave.totalPages,
+          page: leave.page,
+          limit: leave.limit
+        }
+      });
     } catch (error) {
-        handleError(res, error)
+      handleError(res, error);
     }
-}
+  };
+  
 
 export const CreateLeave = async (req: CustomRequest, res: Response) => {
     try {
@@ -126,7 +161,7 @@ export const ApproveLeave = async (req: CustomRequest, res: Response) => {
         leave.status = "approved";
         await leave.save();
         sendSSEToStudent(leave.student_id.toString(), 'Đơn xin nghỉ đã được duyệt')
-        return res.status(StatusCodes.OK).json({ message: "Duyệt đơn nghỉ thành công", leave });
+        return res.status(StatusCodes.OK).json({ message: "Duyệt đơn nghỉ thành công",StatusCodes: StatusCodes.OK, leave });
     } catch (error) {
         handleError(res, error)
     }

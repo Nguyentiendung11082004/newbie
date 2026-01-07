@@ -12,6 +12,7 @@ const DialogSubject = ({ isModalOpen, setOpen, data }: Props) => {
   const [payload, setPayload] = useState<Subject>({
     name: '',
     code: '',
+    tuitionFee: 0,
     description: '',
     credits: 0,
     prerequisite: [],
@@ -27,6 +28,7 @@ const DialogSubject = ({ isModalOpen, setOpen, data }: Props) => {
     setPayload({
       name: '',
       code: '',
+      tuitionFee: 0,
       description: '',
       credits: 0,
       prerequisite: [],
@@ -56,6 +58,13 @@ const DialogSubject = ({ isModalOpen, setOpen, data }: Props) => {
           <Input placeholder="Nhập mã môn" className="h-10 rounded-md border border-gray-300 px-3"
             value={payload?.code}
             onChange={(e) => handleSerForm('code', e.target.value)}
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Học phí </label>
+          <Input placeholder="Nhập mã môn" className="h-10 rounded-md border border-gray-300 px-3"
+            value={payload?.tuitionFee}
+            onChange={(e) => handleSerForm('tuitionFee', e.target.value)}
           />
         </div>
 

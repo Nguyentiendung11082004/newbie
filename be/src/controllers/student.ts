@@ -6,6 +6,10 @@ import * as XLSX from 'xlsx';
 import path from "path";
 import Enrollment from "../model/enrollment";
 import { getDayOfWeekFromDate } from "../middlewares/utils";
+<<<<<<< HEAD
+=======
+import { listeners } from "process";
+>>>>>>> 6c1e0219d5928377aebd76055f2ed5f81d10f102
 interface Customer extends Request {
     user: {
         _id: string;
@@ -111,6 +115,10 @@ export const ImportExcel = async (req: Request, res: Response) => {
 export const GetStudentTimeTable = async (req: Customer, res: Response) => {
     try {
         const studentId = req.user.userId;
+<<<<<<< HEAD
+=======
+        const { fromDate, toDate, subjects, classes, rooms } = req.body;
+>>>>>>> 6c1e0219d5928377aebd76055f2ed5f81d10f102
         const enrollments = await Enrollment.find({
             student_id: studentId,
             status: 'Approved'
@@ -118,6 +126,7 @@ export const GetStudentTimeTable = async (req: Customer, res: Response) => {
             path: 'teaching_assignment_id',
             populate: [
                 { path: 'subject_id', select: 'name' },
+<<<<<<< HEAD
                 { path: 'class_id', select: 'name' }
             ]
         });
@@ -135,11 +144,57 @@ export const GetStudentTimeTable = async (req: Customer, res: Response) => {
                 }
             });
         });
+=======
+                { path: 'class_id', select: 'ClassName' }
+            ]
+        });
+        let timetable = enrollments.flatMap((enroll: any) => {
+            const ta = enroll.teaching_assignment_id;
+            if (!ta || !ta.schedule) return [];
+            return ta?.schedule
+                .filter((s: any) => s && s.date)
+                .map((schedule: any) => {
+                    const dayOfWeek = getDayOfWeekFromDate(schedule.date);
+                    return {
+                        subject: ta.subject_id.name,
+                        class: ta.class_id.ClassName,
+                        date: schedule?.date,
+                        dayOfWeek: dayOfWeek,
+                        startTime: schedule.startTime,
+                        endTime: schedule.endTime
+                    }
+                });
+        });
+        if (fromDate && toDate) {
+            timetable = timetable.filter(item =>
+                item.date >= fromDate && toDate <= toDate
+            )
+        }
+        if (subjects?.length) {
+            timetable = timetable.filter(item =>
+                subjects.includes(item.subject)
+            )
+        }
+        if (classes?.length) {
+            timetable = timetable.filter(item =>
+                classes.includes(item.class)
+            )
+        }
+        if (rooms?.length) {
+            timetable = timetable.filter(item =>
+                rooms.includes(item.room)
+            )
+        }
+>>>>>>> 6c1e0219d5928377aebd76055f2ed5f81d10f102
         return res.status(StatusCodes.OK).json({
             message: "Thành công",
             data: timetable,
         })
     } catch (error) {
+<<<<<<< HEAD
+=======
+        console.log("catch")
+>>>>>>> 6c1e0219d5928377aebd76055f2ed5f81d10f102
         handleError(res, error)
     }
 }
@@ -208,7 +263,11 @@ export const UpdateCardRequest = async (req: Request, res: Response) => {
         }
         const student = await Student.findById(studentId);
         if (!student || !student.cardRequest) {
+<<<<<<< HEAD
           return res.status(404).json({ message: 'Không tìm thấy yêu cầu cấp thẻ' });
+=======
+            return res.status(404).json({ message: 'Không tìm thấy yêu cầu cấp thẻ' });
+>>>>>>> 6c1e0219d5928377aebd76055f2ed5f81d10f102
         }
         student.cardRequest.status = status;
         student.cardRequest.adminNote = adminNote;

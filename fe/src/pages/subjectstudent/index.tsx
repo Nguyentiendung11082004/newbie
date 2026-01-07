@@ -1,7 +1,7 @@
 import { Button, Popconfirm, Space, Table, Typography } from 'antd';
 import React, { useEffect, useState } from 'react'
 import { useAppSelector } from '../../redux/hook';
-import { StudentSubjectServices } from '../../services/student.services';
+import { StudentSubjectServices, StudentWalletServices } from '../../services/student.services';
 import { initFilter } from '../../common/helpfunction';
 import { ColumnType } from 'antd/es/table';
 import DialogSubject from './dialogstudentsubject';
@@ -9,43 +9,71 @@ import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 
 type Props = {}
+
 interface SubjectStudent {
+  _id: string;
+  status: string;
   teaching_assignment_id: {
     _id: string;
-  }
+    subject_id: {
+      name: string;
+      credits: number;
+    };
+    class_id: {
+      ClassName: string;
+    }
+  };
 }
-const { Title } = Typography;
-const SubjectStudent = (props: Props) => {
-  const user = useAppSelector((state) => state.user.userInfo);
-  const nav = useNavigate()
-  const [filter, setFilter] = useState(initFilter);
-  const [isOpen, setIsOpen] = useState(false)
-  const [data, setData] = useState([])
-  const [dataEdit, setDataEdit] = useState({})
-  const getData = async () => {
-    let pay = {
-      student_id: user.profile?._id
-    }
-    let res = await StudentSubjectServices.GetSubjectEnroll(pay);
-    setData(res?.data)
-  }
-  const handle = () => {
-    setIsOpen(true)
-  }
-  const huyDangKy = async (value: any) => {
-    let res = await StudentSubjectServices.DeleteEnroll(value._id);
-    if (res) {
-      toast.success(res.data.message)
-      getData()
-    }
-  }
-  const handleChiTiet = (value: any) => {
-    setIsOpen(true)
-    setDataEdit(value)  
-  }
-  const handleUpdate = (value: any) => {
 
-  }
+const { Title } = Typography;
+
+const SubjectStudent = (props: Props) => {
+  const user = useAppSelector((state) => state.user.userInfo?.profile);
+  const nav = useNavigate();
+  const [filter, setFilter] = useState(initFilter);
+  const [isOpen, setIsOpen] = useState(false);
+  const [data, setData] = useState<SubjectStudent[]>([]);
+  const [dataEdit, setDataEdit] = useState({});
+
+  const getData = async () => {
+    const payload = { student_id: user?._id };
+    const res = await StudentSubjectServices.GetSubjectEnroll(payload);
+    setData(res?.data || []);
+  };
+
+  const handle = () => {
+    setIsOpen(true);
+  };
+
+  const huyDangKy = async (record: SubjectStudent) => {
+    try {
+      const res = await StudentSubjectServices.DeleteEnroll(record._id) as any;
+      toast.success(res.data.message);
+      getData();
+    } catch (error) {
+      toast.error(error?.message)
+    }
+  };
+
+  const handleChiTiet = (record: SubjectStudent) => {
+    setIsOpen(true);
+    setDataEdit(record);
+  };
+
+  const handlePayment = async (record: SubjectStudent) => {
+    try {
+      const res = await StudentWalletServices.PayEnrollmentOnline({
+        enrollmentId: record._id
+      }) as any;
+      console.log("res", res)
+      if (res) {
+        window.open(res.paymentUrl);
+      }
+    } catch (error) {
+      toast.error("Thanh toán thất bại");
+    }
+  };
+
   const columns: ColumnType<SubjectStudent>[] = [
     {
       title: 'STT',
@@ -54,30 +82,21 @@ const SubjectStudent = (props: Props) => {
     },
     {
       title: 'Tên môn học',
-      dataIndex: '',
-      render: (_value, _record, index) => {
-        return <div>
-          {_value?.teaching_assignment_id?.subject_id.name}
-        </div>
-      }
+      render: (_, record) => (
+        <div>{record?.teaching_assignment_id?.subject_id?.name}</div>
+      )
     },
     {
       title: 'Số tín chỉ',
-      dataIndex: '',
-      render: (_value, _record, index) => {
-        return <div>
-          {_value?.teaching_assignment_id?.subject_id.credits}
-        </div>
-      }
+      render: (_, record) => (
+        <div>{record?.teaching_assignment_id?.subject_id.credits}</div>
+      )
     },
     {
       title: 'Lớp',
-      dataIndex: '',
-      render: (_value, _record, index) => {
-        return <div>
-          {_value?.teaching_assignment_id?.class_id?.ClassName}
-        </div>
-      }
+      render: (_, record) => (
+        <div>{record?.teaching_assignment_id?.class_id?.ClassName}</div>
+      )
     },
     {
       title: 'Trạng thái',
@@ -86,29 +105,41 @@ const SubjectStudent = (props: Props) => {
     {
       title: 'Thao tác',
       render: (_, record) => (
-        <Space>
+        <Space >
           <Button size="small" onClick={() => handleChiTiet(record)}>Chi tiết</Button>
-          {/* <Button size="small" onClick={() => handleUpdate(record)}>Sửa</Button> */}
           <Popconfirm
             title="Bạn có chắc muốn huỷ đăng ký môn học này không?"
             onConfirm={() => huyDangKy(record)}
           >
             <Button danger size="small">Huỷ</Button>
           </Popconfirm>
-          <Button size="small" onClick={() => nav(`/history/${record?.teaching_assignment_id._id}`)}>Lịch sử điểm danh</Button>
+
+          <Button size="small" onClick={() => nav(`/history/${record.teaching_assignment_id._id}`)}>
+            Lịch sử điểm danh
+          </Button>
+          {record.status === 'Pending' && (
+            <Button
+              size="small"
+              type="primary"
+              onClick={() => handlePayment(record)}
+            >
+              Thanh toán
+            </Button>
+          )}
         </Space>
       )
+    }
+  ];
 
-    }
-  ]
   useEffect(() => {
-    if (isOpen === false) {
-      getData()
+    if (!isOpen) {
+      getData();
     }
-  }, [isOpen])
+  }, [isOpen]);
+
   return (
     <>
-      <div className='flex justify-between items-center'>
+      <div className='flex justify-between items-center mb-4'>
         <Title level={4}>Danh sách môn học của tôi</Title>
         <Button type='primary' onClick={handle}>Đăng ký môn học</Button>
       </div>
@@ -116,23 +147,15 @@ const SubjectStudent = (props: Props) => {
         rowKey="_id"
         columns={columns}
         dataSource={data}
-      // pagination={{
-      //   current: filter.CurrentPage,
-      //   pageSize: filter.PageSize,
-      //   total: data.length,
-      //   showSizeChanger: true,
-      //   onChange: (page, pageSize) => {
-      //     setFilter({
-      //       ...filter,
-      //       CurrentPage: page,
-      //       PageSize: pageSize,
-      //     });
-      //   }
-      // }}
       />
-      <DialogSubject isModalOpen={isOpen} setIsOpen={setIsOpen} dataEdit={dataEdit} setDataEdit={setDataEdit} />
+      <DialogSubject
+        isModalOpen={isOpen}
+        setIsOpen={setIsOpen}
+        dataEdit={dataEdit}
+        setDataEdit={setDataEdit}
+      />
     </>
-  )
-}
+  );
+};
 
-export default SubjectStudent
+export default SubjectStudent;

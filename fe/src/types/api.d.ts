@@ -1,4 +1,5 @@
 export interface Pagination {
+    total: number;
     totalDocs: number;
     totalPages: number;
     page: number;
@@ -10,4 +11,5 @@ export interface ApiResponse<T> {
     message: string;
     data: T;
     pagination: Pagination;
+    StatusCodes: string | number;
 }

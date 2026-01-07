@@ -58,7 +58,8 @@ export const getTeachingAssignmentsForEnroll = async (req: Request, res: Respons
         const assignments = await TeachingAssignment.find(query)
             .populate('subject_id')
             .populate('teacher_id')
-            .populate('class_id');
+            .populate('class_id')
+            .populate('semester_id')
 
         if (!assignments) {
             return res.status(StatusCodes.BAD_REQUEST).json({
@@ -150,7 +151,12 @@ export const CreateEnrollSubject = async (req: Request, res: Response): Promise<
             student_id,
             teaching_assignment_id: teachingAssignment._id,
             status: 'Pending',
+<<<<<<< HEAD
             enrolled_at: new Date()
+=======
+            enrolled_at: new Date(),
+            dueDate: new Date(Date.now() + 7*24*60*60*1000)
+>>>>>>> 6c1e0219d5928377aebd76055f2ed5f81d10f102
         });
         const class_id = teachingAssignment.class_id;
         // Cập nhật vào mảng classId của sinh viên (nếu chưa có)
@@ -338,7 +344,10 @@ export const PayForEnrollment = async (req: CustomRequest, res: Response) => {
         if (!wallet || wallet.balance < tuitionFee) {
             return res.status(400).json({ message: 'Số dư không đủ để thanh toán học phí.' });
         }
+<<<<<<< HEAD
         console.log("enrollment", enrollment)
+=======
+>>>>>>> 6c1e0219d5928377aebd76055f2ed5f81d10f102
         // Trừ tiền
         wallet.balance -= tuitionFee;
         await wallet.save();
@@ -357,9 +366,16 @@ export const PayForEnrollment = async (req: CustomRequest, res: Response) => {
         const monhoc: any = (enrollment.teaching_assignment_id as any).subject_id;
         await sendMail(
             tenhs.email,
+<<<<<<< HEAD
             'Thanh toán ghi danh thành công',
             `<h3>Xin chào ${tenhs.name},</h3>
              <p>Bạn đã thanh toán thành công học phí cho môn <strong>${monhoc.name}</strong>.</p>
+=======
+            'Thanh toán thành công',
+            `<h3>Xin chào ${tenhs.name},</h3>
+             <p>Bạn đã thanh toán thành công học phí
+              cho môn <strong>${monhoc.name}</strong>.</p>
+>>>>>>> 6c1e0219d5928377aebd76055f2ed5f81d10f102
              <p>Mã lớp: ${monhoc.code}</p>
              <p>Cảm ơn bạn!</p>`
         );
