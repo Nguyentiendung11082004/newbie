@@ -15,6 +15,7 @@ type AttendanceRow = {
   studentName: string;
   status: string;
   note?: string;
+  attendances: any;
 };
 
 const History = () => {
@@ -48,10 +49,9 @@ const History = () => {
     }
   }, [id, range]);
 
-  const columns: ColumnsType<AttendanceRow> = [
+  const columns: ColumnsType<any> = [
     {
       title: 'STT',
-      dataIndex: 'index',
       render: (_v, _r, i) => i + 1,
     },
     {
@@ -61,26 +61,32 @@ const History = () => {
     },
     {
       title: 'Tên sinh viên',
-      dataIndex: 'studentName',
-      render: (_v, _record: any) => <span>{_record.attendances[0].student?.name}</span>
+      dataIndex: ['student', 'name'],
     },
     {
       title: 'Trạng thái',
       dataIndex: 'status',
-      render: (_v, _record: any) => {
-        return (
-          <span style={{ color: _record.attendances[0].status === 'present' ? 'green' : 'red' }}>
-            {_record.attendances[0].status === 'present' ? 'Có mặt' : 'Vắng mặt'}
-          </span>
-        )
-      }
-
+      render: (status) => (
+        <span style={{ color: status === 'present' ? 'green' : 'red' }}>
+          {status === 'present' ? 'Có mặt' : 'Vắng mặt'}
+        </span>
+      ),
     },
     {
       title: 'Ghi chú',
       dataIndex: 'note',
     },
   ];
+  console.log("data", data)
+  const flatData = data.flatMap((attendance) => {
+    return attendance.attendances.map((a) => ({
+      date: attendance.date,
+      student: a.student,
+      status: a.status,
+      note: a.note,
+    }));
+  });
+  console.log("flatData", flatData)
 
   return (
     <>
@@ -101,7 +107,7 @@ const History = () => {
         rowKey="key"
         loading={loading}
         columns={columns}
-        dataSource={data}
+        dataSource={flatData}
         pagination={{ pageSize: 10 }}
       />
     </>

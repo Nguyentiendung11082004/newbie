@@ -22,17 +22,16 @@ const dayOfWeekToNumber = (day: string) => {
 };
 const parseLocalDate = (dateStr: string): Date => {
     if (!dateStr || typeof dateStr !== "string") {
-      throw new Error("Invalid startDate: " + dateStr);
+        throw new Error("Invalid startDate: " + dateStr);
     }
-  
+
     const [year, month, day] = dateStr.split('-').map(Number);
     if (!year || !month || !day) {
-      throw new Error("startDate format must be YYYY-MM-DD. Got: " + dateStr);
+        throw new Error("startDate format must be YYYY-MM-DD. Got: " + dateStr);
     }
-  
+
     return new Date(year, month - 1, day);
-  };
-  
+};
 const generateSchedule = (
     startDate: string,
     numberOfClasses: number,
@@ -72,7 +71,7 @@ const generateSchedule = (
 };
 export const CreateTeachingAssignment = async (req: Request, res: Response) => {
     try {
-        const { teacher_id, subject_id, class_id, semester_id, startDate, numberOfClasses, weeklySchedule } = req.body;
+        const { teacher_id, subject_id, class_id, semester_id, startDate, numberOfClasses, weeklySchedule, room } = req.body;
 
         if (!teacher_id || !subject_id || !class_id || !semester_id || !startDate || !numberOfClasses || !weeklySchedule) {
             return res.status(StatusCodes.BAD_REQUEST).json({
@@ -114,6 +113,7 @@ export const CreateTeachingAssignment = async (req: Request, res: Response) => {
             startDate,
             numberOfClasses,
             weeklySchedule,
+            room,
             schedule: generatedSchedule
         });
 
@@ -137,10 +137,8 @@ export const GetTeachingassment = async (req: Request, res: Response) => {
             .exec();
 
         return res.status(StatusCodes.OK).json({
-            data: {
-                message: 'Thành công',
-                data: techingassment
-            }
+            message: 'Thành công',
+            data: techingassment
         })
     } catch (error) {
         handleError(res, error)

@@ -57,7 +57,7 @@ const Class = () => {
                     onChange: handlePageChange
                 }}
             />
-            {/* <DialogClass isModalOpen={open} setOpen={setOpen} /> */}
+            <DialogClass isModalOpen={open} setOpen={setOpen} />
         </>
     );
 };

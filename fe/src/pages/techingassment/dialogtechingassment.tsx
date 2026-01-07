@@ -8,7 +8,7 @@ import { useAppDispatch, useAppSelector } from '../../redux/hook';
 import { GetDataClass } from '../../redux/slices/classSlice';
 import { GetDataSubject } from '../../redux/slices/subjectSlice';
 import { GetDataTeacher } from '../../redux/slices/teacherSlice';
-import { TechingAssignmentServices } from '../../services/student.services';
+import { SemestersServices, TechingAssignmentServices } from '../../services/student.services';
 
 type Props = {
     isModalOpen: boolean;
@@ -19,8 +19,9 @@ type Props = {
 const init = {
     teacher_id: "",
     subject_id: "",
+    room: "",
     class_id: "",
-    semester_id: "6864d9e0352ab358356f77f9",
+    semester_id: "",
     startDate: "",
     numberOfClasses: 0,
     weeklySchedule: []
@@ -28,12 +29,12 @@ const init = {
 const format = 'HH:mm';
 const DialogTechngassment = ({ isModalOpen, setVisible, dataEdit, setDataEdit }: Props) => {
     const [payload, setPayload] = useState(init);
-
     const dispatch = useAppDispatch();
     const arrThu = getDayOffWeek();
     const subject = useAppSelector((state: any) => state.subject);
     const teacher = useAppSelector((state: any) => state.teacher);
     const arrClass = useAppSelector((state: any) => state.class);
+    const [listSemesters, setListSemeters] = useState([])
     const handleOk = async () => {
         if (dataEdit?._id) {
             let res = await TechingAssignmentServices.Update(dataEdit._id, payload);
@@ -55,6 +56,10 @@ const DialogTechngassment = ({ isModalOpen, setVisible, dataEdit, setDataEdit }:
         setVisible(false)
 
     }
+    const getSemesters = async () => {
+        let res = await SemestersServices.GetSemesters() as any;
+        setListSemeters(res?.data)
+    }
     const getById = async (id: string) => {
         let res = await TechingAssignmentServices.GetById(id)
         if (res) {
@@ -62,7 +67,6 @@ const DialogTechngassment = ({ isModalOpen, setVisible, dataEdit, setDataEdit }:
         }
     }
     const handleSetForm = (props: any, value: any, record?: any) => {
-  
         setPayload((prev: any) => {
             if (record) {
                 const result = prev.weeklySchedule.map((e: any) => {
@@ -149,13 +153,14 @@ const DialogTechngassment = ({ isModalOpen, setVisible, dataEdit, setDataEdit }:
     const handleDelete = (value: any) => {
         setPayload((prev) => ({
             ...prev,
-            weeklySchedule: prev.weeklySchedule.filter((e: any) => e.GUID !== value.GUID)
+            weeklySchedule: prev.weeklySchedule.filter((e: any) => value.GUID ? e.GUID !== value.GUID : e._id !== value._id)
         }))
     }
     useEffect(() => {
         dispatch(GetDataTeacher());
         dispatch(GetDataClass());
         dispatch(GetDataSubject());
+        getSemesters()
     }, []);
     useEffect(() => {
         if (dataEdit?._id) {
@@ -217,7 +222,7 @@ const DialogTechngassment = ({ isModalOpen, setVisible, dataEdit, setDataEdit }:
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Thời gian bắt đầu</label>
                     <DatePicker
-                       onChange={(e) => handleSetForm('startDate', e ? e.format("YYYY-MM-DD") : "")}
+                        onChange={(e) => handleSetForm('startDate', e ? e.format("YYYY-MM-DD") : "")}
                         style={{ width: 280 }}
                         className="border border-gray-300 rounded-lg p-2 mt-4  text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
                         placeholder="Chọn"
@@ -231,8 +236,21 @@ const DialogTechngassment = ({ isModalOpen, setVisible, dataEdit, setDataEdit }:
                     <Input value={payload?.numberOfClasses} onChange={(e) => handleSetForm('numberOfClasses', e.target.value)} />
                 </div>
                 <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Phòng học</label>
+                    <Input value={payload?.room} onChange={(e) => handleSetForm('room', e.target.value)} />
+                </div>
+                <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Nhập kỳ học</label>
-                    <Input value={payload?.semester_id} onChange={(e) => handleSetForm('semester', e.target.value)} />
+                    <Select
+                        style={{ width: '100%' }}
+                        placeholder="Please select"
+                        value={(payload?.semester_id)}
+                        onChange={(e) => handleSetForm('semester_id', e)}
+                        options={listSemesters?.map((e: any) => ({
+                            value: e._id,
+                            label: e.name
+                        }))}
+                    />
                 </div>
                 <Table
                     rowKey="GUID"

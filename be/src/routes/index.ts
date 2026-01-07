@@ -11,6 +11,11 @@ import StaticRoute from "./statistical"
 import GradeRoute from "./grade"
 import LeaveRoute from "./leave"
 import sseRouter from "./sse.route"
+import StudentWalletRouter from "./wallet"
+import { sendMail } from "../middlewares/email"
+import NotificationRouter from "./notification"
+import SemestersRouter from "./semesters"
+import { ResultVnpayCallback } from "../controllers/wallet"
 export default function routes(app: Express) {
     app.use('/api/v1/students', StudentRouter)
     app.use('/api/v1/class', ClassRouter)
@@ -24,4 +29,8 @@ export default function routes(app: Express) {
     app.use('/api/v1/grade', GradeRoute)
     app.use('/api/v1/leaverequest', LeaveRoute)
     app.use('/sse', sseRouter)
+    app.use('/api/v1/wallet', StudentWalletRouter)
+    app.use('/api/v1/notification', NotificationRouter)
+    app.use('/api/v1/semesters', SemestersRouter)
+    app.use("/api/v1/payments/vnpay-callback", ResultVnpayCallback);
 }

@@ -1,0 +1,21 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = __importDefault(require("express"));
+const enrollment_1 = require("../controllers/enrollment");
+const auth_1 = require("../controllers/auth");
+const asyncHandler = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next);
+const EnrollmentRouter = express_1.default.Router();
+EnrollmentRouter.post("/CreateEnrollment", asyncHandler(enrollment_1.CreateEnrollSubject));
+EnrollmentRouter.get("/GetAllEnrollment", asyncHandler(enrollment_1.getAllEnrollSubject));
+EnrollmentRouter.post("/GetByIdEnrollment", asyncHandler(enrollment_1.getEnrollSubject));
+EnrollmentRouter.post("/GetTeachingAssignmentsForEnroll", asyncHandler(enrollment_1.getTeachingAssignmentsForEnroll));
+EnrollmentRouter.delete("/DeleteEnroll/:id", asyncHandler(enrollment_1.DeleteEnroll));
+EnrollmentRouter.put("/UpdateEnrollment/:id", asyncHandler(enrollment_1.updateEnrollSubject));
+EnrollmentRouter.post("/GetEnrollmentByTeacher", asyncHandler(enrollment_1.GetEnrollmentByTeacher));
+EnrollmentRouter.post("/GetEnrollmentsByTeachingAssignment", asyncHandler(enrollment_1.GetEnrollmentsByTeachingAssignment));
+EnrollmentRouter.post("/PayForEnrollment", asyncHandler(auth_1.authMiddleware), asyncHandler(enrollment_1.PayForEnrollment));
+EnrollmentRouter.post("/GetPaymentStatus", asyncHandler(enrollment_1.GetPaymentStatus));
+exports.default = EnrollmentRouter;

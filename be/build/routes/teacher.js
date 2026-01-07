@@ -1,0 +1,11 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const teacher_1 = require("../controllers/teacher");
+const auth_1 = require("../controllers/auth");
+const asyncHandler = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next);
+const TeacherRouter = (0, express_1.Router)();
+TeacherRouter.get('/', teacher_1.getAllTeacher);
+TeacherRouter.get('/GetClassesByTeacher', asyncHandler(auth_1.authMiddleware), asyncHandler(teacher_1.GetClassesByTeacher));
+TeacherRouter.get('/GetTeacherTimeTable', asyncHandler(auth_1.authMiddleware), asyncHandler(teacher_1.GetTeacherTimeTable));
+exports.default = TeacherRouter;

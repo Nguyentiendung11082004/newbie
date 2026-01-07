@@ -8,6 +8,7 @@ import { formatDateStringGMT } from '../../../common/helpfunction'
 import { useSSE } from '../../../common/hooks/useSSE'
 import { toast } from 'react-toastify'
 import { useAppSelector } from '../../../redux/hook'
+import DialogLeave from './dialogleave'
 
 type Props = {}
 
@@ -16,7 +17,8 @@ const leave = (props: Props) => {
         page: 1
     })
     const student = useAppSelector((state) => state.user.userInfo.profile);
-    const [data, setData] = useState<Ileave[]>()
+    const [data, setData] = useState<Ileave[]>();
+    const [isOpen, setIsOpen] = useState(false)
     const columns: ColumnType<any>[] = [
         {
             title: "STT",
@@ -84,7 +86,9 @@ const leave = (props: Props) => {
         }
 
     ];
-    const handle = () => { }
+    const handleAdd = () => {
+        setIsOpen(true)
+    }
     const getData = async (pay) => {
         let res = await LeaveServices.GetAllLeave(pay);
         if (res) {
@@ -96,18 +100,24 @@ const leave = (props: Props) => {
         getData(filter)
     });
     useEffect(() => {
-        getData(filter)
-    }, [filter])
+        if (!isOpen) {
+            getData(filter)
+        }
+    }, [filter, isOpen])
     return (
         <>
-            <div className='flex justify-between items-center'>
+            <div className='flex justify-between items-center mb-4'>
                 <Title level={4}>Danh sách phiếu xin nghỉ học</Title>
-                <Button type='primary' onClick={handle}>Đăng ký nghỉ học</Button>
+                <Button type='primary' onClick={handleAdd}>Đăng ký nghỉ học</Button>
             </div>
             <Table
                 rowKey="_id"
                 columns={columns}
                 dataSource={data}
+            />
+            <DialogLeave
+                isModalOpen={isOpen}
+                setIsOpen={setIsOpen}
             />
         </>
     )

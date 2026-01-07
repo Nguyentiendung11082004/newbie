@@ -1,14 +1,23 @@
-import { handleError } from "../middlewares/error"
-import { Request, Response } from "express"
-import Student from "../model/student";
-import TeachingAssignmentSchema from "../model/teachingassignment"
-import Subject from "../model/subject"
+import { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
-import Enrollment from "../model/enrollment";
 import { Types } from "mongoose";
-import TeachingAssignment from "../model/teachingassignment";
-import { EnrollmentValidate } from "../schema/enrolment";
+import { handleError } from "../middlewares/error";
+import { addTransaction } from "../middlewares/wallet";
 import Attendance from "../model/attdance";
+import Enrollment from "../model/enrollment";
+import Student from "../model/student";
+import StudentWallet from "../model/studentwallets";
+import { default as TeachingAssignment, default as TeachingAssignmentSchema } from "../model/teachingassignment";
+import { EnrollmentValidate } from "../schema/enrolment";
+import { sendMail } from "../middlewares/email";
+interface CustomRequest extends Request {
+    user: {
+        _id: string;
+        role: string;
+        email: string;
+        userId: string;
+    };
+}
 export const getAllEnrollSubject = async (req: Request, res: Response): Promise<Response | void> => {
     try {
         const {
@@ -49,7 +58,8 @@ export const getTeachingAssignmentsForEnroll = async (req: Request, res: Respons
         const assignments = await TeachingAssignment.find(query)
             .populate('subject_id')
             .populate('teacher_id')
-            .populate('class_id');
+            .populate('class_id')
+            .populate('semester_id')
 
         if (!assignments) {
             return res.status(StatusCodes.BAD_REQUEST).json({
@@ -140,8 +150,9 @@ export const CreateEnrollSubject = async (req: Request, res: Response): Promise<
         const enrollment = await Enrollment.create({
             student_id,
             teaching_assignment_id: teachingAssignment._id,
-            status: 'Approved',
-            enrolled_at: new Date()
+            status: 'Pending',
+            enrolled_at: new Date(),
+            dueDate: new Date(Date.now() + 7*24*60*60*1000)
         });
         const class_id = teachingAssignment.class_id;
         // Cập nhật vào mảng classId của sinh viên (nếu chưa có)
@@ -182,21 +193,30 @@ export const updateEnrollSubject = async (req: Request, res: Response) => {
 }
 export const DeleteEnroll = async (req: Request, res: Response) => {
     try {
-        const enroll = await Enrollment.findByIdAndDelete(req.params.id);
+        const enroll = await Enrollment.findById(req.params.id);
         if (!enroll) {
-            return res.status(StatusCodes.BAD_REQUEST).json({
-                message: "Not Found"
-            })
+            return res.status(StatusCodes.NOT_FOUND).json({
+                message: "Không tìm thấy ghi danh"
+            });
         }
+
+        if (enroll.status === "Approved") {
+            return res.status(StatusCodes.BAD_REQUEST).json({
+                message: "Môn học đã được thanh toán, không thể huỷ"
+            });
+        }
+
+        // Nếu chưa thanh toán thì xoá ghi danh
+        await Enrollment.findByIdAndDelete(req.params.id);
+
         return res.status(StatusCodes.OK).json({
-            data: {
-                message: "Thành công"
-            }
-        })
+            message: "Huỷ ghi danh thành công"
+        });
     } catch (error) {
-        handleError(res, error)
+        handleError(res, error);
     }
-}
+};
+
 export const GetEnrollmentByTeacher = async (req: Request, res: Response) => {
     try {
         const { teacher_id, status = 'Pending', page = 1, limit = 10 } = req.body;
@@ -249,7 +269,7 @@ export const GetEnrollmentsByTeachingAssignment = async (req: Request, res: Resp
         }
 
         // Lấy danh sách ghi danh
-        const enrollments = await Enrollment.find({ teaching_assignment_id })
+        const enrollments = await Enrollment.find({ teaching_assignment_id,status: 'Approved' })
             .populate('student_id', 'name email') // Lấy name + email nếu cần
 
         // Lấy danh sách điểm danh ứng với teaching_assignment_id + date
@@ -285,3 +305,116 @@ export const GetEnrollmentsByTeachingAssignment = async (req: Request, res: Resp
         handleError(res, error);
     }
 }
+
+export const PayForEnrollment = async (req: CustomRequest, res: Response) => {
+    try {
+        const { userId } = req.user;
+        const { IdEnrollment } = req.body;
+
+        const enrollment = await Enrollment.findById(IdEnrollment)
+            .populate({
+                path: 'teaching_assignment_id',
+                populate: {
+                    path: 'subject_id',
+                    model: 'Subject',
+                }
+            })
+            .populate('student_id');
+        if (!enrollment) {
+            return res.status(404).json({ message: 'Không tìm thấy ghi danh.' });
+        }
+
+        if (enrollment.student_id._id.toString() !== userId) {
+            return res.status(403).json({ message: 'Bạn không có quyền thanh toán ghi danh này.' });
+        }
+
+        if (enrollment.status !== 'Pending') {
+            return res.status(400).json({ message: 'Ghi danh đã được thanh toán hoặc không còn hiệu lực.' });
+        }
+        const teachingAssignment: any = enrollment.teaching_assignment_id as any;
+        const subject: any = teachingAssignment.subject_id;
+        const tuitionFee = subject.tuitionFee;
+
+
+        const wallet = await StudentWallet.findOne({ student_id: userId });
+        if (!wallet || wallet.balance < tuitionFee) {
+            return res.status(400).json({ message: 'Số dư không đủ để thanh toán học phí.' });
+        }
+        // Trừ tiền
+        wallet.balance -= tuitionFee;
+        await wallet.save();
+
+        // Ghi lịch sử giao dịch
+        await addTransaction(userId, {
+            amount: tuitionFee,
+            type: 'payment',
+            description: `Thanh toán học phí môn ${subject.name}`,
+        });
+
+        // Cập nhật trạng thái ghi danh
+        enrollment.status = 'Approved';
+        await enrollment.save();
+        const tenhs: any = enrollment.student_id;
+        const monhoc: any = (enrollment.teaching_assignment_id as any).subject_id;
+        await sendMail(
+            tenhs.email,
+            'Thanh toán thành công',
+            `<h3>Xin chào ${tenhs.name},</h3>
+             <p>Bạn đã thanh toán thành công học phí
+              cho môn <strong>${monhoc.name}</strong>.</p>
+             <p>Mã lớp: ${monhoc.code}</p>
+             <p>Cảm ơn bạn!</p>`
+        );
+        return res.status(200).json({ message: 'Thanh toán thành công.' });
+
+    } catch (error) {
+        handleError(res, error);
+    }
+};
+export const GetPaymentStatus = async (req: Request, res: Response) => {
+    try {
+        const { TeachingAssignmentId, classId, subjectId, paymentStatus } = req.body;
+
+        let teachingAssignmentIds: any[] = [];
+
+        if (TeachingAssignmentId) {
+            teachingAssignmentIds = [TeachingAssignmentId];
+        } else {
+            const fil: any = {};
+            if (classId) fil.class_id = classId;
+            if (subjectId) fil.subject_id = subjectId;
+
+            const assignments = await TeachingAssignment.find(fil).select("_id");
+            teachingAssignmentIds = assignments.map(a => a._id);
+        }
+
+        const enrollmentFilter: any = {
+            teaching_assignment_id: { $in: teachingAssignmentIds },
+            status: { $in: ["Approved", "Pending"] }
+        };
+
+        if (paymentStatus) enrollmentFilter.paymentStatus = paymentStatus;
+
+        const enrollments = await Enrollment.find(enrollmentFilter)
+            .populate("student_id", "name StudentCode")
+            .populate({
+                path: "teaching_assignment_id",
+                populate: [
+                    { path: "subject_id", select: "name" },
+                    { path: "class_id", select: "ClassName" }
+                ]
+            });
+        const data = enrollments.map((enroll: any) => ({
+            studentName: enroll.student_id.name,
+            studentCode: enroll.student_id.StudentCode,
+            subject: enroll.teaching_assignment_id.subject_id.name,
+            class: enroll.teaching_assignment_id.class_id.ClassName,
+            paymentStatus: enroll.paymentStatus,
+            enrollmentStatus: enroll.status
+        }));
+        res.status(200).json({ message: 'Lấy trạng thái thanh toán thành công.', data });
+    } catch (err) {
+        console.error("GetPaymentStatus error:", err);
+        res.status(500).json({ message: "Internal server error" });
+    }
+};

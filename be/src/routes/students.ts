@@ -1,7 +1,9 @@
-import { Router } from "express";
-import { ExportExcel, ImportExcel, getAllStudents } from "../controllers/student";
+import { NextFunction, Request, Response, Router } from "express";
+import { CreateCardRequest, ExportExcel, GetAllCardRequest, GetMyCardRequest, GetStudentTimeTable, ImportExcel, UpdateCardRequest, getAllStudents } from "../controllers/student";
 import { upload } from "../middlewares/upload";
-
+import { authMiddleware } from "../controllers/auth";
+const asyncHandler = (fn: Function) => (req: Request, res: Response, next: NextFunction) =>
+    Promise.resolve(fn(req, res, next)).catch(next);
 const StudentRouter = Router();
 /**
  * @openapi
@@ -62,5 +64,11 @@ StudentRouter.get('/export-student', ExportExcel)
  *         description: Import thành công
  */
 StudentRouter.post('/import-student', upload.single('file'), ImportExcel)
+
+StudentRouter.post('/GetStudentTimeTable', asyncHandler(authMiddleware), asyncHandler(GetStudentTimeTable))
+StudentRouter.get('/GetAllCardRequest', asyncHandler(GetAllCardRequest))
+StudentRouter.post('/CreateCardRequest', asyncHandler(authMiddleware), asyncHandler(CreateCardRequest))
+StudentRouter.post('/UpdateCardRequest', asyncHandler(UpdateCardRequest))
+StudentRouter.post('/GetMyCardRequest', asyncHandler(authMiddleware), asyncHandler(GetMyCardRequest))
 export default StudentRouter
 

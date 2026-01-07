@@ -12,7 +12,9 @@ export const StudentSubjectServices = {
     GetTeachingAssignmentsForEnroll: (params: any) => axiosClient.post('enrollsubject/getTeachingAssignmentsForEnroll', params),
     DeleteEnroll: (id: string) => axiosClient.delete(`enrollsubject/DeleteEnroll/${id}`),
     UpdateEnroll: (id: string) => axiosClient.put(`enrollsubject/updateEnrollSubject/${id}`),
-    GetEnrollmentByTeacher: (params: any) => axiosClient.post(`enrollsubject/GetEnrollmentByTeacher`, params)
+    GetEnrollmentByTeacher: (params: any) => axiosClient.post(`enrollsubject/GetEnrollmentByTeacher`, params),
+
+
 }
 export const SubjectServices = {
     GetList: (page: number, limit: number) => request.get<ApiResponse<any[]>>(`/subject?page=${page}&limit=${limit}`),
@@ -21,7 +23,7 @@ export const SubjectServices = {
 }
 export const TeacherServices = {
     GetList: (page: number, limit: any) => axiosClient.get(`teacher?_page=${page}&_limit=${limit}&_sort=createdAt&_order=asc`),
-    GetClassesByTeacher: (params: {}) => axiosClient.post(`teacher/GetClassesByTeacher`, params),
+    GetClassesByTeacher: () => axiosClient.get(`teacher/GetClassesByTeacher`),
     GetById: (params: {}) => axiosClient.post('enrollsubject/GetEnrollmentsByTeachingAssignment', params)
 }
 export const ClassServices = {
@@ -48,4 +50,34 @@ export const GradeServices = {
 export const LeaveServices = {
     GetAllLeave: (params) => request.post<ApiResponse<any[]>>(`leaverequest/GetAllLeave`, params),
     CreateLeave: (params) => request.post<ApiResponse<any[]>>(`leaverequest/CreateLeave`, params),
+    ApproveLeave: (params) => request.post<ApiResponse<any[]>>(`leaverequest/ApproveLeave`, params),
+}
+export const StudentWalletServices = {
+    GetStudentWalletById: (params) => request.post<ApiResponse<any[]>>(`wallet/GetStudentWalletById`, params),
+    TopUpWallet: (payload) => request.post<ApiResponse<any[]>>(`wallet/TopUpWallet`, payload),
+    MakePayment: (payload) => request.post<ApiResponse<any[]>>(`wallet/MakePayment`, payload),
+    GetDebtWallter: () => request.get<ApiResponse<any[]>>(`wallet/GetDebtWallter`),
+
+    PayEnrollmentOnline: (payload) => request.post<ApiResponse<any[]>>('wallet/PayEnrollmentOnline', payload),
+
+    GetTransactions: (payload) => request.post<ApiResponse<any[]>>('wallet/GetTransactions', payload),
+}
+export const TimetableServices = {
+    GetStudentTimetable: (payload) => request.post<ApiResponse<any[]>>(`students/GetStudentTimeTable`, payload),
+    // GetTeacherTimeTable: () => request.get<ApiResponse<any[]>>(`teacher/GetTeacherTimeTable`),
+    GetTeacherTimeTable: (params?: Record<string, any>) =>
+        request.get<ApiResponse<any[]>>(`teacher/GetTeacherTimeTable`, { params })
+}
+
+export const SemestersServices = {
+    GetSemesters: () => request.get<ApiResponse<any[]>>('semesters/GetSemesters')
+}
+
+export const NotificationServices = {
+    GetList: () => request.get<ApiResponse<any[]>>('notification/GetNotification'),
+    Get: (id) => request.get<ApiResponse<any[]>>(`notification/GetNotificationById/${id}`),
+    Add: (payload) => request.post<ApiResponse<any[]>>('notification/CreateNotification', payload),
+    Update: (payload) => request.put<ApiResponse<any[]>>('notification/UpdateNotification', payload),
+    Delete: (id) => request.delete<ApiResponse<any[]>>(`notification/DeleteNotification/${id}`),
+
 }

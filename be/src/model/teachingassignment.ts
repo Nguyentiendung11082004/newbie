@@ -82,6 +82,7 @@ const TeachingAssignmentSchema = new mongoose.Schema<ITeachingAssignment>({
   },
   room: {
     type: String,
+    required: true,
     default: ''
   }
 }, {

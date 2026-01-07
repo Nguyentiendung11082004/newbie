@@ -1,5 +1,5 @@
 /// <reference types="vite/client" />
-import { Button, Table, Typography } from 'antd';
+import { Table, Typography } from 'antd';
 import type { ColumnType } from 'antd/es/table';
 import { useEffect, useState } from 'react';
 import { StudentServices } from '../../services/student.services';
@@ -7,6 +7,7 @@ import { IStudents } from '../../types/student';
 import { formatDateStringGMT } from '../../common/helpfunction';
 import React from 'react';
 import { toast } from 'react-toastify';
+import { Button } from '../../components/Button';
 
 const { Title } = Typography;
 
@@ -29,7 +30,7 @@ const Student = () => {
   const getData = async () => {
     const res = await StudentServices.GetList(params);
     if (res?.data) {
-      setData(res.data.map((e, index) => ({
+      setData(res.data?.map((e, index) => ({
         ...e,
         STT: (res?.pagination.page - 1) * res.pagination.limit + index + 1
       })));
@@ -41,7 +42,6 @@ const Student = () => {
     if (res) {
       toast.success(res.data.message)
     }
-    // window.open(import.meta.env.VITE_API_URL + res.data.Url)
   }
   const columns: ColumnType<IStudents>[] = [
     {
@@ -82,6 +82,7 @@ const Student = () => {
     },
   ];
 
+  const handleAdd = () => {}
 
   useEffect(() => {
     getData();
@@ -90,7 +91,15 @@ const Student = () => {
   return (
     <>
       <Title level={4}>Danh sách sinh viên</Title>
-      <Button onClick={handleExport}>Xuất Excel</Button>
+      <div className='mb-4 flex gap-4'>
+        <Button onClick={handleAdd} className="bg-blue-600 hover:bg-blue-700 text-white">
+          Thêm
+        </Button>
+        <Button onClick={handleExport} className="bg-emerald-600 hover:bg-emerald-700 text-white ">
+          Xuất Excel
+        </Button>
+      </div>
+
       <Table
         rowKey="_id"
         columns={columns}

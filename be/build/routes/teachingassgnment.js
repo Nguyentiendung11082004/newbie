@@ -1,0 +1,12 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const teachingassigment_1 = require("../controllers/teachingassigment");
+const asyncHandler = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next);
+const TeachingAssignmentRouter = (0, express_1.Router)();
+TeachingAssignmentRouter.post('/CreateTeachingassignment', asyncHandler(teachingassigment_1.CreateTeachingAssignment));
+TeachingAssignmentRouter.get('/GetAllTeachingassignment', asyncHandler(teachingassigment_1.GetTeachingassment));
+TeachingAssignmentRouter.get('/GetByIdTeachingassignment', asyncHandler(teachingassigment_1.GetTeachigngassmentById));
+TeachingAssignmentRouter.put('/UpdateTeachingassignment', asyncHandler(teachingassigment_1.UpdateTeachingAssignment));
+TeachingAssignmentRouter.delete('/DeleteTeachingassignment/:id', asyncHandler(teachingassigment_1.DeleteTeachingAssignment));
+exports.default = TeachingAssignmentRouter;
