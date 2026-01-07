@@ -63,35 +63,6 @@ export const GetClassesByTeacher = async (req: CustomRequest, res: Response) => 
 export const GetTeacherTimeTable = async (req: CustomRequest, res: Response) => {
     try {
         const teacherId = req.user.userId;
-<<<<<<< HEAD
-        const enrollments: any = await TeachingAssignment.find({
-            teacher_id: teacherId,
-        }).populate([
-            { path: 'subject_id', select: 'name' },
-            { path: 'class_id', select: 'ClassName' }
-        ]);
-        const timetable = enrollments.flatMap((enroll: any) => {
-            return enroll.schedule.map((schedule: any) => {
-                const dayOfWeek = getDayOfWeekFromDate(schedule.date);
-                return {
-                    subject: enroll.subject_id.name,
-                    class: enroll.class_id.ClassName,
-                    date: schedule.date,
-                    dayOfWeek: dayOfWeek,
-                    startTime: schedule.startTime,
-                    endTime: schedule.endTime
-                }
-            });
-        });
-        return res.status(StatusCodes.OK).json({
-            message: "Thành công",
-            data: timetable,
-        })
-    } catch (error) {
-        handleError(res, error)
-    }
-}
-=======
         const { subjectId, classId, fromDate, toDate } = req.query;
         const query: any = {
             teacher_id: teacherId,
@@ -151,4 +122,3 @@ export const GetTeacherTimeTable = async (req: CustomRequest, res: Response) => 
         handleError(res, error);
     }
 };
->>>>>>> 6c1e0219d5928377aebd76055f2ed5f81d10f102

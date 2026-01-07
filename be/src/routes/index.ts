@@ -14,11 +14,8 @@ import sseRouter from "./sse.route"
 import StudentWalletRouter from "./wallet"
 import { sendMail } from "../middlewares/email"
 import NotificationRouter from "./notification"
-<<<<<<< HEAD
-=======
 import SemestersRouter from "./semesters"
 import { ResultVnpayCallback } from "../controllers/wallet"
->>>>>>> 6c1e0219d5928377aebd76055f2ed5f81d10f102
 export default function routes(app: Express) {
     app.use('/api/v1/students', StudentRouter)
     app.use('/api/v1/class', ClassRouter)
@@ -34,9 +31,6 @@ export default function routes(app: Express) {
     app.use('/sse', sseRouter)
     app.use('/api/v1/wallet', StudentWalletRouter)
     app.use('/api/v1/notification', NotificationRouter)
-<<<<<<< HEAD
-=======
     app.use('/api/v1/semesters', SemestersRouter)
     app.use("/api/v1/payments/vnpay-callback", ResultVnpayCallback);
->>>>>>> 6c1e0219d5928377aebd76055f2ed5f81d10f102
 }
