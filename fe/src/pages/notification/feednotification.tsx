@@ -43,7 +43,7 @@ const NotificationFeed: React.FC = () => {
         getData();
     }, []);
 
-    if (loading) return <Spin tip="Đang tải thông báo..." />;
+    // if (loading) return <Spin tip="Đang tải thông báo..." />;
 
     if (!data.length) return <p>Chưa có thông báo nào.</p>;
 

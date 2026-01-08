@@ -7,6 +7,8 @@ import { Link, useNavigate, useNavigation } from 'react-router-dom';
 import { setAccessToken, setUser } from '../../redux/slices/userSlice';
 import { useAppDispatch } from '../../redux/hook';
 import bgLogin from '../../../public/bglogin.jpg'
+import { useLoading } from '../../components/Loading';
+import LoadingUI from '../../components/LoadingUI';
 type FieldType = {
   email?: string;
   password?: string;
@@ -14,8 +16,10 @@ type FieldType = {
 const Login: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
+  const { isLoading, setLoading } = useLoading()
   const onFinish: FormProps<FieldType>['onFinish'] = async (values) => {
     try {
+      setLoading(true)
       const res = await AuthServices.Login(values);
       if (res.data.Status === 200) {
         const accessToken = res.data.accessToken;
@@ -29,9 +33,13 @@ const Login: React.FC = () => {
         }
       }
     } catch (error) {
+      setLoading(false)
       toast.error(error.message[0])
+    } finally {
+      setLoading(false)
     }
   };
+  if (isLoading) return <LoadingUI />;
 
   return (
     <div
