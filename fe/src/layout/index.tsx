@@ -210,13 +210,13 @@ const LayoutDashboard = () => {
       url: '/student/grade',
       permission: ['student'],  // Chỉ sinh viên có thể truy cập
     },
-    {
-      key: 'test',
-      icon: <FileDoneOutlined />,
-      label: 'Test',
-      url: '/admin/test',
-      permission: ['teacher', 'student', 'admin'],  // Chỉ sinh viên có thể truy cập
-    },
+    // {
+    //   key: 'test',
+    //   icon: <FileDoneOutlined />,
+    //   label: 'Test',
+    //   url: '/admin/test',
+    //   permission: ['teacher', 'student', 'admin'],  // Chỉ sinh viên có thể truy cập
+    // },
   ];
   const menu = (
     <Menu
