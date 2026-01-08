@@ -3,6 +3,8 @@ import { Form, Input, Button, Select, DatePicker, message } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import dayjs, { Dayjs } from 'dayjs';
 import { AuthServices } from '../../services/auth.services';
+import bgLogin from '../../../public/bglogin.jpg'
+
 const { Option } = Select;
 type RegisterUser = {
   email: string;
@@ -30,21 +32,36 @@ const Register = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-red-100">
-      <div className="bg-white px-10 py-12 rounded-2xl shadow-2xl w-1/3 ">
-        <div className="max-w-md mx-auto mt-10 p-6 bg-white shadow rounded">
-          <h2 className="text-2xl font-bold mb-6 text-center">Đăng ký tài khoản</h2>
-          <Form
-            layout="vertical"
-            onFinish={onFinish}
-            initialValues={{ role: 'student' }}
-          >
+
+    <div
+      className="relative flex min-h-screen bg-cover bg-center"
+      style={{ backgroundImage: `url(${bgLogin})` }}
+    >
+      {/* Overlay tối */}
+      <div className="absolute inset-0 bg-black/50"></div>
+
+      {/* Form container */}
+      <div className="relative w-full max-w-4xl mx-auto my-10 bg-white/90 backdrop-blur-md rounded-2xl shadow-2xl p-10 z-10">
+        <h2 className="text-3xl font-extrabold text-center text-gray-900 mb-8">
+          Đăng ký tài khoản
+        </h2>
+
+        <Form
+          layout="vertical"
+          onFinish={onFinish}
+          initialValues={{ role: 'student' }}
+        >
+          {/* Grid container: 2 cột desktop, 1 cột mobile */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Form.Item
               label="Email"
               name="email"
               rules={[{ required: true, type: 'email', message: 'Vui lòng nhập email hợp lệ' }]}
             >
-              <Input placeholder="Nhập email" />
+              <Input
+                placeholder="Nhập email"
+                className="h-12 rounded-lg border border-gray-300 px-4 focus:ring-2 focus:ring-blue-400 focus:outline-none transition"
+              />
             </Form.Item>
 
             <Form.Item
@@ -52,7 +69,10 @@ const Register = () => {
               name="password"
               rules={[{ required: true, message: 'Vui lòng nhập mật khẩu' }]}
             >
-              <Input.Password placeholder="Nhập mật khẩu" />
+              <Input.Password
+                placeholder="Nhập mật khẩu"
+                className="h-12 rounded-lg border border-gray-300 px-4 focus:ring-2 focus:ring-blue-400 focus:outline-none transition"
+              />
             </Form.Item>
 
             <Form.Item
@@ -60,7 +80,10 @@ const Register = () => {
               name="name"
               rules={[{ required: true, message: 'Vui lòng nhập họ và tên' }]}
             >
-              <Input placeholder="Nhập họ và tên" />
+              <Input
+                placeholder="Nhập họ và tên"
+                className="h-12 rounded-lg border border-gray-300 px-4 focus:ring-2 focus:ring-blue-400 focus:outline-none transition"
+              />
             </Form.Item>
 
             <Form.Item
@@ -68,68 +91,88 @@ const Register = () => {
               name="dob"
               rules={[{ required: true, message: 'Vui lòng chọn ngày sinh' }]}
             >
-              <DatePicker format="YYYY-MM-DD" className="w-full" />
+              <DatePicker
+                format="YYYY-MM-DD"
+                className="w-full h-12 rounded-lg border border-gray-300 px-4 focus:ring-2 focus:ring-blue-400 focus:outline-none transition"
+              />
+            </Form.Item>
+            <Form.Item
+              label="Địa chỉ"
+              name="address"
+              rules={[{ required: true, message: 'Vui lòng nhập địa chỉ' }]}
+            >
+              <Input
+                placeholder="Nhập địa chỉ"
+                className="h-12 rounded-lg border border-gray-300 px-4 focus:ring-2 focus:ring-blue-400 focus:outline-none transition"
+              />
             </Form.Item>
 
-            <Form.Item
-              label="Giới tính"
-              name="gender"
-              rules={[{ required: true, message: 'Vui lòng chọn giới tính' }]}
-            >
-              <Select placeholder="Chọn giới tính">
-                <Option value="Nam">Nam</Option>
-                <Option value="Nữ">Nữ</Option>
-                <Option value="Khác">Khác</Option>
-              </Select>
-            </Form.Item>
 
             <Form.Item
               label="Số điện thoại"
               name="phone"
               rules={[{ required: true, message: 'Vui lòng nhập số điện thoại' }]}
             >
-              <Input placeholder="Nhập số điện thoại" />
+              <Input
+                placeholder="Nhập số điện thoại"
+                className="h-12 rounded-lg border border-gray-300 px-4 focus:ring-2 focus:ring-blue-400 focus:outline-none transition"
+              />
+            </Form.Item>
+            <Form.Item
+              label="Giới tính"
+              name="gender"
+              rules={[{ required: true, message: 'Vui lòng chọn giới tính' }]}
+            >
+              <Select
+                placeholder="Chọn giới tính"
+                className="h-12 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-400 focus:outline-none transition"
+              >
+                <Select.Option value="Nam">Nam</Select.Option>
+                <Select.Option value="Nữ">Nữ</Select.Option>
+                <Select.Option value="Khác">Khác</Select.Option>
+              </Select>
             </Form.Item>
 
-            <Form.Item
-              label="Địa chỉ"
-              name="address"
-              rules={[{ required: true, message: 'Vui lòng nhập địa chỉ' }]}
-            >
-              <Input placeholder="Nhập địa chỉ" />
-            </Form.Item>
 
             <Form.Item
               label="Vai trò"
               name="role"
               rules={[{ required: true, message: 'Vui lòng chọn vai trò' }]}
             >
-              <Select>
-                <Option value="student">Sinh viên</Option>
-                <Option value="teacher">Giảng viên</Option>
-                <Option value="admin">Quản trị viên</Option>
+              <Select
+                className="h-12 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-400 focus:outline-none transition"
+              >
+                <Select.Option value="student">Sinh viên</Select.Option>
+                <Select.Option value="teacher">Giảng viên</Select.Option>
+                <Select.Option value="admin">Quản trị viên</Select.Option>
               </Select>
             </Form.Item>
+          </div>
 
-            <Form.Item>
-              <Button type="primary" htmlType="submit" className="w-full">
-                Đăng ký
-              </Button>
-            </Form.Item>
+          <Form.Item className="mt-20">
+            <Button
+              type="primary"
+              htmlType="submit"
+              className="w-full h-24 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-md text-lg font-medium transition duration-200"
+            >
+              Đăng ký
+            </Button>
+          </Form.Item>
 
-            <p className="text-center">
-              Đã có tài khoản?{' '}
-              <span
-                className="text-blue-600 cursor-pointer hover:underline"
-                onClick={() => navigate('/login')}
-              >
-                Đăng nhập
-              </span>
-            </p>
-          </Form>
-        </div>
+          <p className="text-center text-gray-700 mt-4">
+            Đã có tài khoản?{' '}
+            <span
+              className="text-blue-600 cursor-pointer hover:underline"
+              onClick={() => navigate('/login')}
+            >
+              Đăng nhập
+            </span>
+          </p>
+        </Form>
       </div>
     </div>
+
+
   );
 };
 

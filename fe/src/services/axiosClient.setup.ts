@@ -20,42 +20,6 @@ axiosClient.interceptors.request.use(
     },
     (error) => Promise.reject(error)
 );
-
-// axiosClient.interceptors.response.use(
-//     (response) => response.data,
-//     async (error) => {
-//         const originalRequest = error.config;
-//         const status = error?.response?.status;
-
-//         // Nếu 401 → thử refresh token
-//         if (status === 401 && !originalRequest._retry) {
-//             originalRequest._retry = true;
-//             try {
-//                 const res: any = await axiosClient.get("/refreshToken", { withCredentials: true });
-//                 const newAccessToken = res.accessToken;
-//                 // update accessToken vào state
-//                 store.dispatch(setAccessToken(newAccessToken));
-//                 // retry lại request cũ với token mới
-//                 originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
-//                 return axiosClient(originalRequest);
-//             } catch (err) {
-//                 // refresh token hết hạn → logout
-//                 // store.dispatch(handleLogout());
-//                 return Promise.reject(err);
-//             }
-//         }
-//         return Promise.reject(error);
-//     }
-//     // (error) => {
-//     //     const status = error?.response?.status;
-//     //     const data = error?.response?.data;
-//     //     const errorMsg = Array.isArray(data?.message)
-//     //         ? data.message.join(', ')
-//     //         : data?.message || 'Đã có lỗi xảy ra';
-//     //     toast.error(errorMsg);
-//     //     return Promise.reject(error);
-//     // }
-// );
 axiosClient.interceptors.response.use(
     (response) => response.data,
     async (error) => {
