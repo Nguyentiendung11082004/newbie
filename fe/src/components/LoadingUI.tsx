@@ -14,18 +14,18 @@ const LoadingUI: React.FC = () => {
       left: 0,
       width: "100vw",
       height: "100vh",
-      backgroundColor: "rgba(0, 0, 0, 0.5)",
+      backgroundColor: "rgba(255, 255, 255, 0.35)",
       display: "flex",
       justifyContent: "center",
       alignItems: "center",
       zIndex: 9999,
-      backdropFilter: "blur(2px)",
+      backdropFilter: "blur(4px)",
     }}>
       <div style={{
-        width: 80,
-        height: 80,
-        border: "10px solid #f3f3f3",
-        borderTop: "10px solid #3498db",
+        width: 56,
+        height: 56,
+        border: "6px solid #e5e7eb",
+        borderTop: "6px solid #3b82f6",
         borderRadius: "50%",
         animation: "spin 1s linear infinite"
       }} />

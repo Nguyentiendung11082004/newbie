@@ -77,6 +77,13 @@ const LayoutDashboard = () => {
       url: '/admin/teachers',
       permission: ['admin'],  // Chỉ có admin mới được truy cập
     },
+    // {
+    //   key: 'major',
+    //   icon: <SolutionOutlined />,
+    //   label: 'Quản lý ngành học',
+    //   url: '/admin/classes',
+    //   permission: ['admin'],  // Chỉ có admin mới được truy cập
+    // },
     {
       key: 'classes',
       icon: <SolutionOutlined />,

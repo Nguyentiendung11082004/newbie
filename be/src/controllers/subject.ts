@@ -45,22 +45,22 @@ export const getAllSubject = async (req: Request, res: Response) => {
     }
 };
 
-// export const getClassById = async (req: any, res: any) => {
-//     try {
-//         const data = await Class.findById(req.params.id).populate("MajorId");
-//         if (!data) {
-//             return res.status(StatusCodes.BAD_REQUEST).json({
-//                 message: 'Not found'
-//             })
-//         }
-//         return res.status(StatusCodes.OK).json({
-//             message: 'Thành công',
-//             data: data
-//         })
-//     } catch (error: unknown) {
+export const getSubjectById = async (req: any, res: any) => {
+    try {
+        const data = await Subject.findById(req.params.id)
+        if (!data) {
+            return res.status(StatusCodes.BAD_REQUEST).json({
+                message: 'Not found'
+            })
+        }
+        return res.status(StatusCodes.OK).json({
+            message: 'Thành công',
+            data: data
+        })
+    } catch (error: unknown) {
 
-//     }
-// }
+    }
+}
 export const createSubject = async (req: Request, res: Response) => {
     try {
         const data = await Subject.create(req.body);
@@ -73,36 +73,36 @@ export const createSubject = async (req: Request, res: Response) => {
         handleError(res, error)
     }
 }
-// export const updateClass = async (req: Request, res: Response) => {
-//     try {
-//         const data = await Class.findByIdAndUpdate(req.params.id, req.body, {
-//             new: true
-//         });
-//         if (!data) {
-//              res.status(StatusCodes.BAD_REQUEST).json({
-//                 message: 'Not found'
-//             })
-//         }
-//         res.status(StatusCodes.OK).json({
-//             message: 'Thành công',
-//             data: data
-//         })
-//     } catch (error) {
-//         handleError(res, error)
-//     }
-// }
-// export const deleteClass = async (req: Request, res: any) => {
-//     try {
-//         const data = await Class.findByIdAndDelete(req.params.id);
-//         if (!data) {
-//             return res.status(StatusCodes.BAD_REQUEST).json({
-//                 message: 'Not found'
-//             })
-//         }
-//         res.status(StatusCodes.OK).json({
-//             message: 'Thành công',
-//         })
-//     } catch (error) {
-//         handleError(res, error)
-//     }
-// }
+export const updateSubject = async (req: Request, res: Response) => {
+    try {
+        const data = await Subject.findByIdAndUpdate(req.params.id, req.body, {
+            new: true
+        });
+        if (!data) {
+             res.status(StatusCodes.BAD_REQUEST).json({
+                message: 'Not found'
+            })
+        }
+        res.status(StatusCodes.OK).json({
+            message: 'Thành công',
+            data: data
+        })
+    } catch (error) {
+        handleError(res, error)
+    }
+}
+export const deleteSubject = async (req: Request, res: any) => {
+    try {
+        const data = await Subject.findByIdAndDelete(req.params.id);
+        if (!data) {
+            return res.status(StatusCodes.BAD_REQUEST).json({
+                message: 'Not found'
+            })
+        }
+        res.status(StatusCodes.OK).json({
+            message: 'Thành công',
+        })
+    } catch (error) {
+        handleError(res, error)
+    }
+}

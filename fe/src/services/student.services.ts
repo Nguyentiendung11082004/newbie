@@ -19,7 +19,10 @@ export const StudentSubjectServices = {
 export const SubjectServices = {
     GetList: (page: number, limit: number) => request.get<ApiResponse<any[]>>(`/subject?page=${page}&limit=${limit}`),
     GetAll: () => axiosClient.get('subject/all'),
-    Add: (params: any) => axiosClient.post(`/subject`, params)
+    Add: (params: any) => axiosClient.post(`/subject`, params),
+    GetById: (id) => axiosClient.get(`/subject/GetSubject/${id}`),
+    Update: (id, params) => axiosClient.put(`/subject/UpdateSubject/${id}`, params),
+    Delete: (id) => axiosClient.delete(`/subject/DeleteSubject/${id}`),
 }
 export const TeacherServices = {
     GetList: (page: number, limit: any) => axiosClient.get(`teacher?_page=${page}&_limit=${limit}&_sort=createdAt&_order=asc`),
@@ -28,6 +31,10 @@ export const TeacherServices = {
 }
 export const ClassServices = {
     GetList: (page: number, limit: any) => request.get<ApiResponse<any[]>>(`/class?_page=${page}&_limit=${limit}&_sort=createdAt&_order=asc`),
+    Get: (id) => request.get<ApiResponse<any[]>>(`class/GetClassById/${id}`),
+    Add: (payload) => request.post<ApiResponse<any[]>>('class/CreateClass', payload),
+    Update: (id, payload) => request.put<ApiResponse<any[]>>(`class/UpdateClass/${id}`, payload),
+    Delete: (id) => request.delete<ApiResponse<any[]>>(`class/DeleteClass/${id}`),
 };
 export const TechingAssignmentServices = {
     GetList: () => axiosClient.get(tc + `GetAllTeachingassignment`),
@@ -80,4 +87,11 @@ export const NotificationServices = {
     Update: (payload) => request.put<ApiResponse<any[]>>('notification/UpdateNotification', payload),
     Delete: (id) => request.delete<ApiResponse<any[]>>(`notification/DeleteNotification/${id}`),
 
+}
+export const MajorServices = {
+    GetList: (params?) => request.get<ApiResponse<any[]>>('major/GetAllMajor', { params }),
+    Get: (id) => request.get<ApiResponse<any[]>>(`major/GetMajorById/${id}`),
+    Add: (payload) => request.post<ApiResponse<any[]>>('major/CreateMajor', payload),
+    Update: (payload) => request.put<ApiResponse<any[]>>('major/UpdateMajor', payload),
+    Delete: (id) => request.delete<ApiResponse<any[]>>(`major/DeleteMajor/${id}`),
 }
