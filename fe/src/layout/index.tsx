@@ -140,7 +140,7 @@ const LayoutDashboard = () => {
       icon: <CheckCircleOutlined />,
       label: 'Duyệt ghi danh',
       url: '/teacher/enrollment-approval',
-      permission: ['teacher'],
+      permission: ['teacher', 'admin'],
     },
     {
       key: 'teacherGrade',

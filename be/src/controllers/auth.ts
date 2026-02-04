@@ -26,7 +26,7 @@ export interface CustomRequest extends Request {
 }
 export const register = async (req: Request, res: Response) => {
     try {
-        const { email, password, role, name, dob, major, gender, phone, address } = req.body;
+        const { email, password, role, name, dob, major, gender, phone, address, major_id, StudentCode } = req.body;
         let result;
         switch (role) {
             case 'student':
@@ -76,10 +76,12 @@ export const register = async (req: Request, res: Response) => {
                 email: email,
                 name,
                 dob,
-                major,
+                major_id,
                 gender,
                 phone,
                 address,
+                StudentCode,
+
             });
             await StudentWallet.create({
                 student_id: user._id,
@@ -138,7 +140,7 @@ export const login = async (req: Request, res: Response) => {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === "production",
                 sameSite: "strict",
-                maxAge: 7 * 24 * 60 * 60 * 1000, 
+                maxAge: 7 * 24 * 60 * 60 * 1000,
             })
             let userInfo = null;
             switch (user.role) {

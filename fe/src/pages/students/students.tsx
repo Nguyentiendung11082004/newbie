@@ -8,6 +8,7 @@ import { formatDateStringGMT } from '../../common/helpfunction';
 import React from 'react';
 import { toast } from 'react-toastify';
 import { Button } from '../../components/Button';
+import StudentForm from './dialogstudent';
 
 const { Title } = Typography;
 
@@ -21,6 +22,7 @@ const initFilter = {
 const Student = () => {
   const [filter, setFilter] = useState(initFilter);
   const [data, setData] = useState<IStudents[]>([]);
+  const [isModalOpen, setIsModalOpen] = useState(false)
   const params = {
     _page: filter.CurrentPage,
     _limit: filter.PageSize,
@@ -82,8 +84,15 @@ const Student = () => {
     },
   ];
 
-  const handleAdd = () => {}
+  const handleAdd = () => {
+    // console.log("isModalOpen", isModalOpen)
+    setIsModalOpen(true)
+  }
 
+  const props = {
+    isModalOpen,
+    setIsModalOpen
+  }
   useEffect(() => {
     getData();
   }, [filter.CurrentPage]);
@@ -92,9 +101,9 @@ const Student = () => {
     <>
       <Title level={4}>Danh sách sinh viên</Title>
       <div className='mb-4 flex gap-4'>
-        <Button onClick={handleAdd} className="bg-blue-600 hover:bg-blue-700 text-white">
+        {/* <Button onClick={() => handleAdd()} className="bg-blue-600 hover:bg-blue-700 text-white">
           Thêm
-        </Button>
+        </Button> */}
         <Button onClick={handleExport} className="bg-emerald-600 hover:bg-emerald-700 text-white ">
           Xuất Excel
         </Button>
@@ -118,6 +127,9 @@ const Student = () => {
           }
         }}
       />
+      {
+        isModalOpen && <StudentForm props={props} />  
+      }
     </>
   );
 };

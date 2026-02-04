@@ -46,6 +46,7 @@ const DialogNotification = ({ dialog, setDialog, dataEdit, setDataEdit }: Props)
     }
     const handleCancel = () => {
         setDialog(false)
+        setPayload(init)
         setDataEdit(null)
     }
     const getById = async (id) => {

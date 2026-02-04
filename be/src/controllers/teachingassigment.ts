@@ -105,6 +105,32 @@ export const CreateTeachingAssignment = async (req: Request, res: Response) => {
             return res.status(StatusCodes.BAD_REQUEST).json({ message: "Kỳ không tồn tại" });
         }
         const generatedSchedule = generateSchedule(startDate, numberOfClasses, weeklySchedule);
+
+        const existed = await TeachingAssignment.findOne({
+            class_id,
+            subject_id,
+            semester_id
+        })
+        if (existed) {
+            return res.status(StatusCodes.BAD_REQUEST).json({
+                message: 'Môn học này đã được phân công cho lớp trong học kỳ này'
+            })
+        }
+        for (const slot of weeklySchedule) {
+            const conflict = await TeachingAssignment.findOne({
+                semester_id,
+                room,
+                "weeklySchedule.dayOfWeek": slot.dayOfWeek,
+                "weeklySchedule.startTime": { $lt: slot.endTime },
+                "weeklySchedule.endTime": { $gt: slot.startTime },
+            });
+
+            if (conflict) {
+                return res.status(400).json({
+                    message: `Phòng ${room} đã được dùng vào thứ ${slot.dayOfWeek} từ ${slot.startTime} đến ${slot.endTime}`
+                });
+            }
+        }
         const newAssignment = await TeachingAssignment.create({
             teacher_id,
             subject_id,

@@ -36,7 +36,7 @@ export const CreateAttendance = async (req: Request, res: Response) => {
 
 
         if (!isInSchedule) {
-            return res.status(StatusCodes.BAD_REQUEST).json({ message: 'Ngày này không nằm trong lịch học của lớp', status: StatusCodes.BAD_REQUEST });
+            return res.status(StatusCodes.BAD_REQUEST).json({ message: 'Không đúng lịch học không thể điểm danh', status: StatusCodes.BAD_REQUEST });
         }
 
 
