@@ -13,6 +13,20 @@ type Props = {
     setDataEdit: any
 }
 
+const listReceiver = [
+    {
+        label: "Tất cả",
+        value: "all"
+    },
+    {
+        label: "Giảng viên",
+        value: "teacher"
+    },
+    {
+        label: "Sinh viên",
+        value: "student"
+    }
+]
 const DialogNotification = ({ dialog, setDialog, dataEdit, setDataEdit }: Props) => {
     const init = {
         title: "",
@@ -71,12 +85,13 @@ const DialogNotification = ({ dialog, setDialog, dataEdit, setDataEdit }: Props)
             width={900}
             getContainer={false}
         >
-            <div style={{ width: '100%', marginTop: '1rem' }}>
-                <Row gutter={[18, 18]}>
+            <div className="w-full mt-4">
+                <Row gutter={[16, 16]}>
                     <Col span={24}>
-                        <div className="form-item">
-                            <label className="form-label">Tiêu đề</label>
+                        <div className="flex flex-col gap-1">
+                            <label className="text-sm font-medium text-gray-700">Tiêu đề</label>
                             <Input
+                                className="h-[42px] rounded-md"
                                 placeholder="Nhập tiêu đề thông báo"
                                 value={payload?.title}
                                 onChange={(e) =>
@@ -90,9 +105,10 @@ const DialogNotification = ({ dialog, setDialog, dataEdit, setDataEdit }: Props)
                     </Col>
 
                     <Col span={24}>
-                        <div className="form-item">
-                            <label className="form-label">Nội dung</label>
+                        <div className="flex flex-col gap-1">
+                            <label className="text-sm font-medium text-gray-700">Nội dung</label>
                             <TextArea
+                                className="rounded-md"
                                 rows={5}
                                 placeholder="Nhập nội dung thông báo"
                                 value={payload?.content}
@@ -105,26 +121,50 @@ const DialogNotification = ({ dialog, setDialog, dataEdit, setDataEdit }: Props)
                             />
                         </div>
                     </Col>
-                    {
-                        user.role === 'teacher' && <Col span={24}>
-                            <div className="form-item">
-                                <label className="form-label">Chọn lớp học</label>
+
+                    {user.role === 'teacher' && (
+                        <Col span={24}>
+                            <div className="flex flex-col gap-1">
+                                <label className="text-sm font-medium text-gray-700">Chọn lớp học</label>
                                 <Select
+                                    className="h-[42px]"
                                     style={{ width: '100%' }}
-                                    value={(payload?.class_id)}
-                                    onChange={(e) => setPayload((prev) => ({ ...(prev ?? init), class_id: e }))}
+                                    value={payload?.class_id}
+                                    onChange={(e) =>
+                                        setPayload((prev) => ({ ...(prev ?? init), class_id: e }))
+                                    }
                                     options={arrClass?.data?.map((e: any) => ({
                                         value: e._id,
-                                        label: e.ClassName
+                                        label: e.ClassName,
                                     }))}
                                 />
                             </div>
                         </Col>
-                    }
+                    )}
 
+                    {user.role === 'admin' && (
+                        <Col span={24}>
+                            <div className="flex flex-col gap-1">
+                                <label className="text-sm font-medium text-gray-700">Chọn người nhận</label>
+                                <Select
+                                    className="h-[42px]"
+                                    style={{ width: '100%' }}
+                                    value={payload?.target_type}
+                                    onChange={(e) =>
+                                        setPayload((prev) => ({ ...(prev ?? init), target_type: e }))
+                                    }
+                                    options={listReceiver?.map((e: any) => ({
+                                        value: e.value,
+                                        label: e.label,
+                                    }))}
+                                />
+                            </div>
+                        </Col>
+                    )}
                 </Row>
             </div>
         </AntModal>
+
     )
 }
 

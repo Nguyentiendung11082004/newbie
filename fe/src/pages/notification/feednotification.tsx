@@ -30,7 +30,7 @@ const NotificationFeed: React.FC = () => {
     const getData = async () => {
         setLoading(true);
         try {
-            const res = await NotificationServices.GetList();
+            const res = await NotificationServices.GetList('view');
             setData(res.data || []);
         } catch (error) {
             console.error(error);

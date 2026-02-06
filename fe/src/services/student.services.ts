@@ -81,7 +81,7 @@ export const SemestersServices = {
 }
 
 export const NotificationServices = {
-    GetList: () => request.get<ApiResponse<any[]>>('notification/GetNotification'),
+    GetList: (mode: "view" | "manage" = "view") => request.get<ApiResponse<any[]>>(`notification/GetNotification?mode=${mode}`),
     Get: (id) => request.get<ApiResponse<any[]>>(`notification/GetNotificationById/${id}`),
     Add: (payload) => request.post<ApiResponse<any[]>>('notification/CreateNotification', payload),
     Update: (payload) => request.put<ApiResponse<any[]>>('notification/UpdateNotification', payload),

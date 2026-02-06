@@ -5,6 +5,7 @@ import dayjs, { Dayjs } from 'dayjs';
 import { AuthServices } from '../../services/auth.services';
 import bgLogin from '../../../public/bglogin.jpg'
 import { MajorServices } from '../../services/student.services';
+import { toast } from 'react-toastify';
 
 const { Option } = Select;
 type RegisterUser = {
@@ -25,13 +26,15 @@ const Register = () => {
     setListMajor(res.data)
   }
   const onFinish = async (values: RegisterUser) => {
-    const payload = {
-      ...values,
-      dob: values.dob.format('YYYY-MM-DD'),
-    };
-    const res = await AuthServices.Register(payload)
-    if (res) {
-      message.success('Đăng ký thành công!');
+    try {
+      const payload = {
+        ...values,
+        dob: values.dob.format('YYYY-MM-DD'),
+      };
+      const res = await AuthServices.Register(payload)
+      toast.success('Đăng ký thành công!');
+    } catch (error) {
+      toast.error(error.message)
     }
   };
   useEffect(() => {
