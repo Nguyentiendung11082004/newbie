@@ -185,7 +185,6 @@ const TeacherTimetable: React.FC = () => {
     dispatch(GetDataSubject());
 
   }, [])
-  console.log("filter.fromDate", filter.fromDate)
   return (
     <>
       <div

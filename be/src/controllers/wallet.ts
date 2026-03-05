@@ -7,6 +7,7 @@ import Enrollment from "../model/enrollment";
 import crypto from "crypto";
 import qs from "qs";
 import { sendMail } from "../middlewares/email";
+import Student from "../model/student";
 interface CustomRequest extends Request {
     user: {
         _id: string;
@@ -532,6 +533,7 @@ export const vnpayCallback = async (req: Request, res: Response) => {
         handleError(res, error)
     }
 }
+// hàm xử lý thanh toán online
 export const payEnrollmentOnline = async (req: CustomRequest, res: Response) => {
     const { userId } = req.user;
     const { enrollmentId } = req.body;
@@ -545,8 +547,11 @@ export const payEnrollmentOnline = async (req: CustomRequest, res: Response) => 
     if (!enrollment) {
         return res.status(404).json({ message: "Enrollment không tồn tại" });
     }
-
-    if (enrollment.student_id.toString() !== userId) {
+    const student = await Student.findOne({ authId: userId });
+    if (!student) {
+        return res.status(404).json({ message: "Không tìm thấy sinh viên" });
+    }
+    if (enrollment.student_id.toString() !== student._id.toString()) {
         return res.status(403).json({ message: "Không có quyền" });
     }
 
@@ -558,7 +563,7 @@ export const payEnrollmentOnline = async (req: CustomRequest, res: Response) => 
     const transaction = await Transaction.create({
         student_id: userId,
         enrollment_id: enrollment._id,
-        wallet_id: wallet._id,
+        wallet_id: wallet?._id,
         type: "payment",
         amount: amount,
         payment_method: "vnpay",
@@ -609,6 +614,9 @@ export const payEnrollmentOnline = async (req: CustomRequest, res: Response) => 
 
     return res.json({ paymentUrl });
 };
+
+
+// hàm xử lý khi thanh toán online trả về
 export const ResultVnpayCallback = async (req: Request, res: Response) => {
     let vnpParams: any = { ...req.query };
 
@@ -636,6 +644,7 @@ export const ResultVnpayCallback = async (req: Request, res: Response) => {
         .update(signData, "utf-8")
         .digest("hex");
 
+   
     if (secureHash !== signed) {
         return res.status(400).json({ message: "Sai chữ ký" });
     }

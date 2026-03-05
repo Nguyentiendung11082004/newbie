@@ -198,21 +198,40 @@ export const GetTeachigngassmentById = async (req: Request, res: Response) => {
 }
 export const UpdateTeachingAssignment = async (req: Request, res: Response) => {
     try {
-        const { id } = req.query
-        const data = await TeachingAssignment.findByIdAndUpdate(id, req.body, {
-            new: true
-        })
-        if (!data) {
-            return res.status(StatusCodes.BAD_REQUEST).json({
-                message: 'Not found'
-            })
+        const { id } = req.query;
+        const oldAssignment = await TeachingAssignment.findById(id);
+        if (!oldAssignment) {
+            return res.status(400).json({ message: 'Not found' });
         }
-        return res.status(StatusCodes.OK).json({
-            data: {
-                message: 'Cập nhật thành công',
-                data: data
-            }
-        })
+        let updateData = { ...req.body };
+        if (
+            req.body.startDate ||
+            req.body.numberOfClasses ||
+            req.body.weeklySchedule
+        ) {
+            const startDate = req.body.startDate || oldAssignment.startDate;
+            const numberOfClasses =
+                req.body.numberOfClasses || oldAssignment.numberOfClasses;
+            const weeklySchedule =
+                req.body.weeklySchedule || oldAssignment.weeklySchedule;
+
+            const generatedSchedule = generateSchedule(
+                startDate,
+                numberOfClasses,
+                weeklySchedule
+            );
+
+            updateData.schedule = generatedSchedule;
+        }
+
+        const data = await TeachingAssignment.findByIdAndUpdate(id, updateData, {
+            new: true,
+        });
+
+        return res.status(200).json({
+            message: 'Cập nhật thành công',
+            data,
+        });
     } catch (error) {
         handleError(res, error)
     }

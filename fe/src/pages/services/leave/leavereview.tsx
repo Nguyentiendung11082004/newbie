@@ -13,7 +13,6 @@ const { RangePicker } = DatePicker;
 
 const LeaveReview = () => {
     const lecturer = useAppSelector((state) => state.user.userInfo.profile);
-    console.log("lecturer", lecturer)
     const [data, setData] = useState<any[]>([]);
     const [filter, setFilter] = useState({
         page: 1,

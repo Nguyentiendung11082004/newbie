@@ -120,7 +120,6 @@ export default function StudentTimetable() {
   function fmtDateISO(d: Date) {
     return d.toISOString().split("T")[0];
   }
-  console.log("currentMonday", currentMonday)
   useEffect(() => {
     const fromDate = fmtDateISO(currentMonday);
     const toDate = fmtDateISO(addDays(currentMonday, 6));
@@ -143,7 +142,6 @@ export default function StudentTimetable() {
       api.gotoDate(currentMonday);
     }
   }, [currentMonday]);
-  console.log("view", view)
   return (
     <div className="w-full mx-auto p-4 space-y-4">
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
@@ -223,7 +221,6 @@ export default function StudentTimetable() {
             })}
             eventContent={(arg) => {
               const ev = arg.event.extendedProps as TTEvent;
-              console.log("ev", ev)
               return (
                 <div className="text-[12px] leading-tight">
                   <div className="font-semibold">{ev.subject}</div>

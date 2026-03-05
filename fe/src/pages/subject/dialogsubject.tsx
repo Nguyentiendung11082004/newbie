@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { Subject } from '../../types';
 import { MajorServices, SubjectServices } from '../../services/student.services';
 import { toast } from 'react-toastify';
+import TextArea from 'antd/es/input/TextArea';
 type Props = {
   isModalOpen: boolean,
   setOpen: any;
@@ -17,7 +18,7 @@ const initState = {
   tuitionFee: 0,
   description: '',
   credits: 0,
-  MajorId: null,
+  majorId: null,
   prerequisite: [],
 }
 const DialogSubject = ({ isModalOpen, setOpen, data, dataEdit, setDataEdit }: Props) => {
@@ -43,11 +44,11 @@ const DialogSubject = ({ isModalOpen, setOpen, data, dataEdit, setDataEdit }: Pr
       toast.error('Chưa nhập mã môn học');
       return false
     }
-    if (!pay.tuitionFee.trim()) {
+    if (!pay.tuitionFee) {
       toast.error('Chưa nhập học phí môn học');
       return false
     }
-    if (!pay.credits.trim()) {
+    if (!pay.credits) {
       toast.error('Chưa nhập tín chỉ môn học');
       return false
     }
@@ -60,7 +61,8 @@ const DialogSubject = ({ isModalOpen, setOpen, data, dataEdit, setDataEdit }: Pr
       if (dataEdit) {
         res = await SubjectServices.Update(payload._id, payload);
       } else {
-        res = await SubjectServices.Add(payload);
+        let { _id, ...pay } = payload;
+        res = await SubjectServices.Add(pay);
       }
       if (res) {
         toast.success(res.message);
@@ -105,7 +107,7 @@ const DialogSubject = ({ isModalOpen, setOpen, data, dataEdit, setDataEdit }: Pr
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Học phí </label>
-          <Input placeholder="Nhập mã môn" className="h-10 rounded-md border border-gray-300 px-3"
+          <Input placeholder="Nhập học phí" className="h-10 rounded-md border border-gray-300 px-3"
             value={payload?.tuitionFee}
             onChange={(e) => handleSerForm('tuitionFee', e.target.value)}
           />
@@ -113,7 +115,7 @@ const DialogSubject = ({ isModalOpen, setOpen, data, dataEdit, setDataEdit }: Pr
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Mô tả</label>
-          <Input placeholder="Mô tả ngắn gọn" className="h-10 rounded-md border border-gray-300 px-3"
+          <TextArea rows={4} placeholder="Mô tả " className="h-10 rounded-md border border-gray-300 px-3"
             value={payload?.description}
             onChange={(e) => handleSerForm('description', e.target.value)}
           />
@@ -131,10 +133,10 @@ const DialogSubject = ({ isModalOpen, setOpen, data, dataEdit, setDataEdit }: Pr
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Ngành học (nếu có)</label>
           <Select
-            placeholder="Chọn môn học tiên quyết"
+            placeholder="Chọn ngành học"
             className="w-full"
-            value={payload.MajorId}
-            onChange={(e) => setPayload((prev) => ({ ...prev, MajorId: e }))}
+            value={payload?.majorId?._id}
+            onChange={(e) => setPayload((prev) => ({ ...prev, majorId: e }))}
             options={listMajor.map((e: any) => ({
               value: e._id,
               label: e.name,

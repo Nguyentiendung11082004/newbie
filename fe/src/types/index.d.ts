@@ -5,6 +5,7 @@ export interface Subject {
   tuitionFee: number,
   description: string;
   credits: number;
-  MajorId: string | null;
+  majorId: any;
   prerequisite: string[];
 }
+

@@ -106,7 +106,7 @@ const DialogTechngassment = ({ isModalOpen, setVisible, dataEdit, setDataEdit }:
                 <Select
                     style={{ width: '100%' }}
                     placeholder="Thứ"
-                    defaultValue={_record?.dayOfWeek}
+                    value={_record?.dayOfWeek}
                     onChange={(e: any) => handleSetForm('dayOfWeek', e, _record)}
                     options={arrThu.map((e) => ({
                         value: e.value,

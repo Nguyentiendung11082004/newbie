@@ -85,7 +85,6 @@ const Student = () => {
   ];
 
   const handleAdd = () => {
-    // console.log("isModalOpen", isModalOpen)
     setIsModalOpen(true)
   }
 

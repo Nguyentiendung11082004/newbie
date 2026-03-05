@@ -4,7 +4,6 @@ import { Modal, Form, Input, Select, DatePicker, Radio, Button } from "antd";
 export default function StudentForm({ props }: any) {
     const { payload, setPayload, listClass, listMajor, onSubmit, isModalOpen, setIsModalOpen, handleOk } = props;
     const [form] = Form.useForm();
-    console.log("isModalOpen", isModalOpen)
     const handleClose = () => {
         setIsModalOpen(false)
     }

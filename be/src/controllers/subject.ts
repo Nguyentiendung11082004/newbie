@@ -47,7 +47,7 @@ export const getAllSubject = async (req: Request, res: Response) => {
 
 export const getSubjectById = async (req: any, res: any) => {
     try {
-        const data = await Subject.findById(req.params.id)
+        const data = await Subject.findById(req.params.id).populate('majorId', 'name')
         if (!data) {
             return res.status(StatusCodes.BAD_REQUEST).json({
                 message: 'Not found'
@@ -79,7 +79,7 @@ export const updateSubject = async (req: Request, res: Response) => {
             new: true
         });
         if (!data) {
-             res.status(StatusCodes.BAD_REQUEST).json({
+            res.status(StatusCodes.BAD_REQUEST).json({
                 message: 'Not found'
             })
         }

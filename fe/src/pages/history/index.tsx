@@ -77,7 +77,6 @@ const History = () => {
       dataIndex: 'note',
     },
   ];
-  console.log("data", data)
   const flatData = data.flatMap((attendance) => {
     return attendance.attendances.map((a) => ({
       date: attendance.date,
@@ -86,7 +85,7 @@ const History = () => {
       note: a.note,
     }));
   });
-  console.log("flatData", flatData)
+  console.log("flatData",flatData)
 
   return (
     <>

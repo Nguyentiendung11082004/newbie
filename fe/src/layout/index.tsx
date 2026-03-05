@@ -56,13 +56,7 @@ const LayoutDashboard = () => {
       permission: ['admin', 'teacher'],
     },
 
-    // {
-    //   key: 'history',
-    //   icon: <UserSwitchOutlined />,
-    //   label: 'Lịch sử điểm danh',
-    //   url: '/history',
-    //   permission: ['admin', 'teacher', 'student'],
-    // },
+  
     {
       key: 'students',
       icon: <TeamOutlined />,
@@ -105,20 +99,20 @@ const LayoutDashboard = () => {
       url: '/admin/teaching-assignment',
       permission: ['admin'],  // Chỉ có admin mới được truy cập
     },
-    {
-      key: 'admissions',
-      icon: <FileDoneOutlined />,
-      label: 'Tuyển sinh',
-      url: '/admin/admissions',
-      permission: ['admin'],  // Chỉ có admin mới được truy cập
-    },
-    {
-      key: 'reports',
-      icon: <BarChartOutlined />,
-      label: 'Thống kê báo cáo',
-      url: '/admin/reports',
-      permission: ['admin'],  // Chỉ có admin mới được truy cập
-    },
+    // {
+    //   key: 'admissions',
+    //   icon: <FileDoneOutlined />,
+    //   label: 'Tuyển sinh',
+    //   url: '/admin/admissions',
+    //   permission: ['admin'],  // Chỉ có admin mới được truy cập
+    // },
+    // {
+    //   key: 'reports',
+    //   icon: <BarChartOutlined />,
+    //   label: 'Thống kê báo cáo',
+    //   url: '/admin/reports',
+    //   permission: ['admin'],  // Chỉ có admin mới được truy cập
+    // },
 
     // Teacher Menu
     {

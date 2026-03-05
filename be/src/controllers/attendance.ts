@@ -5,6 +5,7 @@ import Enrollment from "../model/enrollment";
 import Attendance from "../model/attdance";
 import { StatusCodes } from "http-status-codes";
 import mongoose from 'mongoose';
+import Student from "../model/student";
 interface CustomRequest extends Request {
     user: {
         _id: string;
@@ -27,10 +28,8 @@ export const CreateAttendance = async (req: Request, res: Response) => {
             return res.status(StatusCodes.BAD_REQUEST).json({ message: 'Lớp học không tồn tại' });
         }
         // kiểm tra xem có đúng ngày đi học để điểm danh không
-        const dateObj = new Date(date).toISOString().split('T')[0]; 
-        console.log("dateObj",dateObj)
+        const dateObj = new Date(date).toISOString().split('T')[0];
         const isInSchedule = teachingAssignment.schedule.some((schedule: any) => {
-            console.log("schedule.date",schedule.date)
             return schedule.date === dateObj;
         });
 
@@ -84,7 +83,6 @@ export const getAttendanceHistory = async (req: CustomRequest, res: Response) =>
     try {
         const { role, userId } = req.user;
         const { teaching_assignment_id, from, to } = req.query;
-
         // Helper chuyển string | string[] sang ObjectId hoặc undefined
         function toObjectId(id: string | string[] | undefined) {
             if (!id) return undefined;
@@ -113,7 +111,8 @@ export const getAttendanceHistory = async (req: CustomRequest, res: Response) =>
         const pipeline: any[] = [];
         // Nếu là sinh viên thì lọc theo student_id của chính mình
         if (role === 'student') {
-            filterCond = { $eq: ['$$attendance.student_id', new mongoose.Types.ObjectId(userId)] };
+            const student:any = await Student.findOne({ authId: userId });
+            filterCond = { $eq: ['$$attendance.student_id', student._id] };
 
             // Chỉ push $addFields nếu là student
             pipeline.push({
@@ -219,7 +218,6 @@ export const getAttendanceHistory = async (req: CustomRequest, res: Response) =>
 //         if (role === 'teacher') {
 //             match['attendances.teacher_id'] = req.user.userId;
 //         }
-//         console.log("match", match)
 //         const data = await Attendance.find(match)
 //             .populate('teaching_assignment_id')
 //             .populate('attendances.student_id');

@@ -10,7 +10,6 @@ type Props = {
 }
 
 const DialogClass = ({ open, setOpen, dataEdit }: Props) => {
-  console.log("DialogClass")
   const init = {
     ClassName: "",
     AcademicYear: 0,
@@ -69,7 +68,6 @@ const DialogClass = ({ open, setOpen, dataEdit }: Props) => {
       setPayload(init);
     }
   }, [dataEdit]);
-  console.log("payload?.MajorId", payload?.MajorId)
   return (
     // <div>DialogClass</div>
     <>
