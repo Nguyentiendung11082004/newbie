@@ -13,6 +13,7 @@ interface Customer extends Request {
         role: string;
         email: string;
         userId: string;
+        studentId: string;
     };
 }
 export const getAllStudents = async (req: Request, res: Response) => {
@@ -107,11 +108,9 @@ export const ImportExcel = async (req: Request, res: Response) => {
         handleError(res, error)
     }
 }
-
-
 export const GetStudentTimeTable = async (req: Customer, res: Response) => {
     try {
-        const studentId = req.user.userId;
+        const studentId = req.user.studentId;
         const { fromDate, toDate, subjects, classes, rooms } = req.body;
         const enrollments = await Enrollment.find({
             student_id: studentId,
@@ -123,6 +122,7 @@ export const GetStudentTimeTable = async (req: Customer, res: Response) => {
                 { path: 'class_id', select: 'ClassName' }
             ]
         });
+        console.log("enrollments",enrollments)
         let timetable = enrollments.flatMap((enroll: any) => {
             const ta = enroll.teaching_assignment_id;
             if (!ta || !ta.schedule) return [];
@@ -141,9 +141,13 @@ export const GetStudentTimeTable = async (req: Customer, res: Response) => {
                 });
         });
         if (fromDate && toDate) {
-            timetable = timetable.filter(item =>
-                item.date >= fromDate && toDate <= toDate
-            )
+            const start = new Date(fromDate).getTime();
+            const end = new Date(toDate).getTime();
+        
+            timetable = timetable.filter(item => {
+                const itemDate = new Date(item.date).getTime();
+                return itemDate >= start && itemDate <= end;
+            });
         }
         if (subjects?.length) {
             timetable = timetable.filter(item =>

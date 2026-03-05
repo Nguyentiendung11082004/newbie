@@ -91,7 +91,7 @@ const LeaveReview = () => {
                         <Button onClick={() => handleUpdateStatus(record._id)} type='primary'>Duyệt</Button>
                         {/* <Button onClick={() => handleUpdateStatus(record._id)} danger>Từ chối</Button> */}
                     </Space>
-                ) : null;
+                ) : <Tag color={'green'}>Đã duyệt</Tag>;
             }
         }
     ];

@@ -1,98 +1,97 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
-import FullCalendar from "@fullcalendar/react";
-import timeGridPlugin from "@fullcalendar/timegrid";
-import interactionPlugin from "@fullcalendar/interaction";
-import viLocale from "@fullcalendar/core/locales/vi";
-import { Calendar as CalendarIcon, List as ListIcon, ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  BookOutlined,
+  CalendarOutlined,
+  EnvironmentOutlined,
+  FilterOutlined,
+  TeamOutlined
+} from '@ant-design/icons';
+import { Card, Col, DatePicker, Row, Select, Table } from "antd";
+import Title from "antd/es/typography/Title";
+import React, { useEffect, useState } from "react";
+import { formatDateStringGMT } from "../../common/helpfunction";
 import { TimetableServices } from "../../services/student.services";
-function startOfWeek(date = new Date(), weekStartsOn = 1) {
-  const d = new Date(date);
-  const day = d.getDay();
-  const diff = (day < weekStartsOn ? 7 : 0) + day - weekStartsOn;
-  d.setDate(d.getDate() - diff);
-  d.setHours(0, 0, 0, 0);
-  return d;
-}
+const { RangePicker } = DatePicker;
+const ScheduleTable = ({ data }: any) => {
+  const sortedData = [...data].sort((a, b) => {
+    return new Date(a.date).getTime() - new Date(b.date).getTime();
+  });
 
-function addDays(base: Date, days: number) {
-  const d = new Date(base);
-  d.setDate(d.getDate() + days);
-  return d;
-}
+  const groupedByDate = sortedData.reduce((acc: any, item: any) => {
+    if (!acc[item.date]) acc[item.date] = [];
+    acc[item.date].push(item);
+    return acc;
+  }, {});
 
-function atTime(base: Date, time: string) {
-  const [h, m] = time.split(":").map(Number);
-  const d = new Date(base);
-  d.setHours(h, m ?? 0, 0, 0);
-  return d;
-}
+  const tableData = Object.keys(groupedByDate).map(date => ({
+    date,
+    dayOfWeek: groupedByDate[date][0].dayOfWeek,
+    subjects: groupedByDate[date]
+  }));
 
-// Types
-type TTEvent = {
-  id: string;
-  title: string; // Subject
-  classNameText: string; // Class e.g. WEB2025
-  lecturer: string;
-  room?: string;
-  note?: string;
-  start: Date;
-  end: Date;
-  color?: string;
-  dayOfWeek: number; // 1..7 Monday..Sunday
-  subject?: string;
-  class?: string
+  const columns = [
+    {
+      title: "Thời gian",
+      dataIndex: "date",
+      width: 200,
+      render: (date: string, record: any) => (
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ fontSize: '16px', fontWeight: 'bold', color: '#1890ff' }}>
+            {record.dayOfWeek}
+          </div>
+          <div style={{ color: '#8c8c8c' }}>
+            {formatDateStringGMT(date, 'dd/mm/yyyy')}
+          </div>
+        </div>
+      ),
+    },
+    {
+      title: "Chi tiết môn học",
+      dataIndex: "subjects",
+      render: (subjects: any[]) => (
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
+          {subjects.map((item, index) => (
+            <div
+              key={index}
+              style={{
+                padding: '12px',
+                borderRadius: '8px',
+                background: '#f0f5ff',
+                borderLeft: '4px solid #1890ff',
+                minWidth: '250px',
+                flex: 1
+              }}
+            >
+              <div style={{ fontWeight: 700, fontSize: '15px', marginBottom: '4px' }}>
+                {item.subject}
+              </div>
+              <div style={{ fontSize: '13px' }}>
+                <span style={{ color: '#595959' }}>Lớp:</span> {item.class}
+                {/* <span style={{ color: '#595959' }}> Phòng:</span> {item.room || 'Online'} */}
+              </div>
+              <div style={{ marginTop: '4px', fontWeight: 500, color: '#cf1322' }}>
+                <span style={{ color: '#595959' }}>Thời gian:</span>{item.startTime} - {item.endTime}
+              </div>
+            </div>
+          ))}
+        </div>
+      ),
+    },
+  ];
+
+  return (
+    <Table
+      columns={columns}
+      dataSource={tableData}
+      pagination={false}
+      bordered={false}
+      className="custom-schedule-table"
+    />
+  );
 };
 
-// Generate weekly fake data based on Monday of current week
-function useFakeEvents(currentMonday: Date) {
-  return useMemo<TTEvent[]>(() => {
-    // You can change this list to match your real subjects/classes.
-    const base = currentMonday; // Monday
-
-    const make = (
-      idx: number,
-      dow: number,
-      startTime: string,
-      endTime: string,
-      subject: string,
-      classNameText: string,
-      lecturer: string,
-      room: string,
-      note?: string
-    ): TTEvent => {
-      const dayDate = addDays(base, dow - 1); // dow: 1..7
-      return {
-        id: String(idx),
-        title: subject,
-        classNameText,
-        lecturer,
-        room,
-        note,
-        start: atTime(dayDate, startTime),
-        end: atTime(dayDate, endTime),
-        dayOfWeek: dow,
-      };
-    };
-
-    return [
-      make(1, 1, "08:00", "10:00", "Frontend Framework 1", "WEB2025", "Nguyễn Văn A", "A101"),
-      make(2, 1, "13:30", "15:30", "Database Systems", "DB2025", "Trần Thị B", "B202"),
-      make(3, 2, "09:00", "11:00", "Algorithms", "ALGO201", "Phạm C", "C303", "Tuần này kiểm tra giữa kỳ"),
-      make(4, 3, "07:30", "09:00", "English Speaking", "ENG102", "Mr. John", "D404"),
-      make(5, 4, "10:00", "12:00", "Operating Systems", "OS301", "Nguyễn D", "Lab-01"),
-      make(6, 5, "14:00", "16:00", "Mobile Development", "MOB401", "Lê E", "A203"),
-      make(7, 6, "08:00", "10:30", "Computer Networks", "NET202", "Vũ F", "NetLab"),
-    ];
-  }, [currentMonday]);
-}
-
-function dayName(dow: number) {
-  const map = ["", "Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7", "Chủ nhật"];
-  return map[dow] ?? "";
-}
-
-// ---- Main Component ----
 export default function StudentTimetable() {
+  const [data, setData] = useState<any[]>([]);
+
   const [filter, setFilter] = useState({
     fromDate: "",
     toDate: "",
@@ -100,219 +99,133 @@ export default function StudentTimetable() {
     classes: "",
     rooms: ""
   })
-  const todayMonday = startOfWeek(new Date(), 1);
-  const [weekOffset, setWeekOffset] = useState(0);
-  const currentMonday = useMemo(() => addDays(todayMonday, weekOffset * 7), [todayMonday, weekOffset]);
-  const [data, setData] = useState<any[]>([]);
+
   const getData = async (pay) => {
     let res = await TimetableServices.GetStudentTimetable(pay);
     if (res) {
       setData(res?.data)
     }
   }
-  const calendarRef = useRef<any>(null);
-  const [view, setView] = useState<"week" | "list">("week");
-  const filtered = useMemo(() => data, [data, filter]);
-  function fmtDate(d: Date) {
-    return d.toLocaleDateString("vi-VN", { year: "numeric", month: "2-digit", day: "2-digit" });
-  }
-  const weekLabel = `${fmtDate(currentMonday)} → ${fmtDate(addDays(currentMonday, 6))}`;
-  function fmtDateISO(d: Date) {
-    return d.toISOString().split("T")[0];
-  }
-  useEffect(() => {
-    const fromDate = fmtDateISO(currentMonday);
-    const toDate = fmtDateISO(addDays(currentMonday, 6));
+  const subjectOptions = [
+    ...new Map(data.map((i) => [i.subject, { label: i.subject, value: i.subject }])).values(),
+  ];
 
-    setFilter(prev => {
-      if (prev.fromDate === fromDate && prev.toDate === toDate) return prev;
-      return { ...prev, fromDate, toDate };
-    });
-  }, [currentMonday]);
+  const classOptions = [
+    ...new Map(data.map((i) => [i.class, { label: i.class, value: i.class }])).values(),
+  ];
 
+  const roomOptions = [
+    ...new Map(data.map((i) => [i.room, { label: i.room, value: i.room }])).values(),
+  ];
   useEffect(() => {
-    if (filter.fromDate && filter.toDate) {
-      getData(filter);
-    }
+    getData(filter);
   }, [filter]);
 
-  useEffect(() => {
-    if (calendarRef.current) {
-      const api = calendarRef.current.getApi();
-      api.gotoDate(currentMonday);
-    }
-  }, [currentMonday]);
   return (
-    <div className="w-full mx-auto p-4 space-y-4">
-      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-        <div className="flex items-center gap-3">
-          <button
-            className="inline-flex items-center gap-2 rounded-2xl border px-3 py-2 shadow-sm hover:bg-gray-50"
-            onClick={() => setWeekOffset((v) => v - 1)}
-            aria-label="Previous week"
-          >
-            <ChevronLeft className="w-4 h-4" />
-            Trước
-          </button>
-          <div className="font-medium">{weekLabel}</div>
-          <button
-            className="inline-flex items-center gap-2 rounded-2xl border px-3 py-2 shadow-sm hover:bg-gray-50"
-            onClick={() => setWeekOffset((v) => v + 1)}
-            aria-label="Next week"
-          >
-            Sau
-            <ChevronRight className="w-4 h-4" />
-          </button>
-          <button
-            className="ml-2 rounded-2xl border px-3 py-2 shadow-sm hover:bg-gray-50"
-            onClick={() => setWeekOffset(0)}
-          >
-            Hôm nay
-          </button>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="flex rounded-2xl border overflow-hidden">
-            <button
-              className={`px-3 py-2 flex items-center gap-2 ${view === "week" ? "bg-gray-100" : "bg-white"}`}
-              onClick={() => setView("week")}
-            >
-              <CalendarIcon className="w-4 h-4" /> Tuần
-            </button>
-            <button
-              className={`px-3 py-2 flex items-center gap-2 ${view === "list" ? "bg-gray-100" : "bg-white"}`}
-              onClick={() => setView("list")}
-            >
-              <ListIcon className="w-4 h-4" /> Danh sách
-            </button>
+    <div className="min-h-screen bg-gray-50 p-4 md:p-8">
+      <div className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <div className="flex items-center gap-3">
+            <div className="bg-blue-600 p-2 rounded-lg flex items-center justify-center">
+              <CalendarOutlined className="text-white text-xl" />
+            </div>
+            <Title level={2} style={{ margin: 0 }} className="!text-gray-800">
+              Lịch Học Sinh Viên
+            </Title>
           </div>
-          {/* <input
-            value={filter.classes}
-            onChange={(e) => setFilter((prev) => ({ ...prev, classes: e.target.value }))}
-            placeholder="Tìm theo môn/lớp/phòng..."
-            className="rounded-2xl border px-3 py-2 w-56 focus:outline-none focus:ring"
-          /> */}
+          <span className="text-gray-500 ml-12 block mt-1">
+            Chào Tiến Dũng, hãy kiểm tra lịch trình học tập tuần này của bạn.
+          </span>
+        </div>
+
+        <div className="flex gap-4">
+          <div className="bg-white px-4 py-2 rounded-xl shadow-sm border border-gray-100 flex items-center gap-3">
+            <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+            <span className="text-gray-700">{data?.length || 0} Buổi học</span>
+          </div>
         </div>
       </div>
 
-      {view === "week" ? (
-        <div className="rounded-2xl border shadow-sm p-2 bg-white">
-          <FullCalendar
-            ref={calendarRef}
-            plugins={[timeGridPlugin, interactionPlugin]}
-            initialView="timeGridWeek"
-            locales={[viLocale]}
-            locale="vi"
-            slotMinTime="07:00:00"
-            slotMaxTime="20:30:00"
-            allDaySlot={false}
-            height="auto"
-            headerToolbar={false}
-            firstDay={1}
-            events={filtered.map((e) => {
-              const start = `${e.date}T${e.startTime}:00`;
-              const end = `${e.date}T${e.endTime}:00`;
-              return {
-                id: e.id,
-                title: `${e.subject} • ${e.classNameText}`,
-                start,
-                end,
-                extendedProps: e,
-              };
-            })}
-            eventContent={(arg) => {
-              const ev = arg.event.extendedProps as TTEvent;
-              return (
-                <div className="text-[12px] leading-tight">
-                  <div className="font-semibold">{ev.subject}</div>
-                  <div className="opacity-80">Lớp: {ev.class}</div>
-                  <div className="opacity-80">GV: {ev.lecturer}</div>
-                  {ev.room && <div className="opacity-80">Phòng: {ev.room}</div>}
-                  {ev.note && (
-                    <div className="text-xs italic opacity-70">{ev.note}</div>
-                  )}
-                </div>
-              );
-            }}
-          />
-
+      <Card
+        className="mb-8 border-none shadow-md rounded-2xl overflow-hidden"
+        bodyStyle={{ padding: '24px' }}
+      >
+        <div className="flex items-center gap-2 mb-6 text-blue-600 border-b border-gray-100 pb-4">
+          <FilterOutlined className="text-lg" />
+          <span className="font-bold uppercase tracking-wider text-sm">Bộ lọc thông minh</span>
         </div>
-      ) : (
-        <div className="grid md:grid-cols-2 gap-4">
-          {Array.from({ length: 7 }).map((_, i) => {
-            const dayMap: Record<string, number> = {
-              "Chủ nhật": 0,
-              "Thứ 2": 1,
-              "Thứ 3": 2,
-              "Thứ 4": 3,
-              "Thứ 5": 4,
-              "Thứ 6": 5,
-              "Thứ 7": 6,
-            };
-            const dayDate = addDays(currentMonday, i);
-            const dayEvents = filtered
-              .filter((e) => dayMap[e.dayOfWeek] === i)
-              .sort((a, b) => {
-                const da = new Date(`${a.date}T${a.startTime}:00`);
-                const db = new Date(`${b.date}T${b.startTime}:00`);
-                return da.getTime() - db.getTime();
-              });
-            return (
-              <div className="rounded-2xl border shadow-sm p-4 bg-white">
-                <div className="font-semibold mb-3 flex items-center justify-between">
-                  <span>
-                    {fmtDate(dayDate)}
-                  </span>
-                  <span className="text-xs opacity-70">{dayEvents.length} buổi</span>
-                </div>
-                <div className="space-y-3">
-                  {dayEvents.length === 0 && (
-                    <div className="text-sm opacity-60">Không có lịch học</div>
-                  )}
-                  {dayEvents.map((e) => {
-                    const start = new Date(`${e.date}T${e.startTime}:00`);
-                    const end = new Date(`${e.date}T${e.endTime}:00`);
-                    return (
-                      <div
-                        key={e.id}
-                        className="rounded-xl border p-3 hover:bg-gray-50"
-                      >
-                        <div className="text-sm font-semibold">{e.subject}</div>
-                        <div className="text-sm opacity-80">
-                          Lớp: {e.classNameText} • GV: {e.lecturer}
-                        </div>
-                        <div className="text-xs opacity-80">
-                          {start.toLocaleTimeString([], {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })}{" "}
-                          -{" "}
-                          {end.toLocaleTimeString([], {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })}
-                        </div>
-                        {e.room && (
-                          <div className="text-xs opacity-80">Phòng: {e.room}</div>
-                        )}
-                        {e.note && (
-                          <div className="text-xs italic opacity-70">{e.note}</div>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
 
-      <div className="text-xs opacity-60 text-center pt-2">
-        * Đây là dữ liệu giả lập theo tuần hiện tại. Kết nối thật: map từ Enrollment (Approved) → TeachingAssignment.weeklySchedule.
+        <Row gutter={[20, 20]}>
+          <Col xs={24} lg={8}>
+            <div className="space-y-2">
+              <span className="text-gray-600 flex items-center gap-2">
+                <CalendarOutlined className="text-[12px]" /> Khoảng thời gian
+              </span>
+              <RangePicker
+                className="w-full h-10 rounded-lg hover:border-blue-400"
+                placeholder={['Từ ngày', 'Đến ngày']}
+                onChange={(dates) => {
+                  setFilter({
+                    ...filter,
+                    fromDate: dates?.[0]?.format("YYYY-MM-DD") || "",
+                    toDate: dates?.[1]?.format("YYYY-MM-DD") || "",
+                  });
+                }}
+              />
+            </div>
+          </Col>
+
+          <Col xs={24} sm={8} lg={5}>
+            <div className="space-y-2">
+              <span className="text-gray-600 flex items-center gap-2">
+                <BookOutlined className="text-[12px]" /> Môn học
+              </span>
+              <Select
+                className="w-full h-10"
+                placeholder="Tất cả môn học"
+                allowClear
+                options={subjectOptions}
+                onChange={(v) => setFilter({ ...filter, subjects: v || [] })}
+              />
+            </div>
+          </Col>
+
+          <Col xs={12} sm={8} lg={5}>
+            <div className="space-y-2">
+              <span className="text-gray-600 flex items-center gap-2">
+                <TeamOutlined className="text-[12px]" /> Lớp học
+              </span>
+              <Select
+                className="w-full h-10"
+                placeholder="Chọn lớp"
+                allowClear
+                options={classOptions}
+                onChange={(v) => setFilter({ ...filter, classes: v || [] })}
+              />
+            </div>
+          </Col>
+
+          <Col xs={12} sm={8} lg={6}>
+            <div className="space-y-2">
+              <span className="text-gray-600 flex items-center gap-2">
+                <EnvironmentOutlined className="text-[12px]" /> Phòng học
+              </span>
+              <Select
+                className="w-full h-10"
+                placeholder="Chọn phòng"
+                allowClear
+                options={roomOptions}
+                onChange={(v) => setFilter({ ...filter, rooms: v || [] })}
+              />
+            </div>
+          </Col>
+        </Row>
+      </Card>
+
+      <div className="bg-white p-2 rounded-2xl shadow-lg border border-gray-100">
+        <ScheduleTable data={data} />
       </div>
     </div>
   );
 }
-
-
 

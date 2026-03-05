@@ -67,7 +67,7 @@ export const GetClassesByTeacher = async (req: CustomRequest, res: Response) => 
 
 export const GetTeacherTimeTable = async (req: CustomRequest, res: Response) => {
     try {
-        const teacherId = req.user.userId;
+        const teacherId = req.user.teacherId;
         const { subjectId, classId, fromDate, toDate } = req.query;
         const query: any = {
             teacher_id: teacherId,

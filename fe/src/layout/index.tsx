@@ -129,13 +129,13 @@ const LayoutDashboard = () => {
       url: '/teacher/timetable',
       permission: ['teacher'],  // Chỉ sinh viên có thể truy cập
     },
-    {
-      key: 'teacherEnrollmentApproval',
-      icon: <CheckCircleOutlined />,
-      label: 'Duyệt ghi danh',
-      url: '/teacher/enrollment-approval',
-      permission: ['teacher', 'admin'],
-    },
+    // {
+    //   key: 'teacherEnrollmentApproval',
+    //   icon: <CheckCircleOutlined />,
+    //   label: 'Duyệt ghi danh',
+    //   url: '/teacher/enrollment-approval',
+    //   permission: ['teacher', 'admin'],
+    // },
     {
       key: 'teacherGrade',
       icon: <FileDoneOutlined />,
