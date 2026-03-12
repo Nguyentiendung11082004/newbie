@@ -13,7 +13,6 @@ const { RangePicker } = DatePicker;
 
 const LeaveReview = () => {
     const lecturer = useAppSelector((state) => state.user.userInfo.profile);
-    console.log("lecturer", lecturer)
     const [data, setData] = useState<any[]>([]);
     const [filter, setFilter] = useState({
         page: 1,
@@ -92,7 +91,7 @@ const LeaveReview = () => {
                         <Button onClick={() => handleUpdateStatus(record._id)} type='primary'>Duyệt</Button>
                         {/* <Button onClick={() => handleUpdateStatus(record._id)} danger>Từ chối</Button> */}
                     </Space>
-                ) : null;
+                ) : <Tag color={'green'}>Đã duyệt</Tag>;
             }
         }
     ];

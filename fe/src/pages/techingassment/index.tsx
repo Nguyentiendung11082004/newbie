@@ -28,7 +28,7 @@ const TechingAssignment = (props: Props) => {
     },
     {
       title: 'Giảng viên',
-      render: (_value: any, _record: any, index: any) => _record.teacher_id.name,
+      render: (_value: any, _record: any, index: any) => _record?.teacher_id?.name,
     },
     {
       title: 'Lớp học',

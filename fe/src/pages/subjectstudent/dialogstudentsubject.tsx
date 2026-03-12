@@ -39,7 +39,7 @@ const DialogSubject = ({ isModalOpen, setIsOpen, dataEdit, setDataEdit }: Props)
             setPayload(init);
             setDataEdit({})
         } catch (error: any) {
-            const result = error.response.data.errors;
+            const result = error?.response?.data?.errors ?? null;
             if (result) {
                 let obj: { [key: string]: string } = {};
                 result.forEach((e: any) => {
@@ -52,6 +52,7 @@ const DialogSubject = ({ isModalOpen, setIsOpen, dataEdit, setDataEdit }: Props)
                 // toast.error(error.response.data.message)
                 setErrors({})
             }
+            toast.error(error.message)
         }
     };
 

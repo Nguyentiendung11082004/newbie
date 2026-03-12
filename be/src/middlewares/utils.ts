@@ -17,5 +17,6 @@ export interface CustomRequest extends Request {
         role: string;
         email: string;
         userId: string;
+        teacherId: string
     };
 }

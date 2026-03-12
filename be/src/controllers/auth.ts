@@ -20,13 +20,15 @@ interface DecodedToken {
     iat?: number;
     exp?: number;
     user?: any;
+    teacherId: string;
+    studentId: string;
 }
 export interface CustomRequest extends Request {
     user?: DecodedToken;
 }
 export const register = async (req: Request, res: Response) => {
     try {
-        const { email, password, role, name, dob, major, gender, phone, address } = req.body;
+        const { email, password, role, name, dob, major, gender, phone, address, major_id, StudentCode } = req.body;
         let result;
         switch (role) {
             case 'student':
@@ -76,10 +78,12 @@ export const register = async (req: Request, res: Response) => {
                 email: email,
                 name,
                 dob,
-                major,
+                major_id,
                 gender,
                 phone,
                 address,
+                StudentCode,
+
             });
             await StudentWallet.create({
                 student_id: user._id,
@@ -138,15 +142,15 @@ export const login = async (req: Request, res: Response) => {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === "production",
                 sameSite: "strict",
-                maxAge: 7 * 24 * 60 * 60 * 1000, 
+                maxAge: 7 * 24 * 60 * 60 * 1000,
             })
             let userInfo = null;
             switch (user.role) {
                 case 'student':
-                    userInfo = await Student.findOne({ authId: user._id }).select('_id name classId');
+                    userInfo = await Student.findOne({ authId: user._id });
                     break;
                 case 'teacher':
-                    userInfo = await Teacher.findOne({ authId: user._id }).select('_id name');
+                    userInfo = await Teacher.findOne({ authId: user._id });
                     break;
                 case 'admin':
                     userInfo = await Auth.findOne({ authId: user._id });
@@ -223,35 +227,49 @@ export const logout = async (req: Request, res: Response) => {
 export const authMiddleware = async (req: CustomRequest, res: Response, next: NextFunction) => {
     const authHeader = req.headers.authorization;
     if (!authHeader?.startsWith('Bearer ')) {
-        return res.status(401).json({ message: 'No token provided' });
+      return res.status(401).json({ message: 'No token provided' });
     }
+  
     const token = authHeader.split(' ')[1];
+  
     try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'xxx') as DecodedToken;
-        // decoded có thể có authId, role, email, ...
-        // 1. Lấy auth document để kiểm tra
-        const authDoc = await Auth.findById(decoded.userId);
-        if (!authDoc) return res.status(401).json({ message: 'Auth not found' });
-
-        // 2. Tùy role, lấy user tương ứng (giả sử bạn có role trong token)
-        let userDoc;
-        if (decoded.role == 'student') {
-            userDoc = await Student.findOne({ authId: decoded.userId });
-        } else if (decoded.role == 'teacher') {
-            userDoc = await Teacher.findOne({ authId: decoded.userId });
-        } else if (decoded.role == 'admin') {
-            userDoc = await Auth.findOne({ _id: decoded.userId }); // hoặc bảng admin
-        }
-
-        if (!userDoc) return res.status(401).json({ message: 'User not found' });
-
-        // 3. Gán req.user với _id thực sự của userDoc, cùng role và email từ token
-        req.user = {
-            userId: (userDoc as { _id: any })._id.toString(),
-            role: decoded.role,
-        };
-        next();
+      const decoded = jwt.verify(token, process.env.JWT_SECRET || 'xxx') as DecodedToken;
+  
+      // 1. Lấy auth
+      const authDoc = await Auth.findById(decoded.userId);
+      if (!authDoc) return res.status(401).json({ message: 'Auth not found' });
+  
+      let userDoc: any = null;
+      let teacherId = null;
+      let studentId = null;
+  
+      if (decoded.role === 'student') {
+        userDoc = await Student.findOne({ authId: decoded.userId });
+        if (!userDoc) return res.status(401).json({ message: 'Student not found' });
+        studentId = userDoc._id;
+      }
+  
+      if (decoded.role === 'teacher') {
+        userDoc = await Teacher.findOne({ authId: decoded.userId });
+        if (!userDoc) return res.status(401).json({ message: 'Teacher not found' });
+        teacherId = userDoc._id;
+      }
+  
+      if (decoded.role === 'admin') {
+        userDoc = authDoc;
+      }
+  
+      // 2. Gán req.user CHUẨN HỆ ID
+      req.user = {
+        userId: authDoc._id.toString(),   // ✅ Auth._id
+        teacherId: teacherId?.toString(), // Teacher._id (nếu có)
+        studentId: studentId?.toString(), // Student._id (nếu có)
+        role: decoded.role,
+      };
+  
+      next();
     } catch (err) {
-        return res.status(401).json({ message: 'Chưa đăng nhập' });
+      return res.status(401).json({ message: 'Chưa đăng nhập' });
     }
-}
+  };
+  

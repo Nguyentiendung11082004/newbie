@@ -8,6 +8,7 @@ import { formatDateStringGMT } from '../../common/helpfunction';
 import React from 'react';
 import { toast } from 'react-toastify';
 import { Button } from '../../components/Button';
+import StudentForm from './dialogstudent';
 
 const { Title } = Typography;
 
@@ -21,6 +22,7 @@ const initFilter = {
 const Student = () => {
   const [filter, setFilter] = useState(initFilter);
   const [data, setData] = useState<IStudents[]>([]);
+  const [isModalOpen, setIsModalOpen] = useState(false)
   const params = {
     _page: filter.CurrentPage,
     _limit: filter.PageSize,
@@ -38,11 +40,24 @@ const Student = () => {
     }
   };
   const handleExport = async () => {
-    let res = await StudentServices.Export();
-    if (res) {
-      toast.success(res.data.message)
+    try {
+        const res = await StudentServices.Export();
+        const url = window.URL.createObjectURL(new Blob([res.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', `students-${Date.now()}.xlsx`); 
+        document.body.appendChild(link);
+        
+        link.click();
+        link.remove();
+        window.URL.revokeObjectURL(url);
+
+        toast.success("Xuất file thành công!");
+    } catch (error) {
+        console.error("Export error:", error);
+        toast.error("Có lỗi khi xuất file");
     }
-  }
+}
   const columns: ColumnType<IStudents>[] = [
     {
       title: 'STT',
@@ -82,8 +97,14 @@ const Student = () => {
     },
   ];
 
-  const handleAdd = () => {}
+  const handleAdd = () => {
+    setIsModalOpen(true)
+  }
 
+  const props = {
+    isModalOpen,
+    setIsModalOpen
+  }
   useEffect(() => {
     getData();
   }, [filter.CurrentPage]);
@@ -92,9 +113,9 @@ const Student = () => {
     <>
       <Title level={4}>Danh sách sinh viên</Title>
       <div className='mb-4 flex gap-4'>
-        <Button onClick={handleAdd} className="bg-blue-600 hover:bg-blue-700 text-white">
+        {/* <Button onClick={() => handleAdd()} className="bg-blue-600 hover:bg-blue-700 text-white">
           Thêm
-        </Button>
+        </Button> */}
         <Button onClick={handleExport} className="bg-emerald-600 hover:bg-emerald-700 text-white ">
           Xuất Excel
         </Button>
@@ -118,6 +139,9 @@ const Student = () => {
           }
         }}
       />
+      {
+        isModalOpen && <StudentForm props={props} />  
+      }
     </>
   );
 };

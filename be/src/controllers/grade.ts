@@ -12,6 +12,8 @@ interface IRequest extends Request {
         role: string;
         email: string;
         userId: string;
+        teacherId: string;
+        studentId: string;
     };
 }
 
@@ -23,7 +25,7 @@ interface student {
 export const GetStudentListForGrading = async (req: IRequest, res: Response) => {
     try {
         const { class_id, subject_id, semester_id } = req.body;
-        const { role, userId } = req.user;
+        const userId = req.user.teacherId;
         if (!class_id || !subject_id || !semester_id) {
             return res.status(400).json({
                 message: 'Chưa đủ thông tin về class_id, subject_id, semester_id',
@@ -31,11 +33,12 @@ export const GetStudentListForGrading = async (req: IRequest, res: Response) => 
             });
         }
 
+        console.log("userId",userId)
         // hàm kiểm tra xem có đúng giảng vên này dạy lớp này không
         const assignment = await TeachingAssignment.findOne({
             class_id: new mongoose.Types.ObjectId(class_id as string),
             subject_id: new mongoose.Types.ObjectId(subject_id as string),
-            semester_id: semester_id,
+            // semester_id: semester_id,
             teacher_id: userId,
         })
         if (!assignment) {
@@ -86,7 +89,7 @@ export const GetStudentListForGrading = async (req: IRequest, res: Response) => 
 export const CreateGrade = async (req: IRequest, res: Response) => {
     try {
         const { class_id, subject_id, semester_id, grades } = req.body;
-        const { userId: teacher_id } = req.user;
+        const  userId  = req.user.teacherId;
         if (!class_id || !subject_id || !semester_id || !grades || !Array.isArray(grades)) {
             return res.status(StatusCodes.BAD_REQUEST).json({
                 success: false,
@@ -96,8 +99,8 @@ export const CreateGrade = async (req: IRequest, res: Response) => {
         const assignment = await TeachingAssignment.findOne({
             class_id: new mongoose.Types.ObjectId(class_id),
             subject_id: new mongoose.Types.ObjectId(subject_id),
-            semester_id: new mongoose.Types.ObjectId(semester_id),
-            teacher_id: new mongoose.Types.ObjectId(teacher_id),
+            // semester_id: new mongoose.Types.ObjectId(semester_id),
+            teacher_id: new mongoose.Types.ObjectId(userId),
         });
         if (!assignment) {
             return res.status(StatusCodes.FORBIDDEN).json({
@@ -129,7 +132,7 @@ export const CreateGrade = async (req: IRequest, res: Response) => {
             const update = {
                 $set: {
                     class_id,
-                    teacher_id,
+                    userId,
                     semester_id,
                     processScore,
                     midtermScore,
@@ -155,7 +158,7 @@ export const CreateGrade = async (req: IRequest, res: Response) => {
 export const GetMyGrades = async (req: IRequest, res: Response) => {
     try {
         const { subject_id, class_id } = req.body;
-        const { userId } = req.user;
+        const  userId  = req.user.studentId;
 
         const filter: any = {
             student_id: userId
@@ -165,7 +168,7 @@ export const GetMyGrades = async (req: IRequest, res: Response) => {
         }
         if (class_id) {
             filter.class_id = class_id;
-        }   
+        }
 
         const grades = await Grade.find(filter)
             .populate('subject_id', 'name')

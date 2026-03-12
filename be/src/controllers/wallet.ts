@@ -7,6 +7,7 @@ import Enrollment from "../model/enrollment";
 import crypto from "crypto";
 import qs from "qs";
 import { sendMail } from "../middlewares/email";
+import Student from "../model/student";
 interface CustomRequest extends Request {
     user: {
         _id: string;
@@ -15,16 +16,21 @@ interface CustomRequest extends Request {
         userId: string;
     };
 }
-const sortObject = (obj: any) => {
-    const sorted: any = {};
-    const keys = Object.keys(obj).sort();
-
-    keys.forEach((key) => {
-        sorted[key] = encodeURIComponent(obj[key]).replace(/%20/g, "+");
-    });
-
+function sortObject(obj: any) {
+    let sorted: any = {};
+    let str = [];
+    let key;
+    for (key in obj) {
+        if (obj.hasOwnProperty(key)) {
+            str.push(key);
+        }
+    }
+    str.sort();
+    for (key = 0; key < str.length; key++) {
+        sorted[str[key]] = obj[str[key]];
+    }
     return sorted;
-};
+}
 
 // interface Transaction {
 //     type: "topup" | "payment" | "refund";
@@ -532,6 +538,7 @@ export const vnpayCallback = async (req: Request, res: Response) => {
         handleError(res, error)
     }
 }
+// hàm xử lý thanh toán online
 export const payEnrollmentOnline = async (req: CustomRequest, res: Response) => {
     const { userId } = req.user;
     const { enrollmentId } = req.body;
@@ -545,8 +552,11 @@ export const payEnrollmentOnline = async (req: CustomRequest, res: Response) => 
     if (!enrollment) {
         return res.status(404).json({ message: "Enrollment không tồn tại" });
     }
-
-    if (enrollment.student_id.toString() !== userId) {
+    const student = await Student.findOne({ authId: userId });
+    if (!student) {
+        return res.status(404).json({ message: "Không tìm thấy sinh viên" });
+    }
+    if (enrollment.student_id.toString() !== student._id.toString()) {
         return res.status(403).json({ message: "Không có quyền" });
     }
 
@@ -558,13 +568,14 @@ export const payEnrollmentOnline = async (req: CustomRequest, res: Response) => 
     const transaction = await Transaction.create({
         student_id: userId,
         enrollment_id: enrollment._id,
-        wallet_id: wallet._id,
+        wallet_id: wallet?._id,
         type: "payment",
         amount: amount,
         payment_method: "vnpay",
         status: "Pending",
         description: "Thanh toán học phí online"
     });
+    console.log("transaction", transaction)
 
     const ipAddr =
         req.headers["x-forwarded-for"] ||
@@ -583,32 +594,34 @@ export const payEnrollmentOnline = async (req: CustomRequest, res: Response) => 
         vnp_Locale: "vn",
         vnp_CurrCode: "VND",
         vnp_TxnRef: transaction._id.toString(),
-        vnp_OrderInfo: `Thanh toán tiền học phí`,
+        vnp_OrderInfo: "Thanh toan hoc phi", 
         vnp_OrderType: "billpayment",
         vnp_Amount: amount * 100,
         vnp_ReturnUrl: process.env.VNP_RETURN_URL,
-        vnp_IpAddr: ipAddr,
+        vnp_IpAddr: ipAddr === "::1" ? "127.0.0.1" : ipAddr, 
         vnp_CreateDate: createDate
     };
 
     vnpParams = sortObject(vnpParams);
 
-    const signData = qs.stringify(vnpParams, { encode: false });
+  
+    const signData = qs.stringify(vnpParams, { encode: true })
+        .replace(/%20/g, "+");
 
-    const hmac = crypto.createHmac(
-        "sha512",
-        process.env.VNP_HASH_SECRET!.trim()
-    );
+    const hmac = crypto.createHmac("sha512", process.env.VNP_HASH_SECRET!.trim());
+    const secureHash = hmac.update(Buffer.from(signData, 'utf-8')).digest("hex");
 
-    const secureHash = hmac.update(signData, "utf-8").digest("hex");
+    const finalParams = { ...vnpParams, vnp_SecureHash: secureHash };
 
-    vnpParams.vnp_SecureHash = secureHash;
+    const paymentUrl = process.env.VNP_URL + "?" + qs.stringify(finalParams, { encode: true })
+        .replace(/%20/g, "+");
 
-    const paymentUrl =
-        process.env.VNP_URL + "?" + qs.stringify(vnpParams, { encode: false });
-
+    console.log("Chuỗi signData thực tế:", signData);
     return res.json({ paymentUrl });
 };
+
+
+// hàm xử lý khi thanh toán online trả về
 export const ResultVnpayCallback = async (req: Request, res: Response) => {
     let vnpParams: any = { ...req.query };
 
@@ -635,6 +648,7 @@ export const ResultVnpayCallback = async (req: Request, res: Response) => {
         .createHmac("sha512", process.env.VNP_HASH_SECRET!.trim())
         .update(signData, "utf-8")
         .digest("hex");
+
 
     if (secureHash !== signed) {
         return res.status(400).json({ message: "Sai chữ ký" });

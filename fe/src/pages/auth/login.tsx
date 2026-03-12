@@ -6,7 +6,9 @@ import { toast } from 'react-toastify';
 import { Link, useNavigate, useNavigation } from 'react-router-dom';
 import { setAccessToken, setUser } from '../../redux/slices/userSlice';
 import { useAppDispatch } from '../../redux/hook';
-
+import bgLogin from '../../../public/bglogin.jpg'
+import { useLoading } from '../../components/Loading';
+import LoadingUI from '../../components/LoadingUI';
 type FieldType = {
   email?: string;
   password?: string;
@@ -14,32 +16,43 @@ type FieldType = {
 const Login: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
+  const { isLoading, setLoading } = useLoading()
   const onFinish: FormProps<FieldType>['onFinish'] = async (values) => {
     try {
+      setLoading(true)
       const res = await AuthServices.Login(values);
       if (res.data.Status === 200) {
         const accessToken = res.data.accessToken;
         dispatch(setAccessToken(accessToken));
         dispatch(setUser(res.data));
-        toast.success(res.data.message);
         if (res.data.user.role === "admin") {
           navigate('/admin/dashboard');
         } else {
           navigate('/feednotification');
         }
+        toast.success(res.data.message);
       }
     } catch (error) {
+      setLoading(false)
       toast.error(error.message[0])
+    } finally {
+      setLoading(false)
     }
   };
+  if (isLoading) return <LoadingUI />;
 
   return (
     <div
-      className="flex items-center justify-center min-h-screen bg-cover bg-center"
-      style={{ backgroundImage: 'url("../../public/login.jpeg")' }}
+      className="relative flex items-center justify-center min-h-screen bg-cover bg-center bg-no-repeat"
+      style={{ backgroundImage: `url(${bgLogin})` }}
     >
-      <div className="bg-white px-10 py-12 rounded-2xl shadow-2xl w-1/3 ">
-        <h2 className="text-3xl font-bold text-center mb-2 text-red-800">Đăng nhập</h2>
+      <div className="absolute inset-0 bg-black/50"></div>
+
+      <div className="relative w-full max-w-md bg-white/90 backdrop-blur-md rounded-2xl shadow-2xl p-10 z-10">
+        <h2 className="text-3xl font-extrabold text-center mb-6 text-gray-900 tracking-wide">
+          Đăng nhập
+        </h2>
+
         <Form
           name="login-form"
           layout="vertical"
@@ -49,9 +62,12 @@ const Login: React.FC = () => {
           <Form.Item<FieldType>
             label="Email"
             name="email"
-            rules={[{ required: true, message: 'Vui lòng nhập tên đăng nhập!' }]}
+            rules={[{ required: true, message: 'Vui lòng nhập email!' }]}
           >
-            <Input className="h-10 rounded-lg border border-gray-300 px-3" />
+            <Input
+              className="h-12 rounded-lg border border-gray-300 px-4 focus:ring-2 focus:ring-blue-400 focus:outline-none transition"
+              placeholder="Nhập email"
+            />
           </Form.Item>
 
           <Form.Item<FieldType>
@@ -59,16 +75,26 @@ const Login: React.FC = () => {
             name="password"
             rules={[{ required: true, message: 'Vui lòng nhập mật khẩu!' }]}
           >
-            <Input.Password className="h-10 rounded-lg border border-gray-300 px-3" />
+            <Input.Password
+              className="h-12 rounded-lg border border-gray-300 px-4 focus:ring-2 focus:ring-blue-400 focus:outline-none transition"
+              placeholder="Nhập mật khẩu"
+            />
           </Form.Item>
-          <Link to="/register" >
-            Đăng ký
-          </Link>
+
+          <div className="text-right mb-4">
+            <Link
+              to="/register"
+              className="text-blue-600 hover:text-blue-700 font-medium transition"
+            >
+              Đăng ký
+            </Link>
+          </div>
+
           <Form.Item>
             <Button
               type="primary"
               htmlType="submit"
-              className="w-full h-10 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-md transition duration-200"
+              className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-md text-lg font-medium transition duration-200"
             >
               Đăng nhập
             </Button>
@@ -76,6 +102,7 @@ const Login: React.FC = () => {
         </Form>
       </div>
     </div>
+
   );
 };
 

@@ -30,7 +30,7 @@ const NotificationFeed: React.FC = () => {
     const getData = async () => {
         setLoading(true);
         try {
-            const res = await NotificationServices.GetList();
+            const res = await NotificationServices.GetList('view');
             setData(res.data || []);
         } catch (error) {
             console.error(error);
@@ -43,7 +43,7 @@ const NotificationFeed: React.FC = () => {
         getData();
     }, []);
 
-    if (loading) return <Spin tip="Đang tải thông báo..." />;
+    // if (loading) return <Spin tip="Đang tải thông báo..." />;
 
     if (!data.length) return <p>Chưa có thông báo nào.</p>;
 
