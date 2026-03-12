@@ -3,10 +3,12 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 interface UserState {
   userInfo: any;
   accessToken: string;
+  profile: any
 }
 const initialState: UserState = {
   userInfo: null,
   accessToken: "",
+  profile: null
 };
 const userSlice = createSlice({
   name: 'user',

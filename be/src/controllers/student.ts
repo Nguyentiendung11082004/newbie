@@ -62,28 +62,22 @@ export const getAllStudents = async (req: Request, res: Response) => {
 export const ExportExcel = async (req: Request, res: Response) => {
     try {
         const students = await Student.find().lean();
-        const jsonData = students.map(({ _id, authId, classId, ...rest }) => rest)
-        const woorksheet = XLSX.utils.json_to_sheet(jsonData)
-        const worksbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(worksbook, woorksheet, 'Student');
+        const jsonData = students.map(({ _id, authId, classId, ...rest }) => rest);
+        
+        const worksheet = XLSX.utils.json_to_sheet(jsonData);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'Student');
 
-        // Tạo file path
-        const fileName = `students-${Date.now()}.xlsx`;
-        const filePath = path.join(__dirname, '../../public/TempFile', fileName);
+        const buffer = XLSX.write(workbook, { type: "buffer", bookType: "xlsx" });
 
-        // Ghi file ra ổ đĩa
-        XLSX.writeFile(worksbook, filePath);
-        res.setHeader('Content-Disposition', 'attachment; filename="students.xlsx"');
         res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        // Trả URL cho client (frontend dùng window.open())
-        res.status(StatusCodes.OK).json({
-            data: {
-                message: 'Thành công',
-                Url: `/TempFile/${fileName}`
-            }
-        });
+        res.setHeader('Content-Disposition', 'attachment; filename="students.xlsx"');
+        
+        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+
+        return res.status(200).send(buffer); 
     } catch (error) {
-        handleError(res, error)
+        handleError(res, error);
     }
 }
 
@@ -122,9 +116,9 @@ export const GetStudentTimeTable = async (req: Customer, res: Response) => {
                 { path: 'class_id', select: 'ClassName' }
             ]
         });
-        console.log("enrollments",enrollments)
         let timetable = enrollments.flatMap((enroll: any) => {
             const ta = enroll.teaching_assignment_id;
+            console.log("ta.schedule", ta.schedule)
             if (!ta || !ta.schedule) return [];
             return ta?.schedule
                 .filter((s: any) => s && s.date)
@@ -143,7 +137,7 @@ export const GetStudentTimeTable = async (req: Customer, res: Response) => {
         if (fromDate && toDate) {
             const start = new Date(fromDate).getTime();
             const end = new Date(toDate).getTime();
-        
+
             timetable = timetable.filter(item => {
                 const itemDate = new Date(item.date).getTime();
                 return itemDate >= start && itemDate <= end;

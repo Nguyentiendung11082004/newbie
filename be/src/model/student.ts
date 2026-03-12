@@ -60,6 +60,10 @@ const StudentSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    avatar: {
+        type: String,
+        default: null
+    },
     classId: [
         {
             type: mongoose.Schema.Types.ObjectId,

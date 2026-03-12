@@ -167,10 +167,11 @@ const Register = () => {
             >
               <Select
                 className="h-12 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-400 focus:outline-none transition"
+                disabled={true}
               >
                 <Select.Option value="student">Sinh viên</Select.Option>
-                <Select.Option value="teacher">Giảng viên</Select.Option>
-                <Select.Option value="admin">Quản trị viên</Select.Option>
+                {/* <Select.Option value="teacher">Giảng viên</Select.Option>
+                <Select.Option value="admin">Quản trị viên</Select.Option> */}
               </Select>
             </Form.Item>
           </div>

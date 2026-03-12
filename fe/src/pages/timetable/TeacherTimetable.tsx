@@ -18,21 +18,32 @@ const TeacherTimetable: React.FC = () => {
   const format = 'HH:mm';
   const [data, setData] = useState<any[]>([]);
   const listSearch = useAppSelector((state: any) => state);
-  const getData = async () => {
-    const res = await TimetableServices.GetTeacherTimeTable();
+  const getData = async (pay) => {
+    const res = await TimetableServices.GetTeacherTimeTable(pay);
     setData(res?.data || []);
   };
   useEffect(() => {
-    getData();
+    getData(filter);
   }, []);
-  // ✅ FILTER DATA TỪ BE
-  // const filteredData = useMemo(() => {
-  //   return data.filter((item) => {
-  //     if (filter.subject && item.subject.name !== filter.subject) return false;
-  //     if (filter.className && item.class.name !== filter.className) return false;
-  //     return true;
-  //   });
-  // }, [data, filter]);
+  const getActualDate = (dayOfWeekStr: string) => {
+    const dayMap: { [key: string]: number } = {
+      "Thứ 2": 1, "Thứ 3": 2, "Thứ 4": 3, "Thứ 5": 4, "Thứ 6": 5, "Thứ 7": 6, "Chủ Nhật": 0
+    };
+
+    const now = new Date();
+    const currentDay = now.getDay();
+    const targetDay = dayMap[dayOfWeekStr];
+
+    const diff = targetDay - (currentDay === 0 ? 7 : currentDay);
+    const targetDate = new Date(now);
+    targetDate.setDate(now.getDate() + diff);
+
+    return targetDate.toLocaleDateString('vi-VN', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    });
+  };
   const days = useMemo(() => {
     const set = new Set<string>();
     data.forEach((item) => {
@@ -41,10 +52,22 @@ const TeacherTimetable: React.FC = () => {
       });
     });
 
-    return Array.from(set).map((d) => ({
-      label: d,
-      value: d,
-    }));
+    const order = ["Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7", "Chủ Nhật"];
+    return Array.from(set)
+      .sort((a, b) => order.indexOf(a) - order.indexOf(b))
+      .map((d) => ({
+        label: (
+          <div className="flex flex-col items-center leading-tight">
+            <span className="text-xs font-normal text-gray-500 uppercase tracking-tighter">
+              {d.split(' ')[0]} {d.split(' ')[1]}
+            </span>
+            <span className="text-sm font-bold text-blue-600">
+              {getActualDate(d)}
+            </span>
+          </div>
+        ),
+        value: d,
+      }));
   }, [data]);
   const timeSlots = useMemo(() => {
     const set = new Set<string>();
@@ -60,7 +83,7 @@ const TeacherTimetable: React.FC = () => {
       })
       .sort((a, b) => a.start.localeCompare(b.start));
   }, [data]);
-  // ✅ FIND SCHEDULE TỪ DATA THẬT
+
   const findSchedules = (day: string, start: string, end: string) => {
     const results: any[] = [];
 
@@ -87,7 +110,6 @@ const TeacherTimetable: React.FC = () => {
   };
 
 
-  // ✅ OPTIONS FILTER (KHÔNG MOCK)
   const subjectOptions = useMemo(() => {
     return [...new Set(data.map((i) => i.subject.name))].map((s) => ({
       label: s,
@@ -107,12 +129,11 @@ const TeacherTimetable: React.FC = () => {
     if (filter.subjectId) params.subjectId = filter.subjectId;
     if (filter.classId) params.classId = filter.classId;
     if (filter.fromDate) params.fromDate = filter.fromDate;
-    if (filter.toDate) params.toDate = formatDateStringGMT(filter.toDate, "yyyy-mm-dd");
+    if (filter.toDate) params.toDate = filter.toDate;
 
     const res = await TimetableServices.GetTeacherTimeTable(params);
     setData(res?.data || []);
   };
-  // ✅ COLUMNS
   const columns: any = [
     {
       title: "Ca học",
@@ -173,7 +194,6 @@ const TeacherTimetable: React.FC = () => {
       }
     })),
   ];
-  // ✅ DATASOURCE = KHUNG GIỜ
   const dataSource = timeSlots.map((t, idx) => ({
     key: idx,
     time: `${t.start} - ${t.end}`,
@@ -218,7 +238,7 @@ const TeacherTimetable: React.FC = () => {
             style={{ width: 200 }}
             placeholder="Chọn lớp"
             value={filter.classId || undefined}
-            onChange={(value) => setFilter({ ...filter, classId: value })}
+            onChange={(value) => setFilter({ ...filter, classId: value })}  
             allowClear
           >
             {listSearch?.class?.data?.map((cl) => (
@@ -254,13 +274,16 @@ const TeacherTimetable: React.FC = () => {
             Lọc
           </Button>
           <Button
-            onClick={() => setFilter({ subjectId: "", classId: "", fromDate: "", toDate: "" })}
+            onClick={() => {
+              const resetFilter = { subjectId: "", classId: "", fromDate: "", toDate: "" };
+              setFilter(resetFilter); 
+              getData(resetFilter);  
+            }}
           >
             Reset
           </Button>
         </Space>
       </div>
-      {/* TABLE */}
       <div
         style={{
           padding: 24,

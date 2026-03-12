@@ -40,11 +40,24 @@ const Student = () => {
     }
   };
   const handleExport = async () => {
-    let res = await StudentServices.Export();
-    if (res) {
-      toast.success(res.data.message)
+    try {
+        const res = await StudentServices.Export();
+        const url = window.URL.createObjectURL(new Blob([res.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', `students-${Date.now()}.xlsx`); 
+        document.body.appendChild(link);
+        
+        link.click();
+        link.remove();
+        window.URL.revokeObjectURL(url);
+
+        toast.success("Xuất file thành công!");
+    } catch (error) {
+        console.error("Export error:", error);
+        toast.error("Có lỗi khi xuất file");
     }
-  }
+}
   const columns: ColumnType<IStudents>[] = [
     {
       title: 'STT',

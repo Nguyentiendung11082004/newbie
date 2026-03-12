@@ -3,7 +3,12 @@ import axiosClient, { request } from "./axiosClient.setup";
 const tc = 'teachingassignment/'
 export const StudentServices = {
     GetList: (params: any) => request.post<ApiResponse<any[]>>('/students', params),
-    Export: () => axiosClient.get('/students/export-student')
+    Export: () => axiosClient.get('/students/export-student', {
+        responseType: 'blob',
+        headers: {
+            'Accept': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        }
+    })
 }
 
 export const StudentSubjectServices = {

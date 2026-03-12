@@ -147,10 +147,10 @@ export const login = async (req: Request, res: Response) => {
             let userInfo = null;
             switch (user.role) {
                 case 'student':
-                    userInfo = await Student.findOne({ authId: user._id }).select('_id name classId');
+                    userInfo = await Student.findOne({ authId: user._id });
                     break;
                 case 'teacher':
-                    userInfo = await Teacher.findOne({ authId: user._id }).select('_id name');
+                    userInfo = await Teacher.findOne({ authId: user._id });
                     break;
                 case 'admin':
                     userInfo = await Auth.findOne({ authId: user._id });
