@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import CpnA from './cpna'
 import CpnB from './cpnb'
 import axios from 'axios'
@@ -38,7 +38,7 @@ const Test = (props: Props) => {
     // const info = useMemo(() => ({ value: stateB }), [stateB]); th1
 
 
-    // clouse
+    // Closure
     // for (var i = 0; i < 3; i++) {
     //     setTimeout(() => {
     //         console.log(i)
@@ -59,9 +59,9 @@ const Test = (props: Props) => {
     console.log("1");
 
     fetch("https://api.com/data")
-    .then(res => {
-      console.log("3 + ", res);
-    });
+        .then(res => {
+            console.log("3 + ", res);
+        });
 
     console.log('1');
     const getData = async () => {
@@ -117,3 +117,58 @@ export default Test
 
 // const info = useMemo(() => ({ value: stateB }), [stateB]);
 // <CpnB info={info} />
+
+
+
+// const handleSetForm = 
+// const [quyTrinh, setQuyTrinh] = useState<any>()
+// const handleSetForm = useCallback((value, prop, rowData, isArray) => {
+//     if (isArray) {
+//         let newObj = {};
+//         prop.forEach((x, index) => {
+//             newObj[x] = value[index];
+//         });
+//         setQuyTrinh((prev) => ({
+//             ...prev,
+//             listPhanCongCongViec: prev.listPhanCongCongViec?.map((x) => {
+//                 if (rowData.Id) {
+//                     if (x.Id === rowData.Id) {
+//                         return {
+//                             ...x,
+//                             ...newObj,
+//                         }
+//                     }
+//                 } else if (x.GUID === rowData.GUID) {
+//                     return {
+//                         ...x,
+//                         ...newObj,
+//                     };
+//                 }
+//                 return x;
+//             }),
+//         }));
+//     } else {
+//         setQuyTrinh((prev) => {
+//             if (rowData) {
+//                 const rs = prev.listPhanCongCongViec.map((e) => {
+//                     if (e.GUID ? e.GUID === rowData.GUID : e.Id === rowData.Id) {
+//                         return {
+//                             ...e,
+//                             [prop]: value
+//                         }
+//                     }
+//                     return e;
+//                 })
+//                 return {
+//                     ...prev,
+//                     listPhanCongCongViec: rs
+//                 }
+//             } else {
+//                 return {
+//                     ...prev,
+//                     [prop]: value
+//                 }
+//             }
+//         })
+//     }
+// }, [])

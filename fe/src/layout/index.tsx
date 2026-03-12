@@ -1,35 +1,35 @@
 import {
-  BarChartOutlined,
+  AppstoreOutlined,
+  BellOutlined,
   BookOutlined,
   DashboardOutlined,
   FileDoneOutlined,
   FormOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
+  NotificationOutlined,
   SolutionOutlined,
   TeamOutlined,
-  UserOutlined,
-  CheckCircleOutlined,
-  UserSwitchOutlined,
-  AppstoreOutlined,
-  BellOutlined,
-  NotificationOutlined
+  UserOutlined
 } from '@ant-design/icons';
-import { Avatar, Button, Dropdown, Layout, Menu, theme } from 'antd';
-import { useState } from 'react';
+import { Avatar, Button, Dropdown, Layout, Menu, Modal, theme } from 'antd';
+import React, { useState } from 'react';
 import { Outlet, matchPath, useLocation, useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import { persistor } from '../redux';
 import { useAppDispatch, useAppSelector } from '../redux/hook';
 import { clearUser } from '../redux/slices/userSlice';
 import { AuthServices } from '../services/auth.services';
-import { toast } from 'react-toastify';
-import React from 'react';
-import { persistor, store } from '../redux';
+import ProfileUser from '../pages/profile';
+import { Modal as AntModal } from "antd"
 const { Header, Sider, Content } = Layout;
 const LayoutDashboard = () => {
   const [collapsed, setCollapsed] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false)
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const user = useAppSelector((state) => state.user.userInfo.user);
+  const infoUser = useAppSelector((state) => state.user.userInfo);
   const location = useLocation();
   const token = useAppSelector((state) => state.user.accessToken);
   const menuItems = [
@@ -56,13 +56,7 @@ const LayoutDashboard = () => {
       permission: ['admin', 'teacher'],
     },
 
-    // {
-    //   key: 'history',
-    //   icon: <UserSwitchOutlined />,
-    //   label: 'Lịch sử điểm danh',
-    //   url: '/history',
-    //   permission: ['admin', 'teacher', 'student'],
-    // },
+
     {
       key: 'students',
       icon: <TeamOutlined />,
@@ -77,6 +71,13 @@ const LayoutDashboard = () => {
       url: '/admin/teachers',
       permission: ['admin'],  // Chỉ có admin mới được truy cập
     },
+    // {
+    //   key: 'major',
+    //   icon: <SolutionOutlined />,
+    //   label: 'Quản lý ngành học',
+    //   url: '/admin/classes',
+    //   permission: ['admin'],  // Chỉ có admin mới được truy cập
+    // },
     {
       key: 'classes',
       icon: <SolutionOutlined />,
@@ -98,20 +99,20 @@ const LayoutDashboard = () => {
       url: '/admin/teaching-assignment',
       permission: ['admin'],  // Chỉ có admin mới được truy cập
     },
-    {
-      key: 'admissions',
-      icon: <FileDoneOutlined />,
-      label: 'Tuyển sinh',
-      url: '/admin/admissions',
-      permission: ['admin'],  // Chỉ có admin mới được truy cập
-    },
-    {
-      key: 'reports',
-      icon: <BarChartOutlined />,
-      label: 'Thống kê báo cáo',
-      url: '/admin/reports',
-      permission: ['admin'],  // Chỉ có admin mới được truy cập
-    },
+    // {
+    //   key: 'admissions',
+    //   icon: <FileDoneOutlined />,
+    //   label: 'Tuyển sinh',
+    //   url: '/admin/admissions',
+    //   permission: ['admin'],  // Chỉ có admin mới được truy cập
+    // },
+    // {
+    //   key: 'reports',
+    //   icon: <BarChartOutlined />,
+    //   label: 'Thống kê báo cáo',
+    //   url: '/admin/reports',
+    //   permission: ['admin'],  // Chỉ có admin mới được truy cập
+    // },
 
     // Teacher Menu
     {
@@ -128,13 +129,13 @@ const LayoutDashboard = () => {
       url: '/teacher/timetable',
       permission: ['teacher'],  // Chỉ sinh viên có thể truy cập
     },
-    {
-      key: 'teacherEnrollmentApproval',
-      icon: <CheckCircleOutlined />,
-      label: 'Duyệt ghi danh',
-      url: '/teacher/enrollment-approval',
-      permission: ['teacher'],
-    },
+    // {
+    //   key: 'teacherEnrollmentApproval',
+    //   icon: <CheckCircleOutlined />,
+    //   label: 'Duyệt ghi danh',
+    //   url: '/teacher/enrollment-approval',
+    //   permission: ['teacher', 'admin'],
+    // },
     {
       key: 'teacherGrade',
       icon: <FileDoneOutlined />,
@@ -238,6 +239,9 @@ const LayoutDashboard = () => {
       navigate("/login");
     }
   }
+  const handleAvatarClick = () => {
+    setIsModalOpen(true)
+  }
   const {
     token: { colorBgContainer },
   } = theme.useToken();
@@ -264,9 +268,7 @@ const LayoutDashboard = () => {
         };
       }).filter(Boolean);
   };
-
-
-
+ 
   return (
     <Layout style={{ minHeight: '100vh' }}>
       <Sider
@@ -318,20 +320,34 @@ const LayoutDashboard = () => {
             }}
           />
           <div>
-            <Dropdown overlay={menu} trigger={['click']}>
-              <div style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
-                <span>{user?.email}</span>
-                <Avatar
-                  style={{
-                    margin: '0px 10px',
-                    backgroundColor: '#1890ff',
-                  }}
-                  icon={<UserOutlined />}
-                />
-              </div>
-            </Dropdown>
+            <div className="flex items-center gap-2 mx-4">
+              <Dropdown overlay={menu} trigger={['click']}>
+                <span className="cursor-pointer hover:text-blue-600 transition-colors font-medium">
+                  {infoUser?.profile?.name ?? infoUser?.user?.email}
+                </span>
+              </Dropdown>
+
+              <Avatar
+                size="large"
+                className="cursor-pointer hover:scale-110 transition-transform bg-blue-500 shadow-sm"
+                src={infoUser?.profile?.avatar}
+                icon={<UserOutlined />}
+                onClick={handleAvatarClick}
+              />
+            </div>
           </div>
         </Header>
+        <AntModal
+          title="Thông tin người dùng"
+          open={isModalOpen}
+          onCancel={() => setIsModalOpen(false)}
+          footer={null}
+          width={700}
+          centered
+          destroyOnClose
+        >
+          <ProfileUser data={infoUser.profile} />
+        </AntModal>
 
         <Content
           style={{

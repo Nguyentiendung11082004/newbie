@@ -48,7 +48,7 @@ const SubjectStudent = (props: Props) => {
   const huyDangKy = async (record: SubjectStudent) => {
     try {
       const res = await StudentSubjectServices.DeleteEnroll(record._id) as any;
-      toast.success(res.data.message);
+      toast.success('Huỷ thành công');
       getData();
     } catch (error) {
       toast.error(error?.message)

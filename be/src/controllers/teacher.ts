@@ -40,13 +40,18 @@ export const getAllTeacher = async (req: Request, res: Response) => {
 export const GetClassesByTeacher = async (req: CustomRequest, res: Response) => {
     try {
         // const { teacher_id } = req.body; // Nhận teacher_id từ params
-        const teacher_id = req.user.userId;
-        if (!teacher_id || !Types.ObjectId.isValid(teacher_id)) {
-            return res.status(400).json({ message: "teacher_id không hợp lệ" });
+        const authId = req.user.userId;
+        if (!authId || !Types.ObjectId.isValid(authId)) {
+            return res.status(400).json({ message: "authId không hợp lệ" });
         }
-        console.log("teacher_id", teacher_id)
+
+        const teacher = await Teacher.findOne({ authId });
+        if (!teacher) {
+            return res.status(404).json({ message: "Không tìm thấy giảng viên" });
+        }
+        const teacherId = teacher._id;
         // Truy vấn tất cả phân công giảng dạy của giảng viên theo teacher_id
-        const assignments = await TeachingAssignment.find({ teacher_id })
+        const assignments = await TeachingAssignment.find({ teacher_id: teacherId })
             .populate('class_id')     // Lấy tên lớp học từ class_id
             .populate('subject_id')   // Lấy thông tin môn học từ subject_id
 
@@ -62,7 +67,7 @@ export const GetClassesByTeacher = async (req: CustomRequest, res: Response) => 
 
 export const GetTeacherTimeTable = async (req: CustomRequest, res: Response) => {
     try {
-        const teacherId = req.user.userId;
+        const teacherId = req.user.teacherId;
         const { subjectId, classId, fromDate, toDate } = req.query;
         const query: any = {
             teacher_id: teacherId,
@@ -85,7 +90,6 @@ export const GetTeacherTimeTable = async (req: CustomRequest, res: Response) => 
         //     { path: 'subject_id', select: 'name' },
         //     { path: 'class_id', select: 'ClassName' }
         // ]);
-        console.log("query",query)
         const assignments = await TeachingAssignment.find(query).populate([
             { path: "subject_id", select: "name" },
             { path: "class_id", select: "ClassName" },

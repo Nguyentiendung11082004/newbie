@@ -1,0 +1,11 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const major_1 = require("../controllers/major");
+const MajorRouter = (0, express_1.Router)();
+MajorRouter.get('/GetAllMajor', major_1.getAllMajor);
+MajorRouter.get('/:id', major_1.getMajorById);
+MajorRouter.post('/', major_1.createMajor);
+MajorRouter.put('/', major_1.updateMajor);
+MajorRouter.delete('/', major_1.deleteMajor);
+exports.default = MajorRouter;

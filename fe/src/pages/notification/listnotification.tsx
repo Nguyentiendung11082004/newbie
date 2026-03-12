@@ -17,7 +17,7 @@ const ListNotification = (props: Props) => {
     const [dialog, setDialog] = useState(false)
     const [dataEdit, setDataEdit] = useState<Notification | null>(null)
     const getData = async () => {
-        let res = await NotificationServices.GetList();
+        let res = await NotificationServices.GetList('manage');
         setData(res.data || [])
     }
     const handleAdd = () => {

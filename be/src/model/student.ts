@@ -18,7 +18,8 @@ export interface IStudent extends Document {
         processedAt?: Date;
         adminNote?: string;
     };
-
+    class_id: string;
+    subjects: []
 }
 
 const StudentSchema = new mongoose.Schema({
@@ -58,6 +59,10 @@ const StudentSchema = new mongoose.Schema({
     address: {
         type: String,
         required: true,
+    },
+    avatar: {
+        type: String,
+        default: null
     },
     classId: [
         {

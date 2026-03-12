@@ -51,7 +51,7 @@ const TeacherClassDetail = (props: Props) => {
             toast.success(res.message)
             getData(id as string)
         } catch (error) {
-            // toast.error(error.response.data?.message ?? 'Lỗi')
+            toast.error(error?.message ?? 'Lỗi')
         }
 
     }

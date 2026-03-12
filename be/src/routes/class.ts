@@ -4,7 +4,7 @@ import { createClass, deleteClass, getAllClass, getClassById, updateClass } from
 const ClassRouter = Router();
 ClassRouter.get('/', getAllClass);
 ClassRouter.get('/:id', getClassById);
-ClassRouter.post('/', createClass);
-ClassRouter.put('/', updateClass);
-ClassRouter.delete('/', deleteClass);
+ClassRouter.post('/createClass', createClass);
+ClassRouter.put('/UpdateClass/:id', updateClass);
+ClassRouter.delete('/DeleteClass/:id', deleteClass);
 export default ClassRouter

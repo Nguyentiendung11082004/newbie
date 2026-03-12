@@ -36,19 +36,23 @@ const DialogTechngassment = ({ isModalOpen, setVisible, dataEdit, setDataEdit }:
     const arrClass = useAppSelector((state: any) => state.class);
     const [listSemesters, setListSemeters] = useState([])
     const handleOk = async () => {
-        if (dataEdit?._id) {
-            let res = await TechingAssignmentServices.Update(dataEdit._id, payload);
-            if (res) {
-                toast.success(res.data.message)
-                setVisible(false)
+        try {
+            if (dataEdit?._id) {
+                let res = await TechingAssignmentServices.Update(dataEdit._id, payload);
+                if (res) {
+                    toast.success(res.data.message)
+                    setVisible(false)
+                }
+            } else {
+                let res = await TechingAssignmentServices.Add(payload);
+                if (res) {
+                    toast.success(res.data.message)
+                    setVisible(false)
+                    setPayload(init)
+                }
             }
-        } else {
-            let res = await TechingAssignmentServices.Add(payload);
-            if (res) {
-                toast.success(res.data.message)
-                setVisible(false)
-                setPayload(init)
-            }
+        } catch (error) {
+            toast.error(error.message)
         }
     }
     const handleClose = () => {
@@ -102,7 +106,7 @@ const DialogTechngassment = ({ isModalOpen, setVisible, dataEdit, setDataEdit }:
                 <Select
                     style={{ width: '100%' }}
                     placeholder="Thứ"
-                    defaultValue={_record?.dayOfWeek}
+                    value={_record?.dayOfWeek}
                     onChange={(e: any) => handleSetForm('dayOfWeek', e, _record)}
                     options={arrThu.map((e) => ({
                         value: e.value,

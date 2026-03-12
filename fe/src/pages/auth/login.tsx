@@ -25,12 +25,12 @@ const Login: React.FC = () => {
         const accessToken = res.data.accessToken;
         dispatch(setAccessToken(accessToken));
         dispatch(setUser(res.data));
-        toast.success(res.data.message);
         if (res.data.user.role === "admin") {
           navigate('/admin/dashboard');
         } else {
           navigate('/feednotification');
         }
+        toast.success(res.data.message);
       }
     } catch (error) {
       setLoading(false)
@@ -46,7 +46,6 @@ const Login: React.FC = () => {
       className="relative flex items-center justify-center min-h-screen bg-cover bg-center bg-no-repeat"
       style={{ backgroundImage: `url(${bgLogin})` }}
     >
-      {/* Overlay tối để chữ nổi bật */}
       <div className="absolute inset-0 bg-black/50"></div>
 
       <div className="relative w-full max-w-md bg-white/90 backdrop-blur-md rounded-2xl shadow-2xl p-10 z-10">

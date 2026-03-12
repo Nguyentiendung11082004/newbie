@@ -105,6 +105,32 @@ export const CreateTeachingAssignment = async (req: Request, res: Response) => {
             return res.status(StatusCodes.BAD_REQUEST).json({ message: "Kỳ không tồn tại" });
         }
         const generatedSchedule = generateSchedule(startDate, numberOfClasses, weeklySchedule);
+
+        const existed = await TeachingAssignment.findOne({
+            class_id,
+            subject_id,
+            semester_id
+        })
+        if (existed) {
+            return res.status(StatusCodes.BAD_REQUEST).json({
+                message: 'Môn học này đã được phân công cho lớp trong học kỳ này'
+            })
+        }
+        for (const slot of weeklySchedule) {
+            const conflict = await TeachingAssignment.findOne({
+                semester_id,
+                room,
+                "weeklySchedule.dayOfWeek": slot.dayOfWeek,
+                "weeklySchedule.startTime": { $lt: slot.endTime },
+                "weeklySchedule.endTime": { $gt: slot.startTime },
+            });
+
+            if (conflict) {
+                return res.status(400).json({
+                    message: `Phòng ${room} đã được dùng vào thứ ${slot.dayOfWeek} từ ${slot.startTime} đến ${slot.endTime}`
+                });
+            }
+        }
         const newAssignment = await TeachingAssignment.create({
             teacher_id,
             subject_id,
@@ -172,21 +198,40 @@ export const GetTeachigngassmentById = async (req: Request, res: Response) => {
 }
 export const UpdateTeachingAssignment = async (req: Request, res: Response) => {
     try {
-        const { id } = req.query
-        const data = await TeachingAssignment.findByIdAndUpdate(id, req.body, {
-            new: true
-        })
-        if (!data) {
-            return res.status(StatusCodes.BAD_REQUEST).json({
-                message: 'Not found'
-            })
+        const { id } = req.query;
+        const oldAssignment = await TeachingAssignment.findById(id);
+        if (!oldAssignment) {
+            return res.status(400).json({ message: 'Not found' });
         }
-        return res.status(StatusCodes.OK).json({
-            data: {
-                message: 'Cập nhật thành công',
-                data: data
-            }
-        })
+        let updateData = { ...req.body };
+        if (
+            req.body.startDate ||
+            req.body.numberOfClasses ||
+            req.body.weeklySchedule
+        ) {
+            const startDate = req.body.startDate || oldAssignment.startDate;
+            const numberOfClasses =
+                req.body.numberOfClasses || oldAssignment.numberOfClasses;
+            const weeklySchedule =
+                req.body.weeklySchedule || oldAssignment.weeklySchedule;
+
+            const generatedSchedule = generateSchedule(
+                startDate,
+                numberOfClasses,
+                weeklySchedule
+            );
+
+            updateData.schedule = generatedSchedule;
+        }
+
+        const data = await TeachingAssignment.findByIdAndUpdate(id, updateData, {
+            new: true,
+        });
+
+        return res.status(200).json({
+            message: 'Cập nhật thành công',
+            data,
+        });
     } catch (error) {
         handleError(res, error)
     }
